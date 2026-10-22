@@ -1,0 +1,84 @@
+{
+  "direction": "endpoint-to-rds",
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": "c1",
+      "method": "scc.connect",
+      "params": {
+        "versions": [
+          "scc/1"
+        ],
+        "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+        "subject": "Kq7vT2mXr9Lp"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "c1",
+      "result": {
+        "version": "scc/1",
+        "challenge": "LdAL134CIs7YgmZUganB2Q",
+        "expires_at": 1792310520
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "c2",
+      "method": "scc.authenticate",
+      "params": {
+        "credential": "hFgmogEnBFggCwtiuqQlQsE0dHD9L48m3nN7eO71HXDf15LqOx6baRKgWNypAXgcZWJ3OmJhYXIzZzZxM3o3cmFibXo1dzRzb3E0MwJsS3E3dlQybVhyOUxwBBpq-rgABRpq0ysABhpq0ysACKEBowEBIAYhWCDRuQ4zzgZTB-asGW3g4CaWfUvh_I0w-RqYU5ZYuclAaxn__6Frc3RhdHVzX2xpc3SiY2lkeAdjdXJpeC1odHRwczovL3N0YXR1cy5leGFtcGxlLXByb3ZpZGVyLmV1LzNnNnEzejdyLzFlcm9sZXOCZ2RlZmF1bHRqcHVyY2hhc2luZ2Zob2xkZXJmaC00MWM5WEBERL_QEbNkUnNZwJEN08CECwxqOMIjHCYlIlfFSchemaSzmLn-wnwgkHoSRlkZa8etBqI4cb3J4uzbyCF7ZEMA",
+        "signature": "hFgmogEnBFggZs5RxzDEylWq_Xxo83v87_BrcAEmnYNa3hgAxnUh6PegWJimZHR5cGVtY29ubmVjdC1wcm9vZmVvd25lcngcZWJ3OmJhYXIzZzZxM3o3cmFibXo1dzRzb3E0M2dzdWJqZWN0bEtxN3ZUMm1YcjlMcGhwcm92aWRlcndyZHMuZXhhbXBsZS1wcm92aWRlci5ldWljaGFsbGVuZ2VQLdAL134CIs7YgmZUganB2WlzaWduZWRfYXQaatR8slhAZpsN-bHdGRKHH4eMzHU-ssLPLUCd98A1upcEScJG3kD8kT-sMbLAenQRYASLJ9ZtpSnkQe273zb_JJH_iUmfCA"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "c2",
+      "result": {
+        "registered": true,
+        "queue_head": 417
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "c3",
+      "method": "wmp.message.fetch",
+      "params": {
+        "after": 412
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "c3",
+      "result": {
+        "items": [
+          {
+            "method": "scc.keypackage.status",
+            "params": {
+              "seq": 413,
+              "available": {
+                "1": 4
+              }
+            }
+          }
+        ],
+        "more": false
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "c4",
+      "method": "scc.queue.ack",
+      "params": {
+        "up_to": 413
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "c4",
+      "result": {
+        "removed": 1
+      }
+    }
+  ]
+}

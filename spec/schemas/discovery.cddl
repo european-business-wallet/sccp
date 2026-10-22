@@ -1,0 +1,118 @@
+; SCC Discovery: EBW URL operations and EDD statements (01-discovery.md)
+
+; ---- Operations (§3) ----
+
+operation = [cose-protected, cose-unprotected, payload: bstr .cbor op-body, cose-signature]
+
+op-body = create-op / update-op / deactivate-op
+
+op-hash = hash32                              ; SHA-256 of an encoded operation
+
+create-op = {
+  "type": "create",
+  "prev": null,
+  registry-document,
+}
+
+update-op = {
+  "type": "update",
+  "prev": op-hash,
+  registry-document,
+}
+
+deactivate-op = {
+  "type": "deactivate",
+  "prev": op-hash,
+}
+
+registry-document = (
+  "rotation_keys": [1*5 COSE_Key],
+  "credential_keys": [1*5 COSE_Key],
+  "rds": rds-ref,
+  "identifiers": [* identifier],
+  "acceptance_policies": acceptance-policies,
+  "signed_at": time,
+)
+
+rds-ref = {
+  "provider": tstr,
+  "url": tstr .regexp "https://.+",
+}
+
+identifier = {
+  "type": identifier-type,
+  "value": tstr,
+}
+
+identifier-type = "euid" / "lei" / "vat" / "eori" / "iso6523"
+
+acceptance-policies = {
+  "default": acceptance-policy,
+  * tstr => acceptance-policy,   ; key: a role
+}
+
+acceptance-policy = "any" / "all" / quorum
+quorum = [ "quorum", uint .ge 1 ]
+
+; ---- Submission by the EBW provider (§3.6) ----
+
+submission = [cose-protected, cose-unprotected, payload: bstr .cbor submission-body, cose-signature]
+
+submission-body = {
+  "type": "submission",
+  "operation": bstr .cbor operation,
+  "provider": tstr,                           ; provider ID of the EBW provider
+  "submitted_at": time,
+}
+
+; ---- EDD statements (§4, §5) ----
+
+identifier-attestation = [cose-protected, cose-unprotected, payload: bstr .cbor identifier-attestation-body, cose-signature]
+
+identifier-attestation-body = {
+  "type": "identifier-attestation",
+  "identifier": identifier,
+  "owner": ebw-url,
+  "verified_at": time,
+  "expires_at": time,
+}
+
+head-statement = [cose-protected, cose-unprotected, payload: bstr .cbor head-statement-body, cose-signature]
+
+head-statement-body = {
+  "type": "head-statement",
+  "owner": ebw-url,
+  "head": op-hash,
+  "seq": uint,
+  "status": owner-status,
+  ? "successor": ebw-url,
+  "issued_at": time,
+  "expires_at": time,
+}
+
+owner-status = "active" / "suspended" / "retired" / "merged" / "deactivated"
+
+; ---- EDD API bodies (§6) ----
+
+registration-request = {
+  "submission": bstr .cbor submission,        ; of a create operation
+  "proof": bstr,
+}
+
+registration-response = {
+  "owner": ebw-url,
+  "head": bstr .cbor head-statement,
+}
+
+resolution-response = {
+  "operation": bstr .cbor operation,          ; the head operation
+  "head": bstr .cbor head-statement,
+}
+
+log = [+ log-entry]
+
+log-entry = {
+  "submission": bstr .cbor submission,
+  "received_at": time,
+  "nullified": bool,
+}

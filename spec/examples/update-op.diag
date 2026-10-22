@@ -1,0 +1,49 @@
+[
+  << {
+    1: -8,
+    4: h'7c0599204103c07c108cd13e6876dcfc3bf440d9f9c9121084d8568a784bb86a'
+  } >>,
+  {},
+  << {
+    "rds": {
+      "url": "https://rds.example-provider.eu",
+      "provider": "rds.example-provider.eu"
+    },
+    "prev": h'08011d9bd0de7f100599edb927439bd75f4c1f9107f9ca7e47747e098f17e686',
+    "type": "update",
+    "signed_at": 1792306800,
+    "identifiers": [
+      {
+        "type": "vat",
+        "value": "DE123456789"
+      }
+    ],
+    "rotation_keys": [
+      {
+        1: 1,
+        -1: 6,
+        -2: h'd5753fc8d99deaa4387c4e618e41df8c810dfacfdcc3a598716a3704f1034820'
+      },
+      {
+        1: 1,
+        -1: 6,
+        -2: h'12998839a6e67f1f48114665df3060a529f2fbdc109d7def86406ace1159ac79'
+      }
+    ],
+    "credential_keys": [
+      {
+        1: 1,
+        -1: 6,
+        -2: h'3c01e121ac321e7b3d7e7e915e6b907381e166802d3ef7b3ee4190b24978c387'
+      }
+    ],
+    "acceptance_policies": {
+      "default": "any",
+      "contracts": [
+        "quorum",
+        2
+      ]
+    }
+  } >>,
+  h'9343b9c6eb85dae7f0a6134755597fdca313c4718e21e716806a7c0a901d0bb01d8dce3f0c9aa0e996f87dc5e486fd165948085b1ff1170685d0dcbdbc458f03'
+]

@@ -1,0 +1,255 @@
+openapi: 3.1.0
+info:
+  title: SCC European Digital Directory (EDD) API
+  version: "1.0.0-draft"
+  description: |
+    The EDD API of spec/01-discovery.md §6.
+
+    CBOR bodies are described by CDDL rules in discovery.cddl. Each such
+    body names its rule in `x-cddl`. Errors are Concise Problem Details
+    (RFC 9290). All reads are public.
+servers:
+  - url: https://edd.europa.eu
+tags:
+  - name: resolution
+  - name: auditing
+  - name: lookup
+  - name: update
+paths:
+  /{url}:
+    parameters:
+      - $ref: "#/components/parameters/url"
+    get:
+      tags: [resolution]
+      operationId: resolve
+      summary: Resolution (registry document and head statement)
+      responses:
+        "200":
+          description: The head operation, which carries the current registry document, and a current head statement.
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControl"
+          content:
+            application/cbor:
+              schema:
+                type: string
+                format: binary
+                x-cddl: resolution-response
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags: [update]
+      operationId: submitOperation
+      summary: Update (submit an update or deactivate operation, sealed by the EBW provider)
+      requestBody:
+        required: true
+        content:
+          application/cbor:
+            schema:
+              $ref: "#/components/schemas/CborSubmission"
+      responses:
+        "200":
+          description: The operation was accepted. Returns the new head statement.
+          content:
+            application/cbor:
+              schema:
+                $ref: "#/components/schemas/CborHeadStatement"
+        "400":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Problem"
+        "410":
+          $ref: "#/components/responses/Problem"
+        "422":
+          $ref: "#/components/responses/Problem"
+  /{url}/head:
+    parameters:
+      - $ref: "#/components/parameters/url"
+    get:
+      tags: [resolution]
+      operationId: getHead
+      summary: Current head statement
+      responses:
+        "200":
+          description: A head statement. It states its own validity (issued_at, expires_at).
+          content:
+            application/cbor:
+              schema:
+                $ref: "#/components/schemas/CborHeadStatement"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /{url}/log:
+    parameters:
+      - $ref: "#/components/parameters/url"
+    get:
+      tags: [auditing]
+      operationId: getLog
+      summary: Auditing (operation log)
+      parameters:
+        - name: after
+          in: query
+          required: false
+          description: Return only entries after the operation with this hash (hex).
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{64}$"
+      responses:
+        "200":
+          description: Log entries in order, including nullified operations.
+          content:
+            application/cbor:
+              schema:
+                type: string
+                format: binary
+                x-cddl: log
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /lookup/{type}/{value}:
+    get:
+      tags: [lookup]
+      operationId: lookup
+      summary: Lookup (existing identifier to EBW URL)
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [euid, lei, vat, eori, iso6523]
+        - name: value
+          in: path
+          required: true
+          description: The identifier value, percent-encoded.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The current identifier attestation.
+          content:
+            application/cbor:
+              schema:
+                type: string
+                format: binary
+                x-cddl: identifier-attestation
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /register:
+    post:
+      tags: [update]
+      operationId: register
+      summary: Registration (create an EBW URL)
+      requestBody:
+        required: true
+        content:
+          application/cbor:
+            schema:
+              type: string
+              format: binary
+              x-cddl: registration-request
+      responses:
+        "201":
+          description: The EBW URL was created.
+          content:
+            application/cbor:
+              schema:
+                type: string
+                format: binary
+                x-cddl: registration-response
+        "400":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "409":
+          $ref: "#/components/responses/Problem"
+        "422":
+          $ref: "#/components/responses/Problem"
+  /.well-known/edd:
+    get:
+      tags: [resolution]
+      operationId: getMetadata
+      summary: EDD metadata
+      responses:
+        "200":
+          description: EDD keys and limits.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EddMetadata"
+components:
+  parameters:
+    url:
+      name: url
+      in: path
+      required: true
+      description: The whole EBW URL.
+      schema:
+        type: string
+        pattern: "^ebw:[a-z2-7]{24}$"
+  headers:
+    CacheControl:
+      description: Set by the EDD.
+      schema:
+        type: string
+  responses:
+    NotFound:
+      description: No such EBW URL or identifier.
+      content:
+        application/concise-problem-details+cbor:
+          schema:
+            $ref: "#/components/schemas/CborProblem"
+    Problem:
+      description: |
+        The request failed. Problem types: malformed-operation (400),
+        unauthorized-key (403), invalid-seal (403), stale-prev (409), deactivated (410),
+        identifier-not-attested (422).
+      content:
+        application/concise-problem-details+cbor:
+          schema:
+            $ref: "#/components/schemas/CborProblem"
+  schemas:
+    CborSubmission:
+      type: string
+      format: binary
+      x-cddl: submission
+    CborHeadStatement:
+      type: string
+      format: binary
+      x-cddl: head-statement
+    CborProblem:
+      type: string
+      format: binary
+      description: RFC 9290 Concise Problem Details.
+    EddMetadata:
+      type: object
+      required: [edd, seal_certificates, identifier_types, recovery_window]
+      properties:
+        edd:
+          type: string
+          format: uri
+        seal_certificates:
+          type: array
+          items:
+            type: object
+            required: [x5c, not_before, not_after]
+            properties:
+              x5c:
+                type: array
+                items:
+                  type: string
+              not_before:
+                type: string
+                format: date-time
+              not_after:
+                type: string
+                format: date-time
+        identifier_types:
+          type: array
+          items:
+            enum: [euid, lei, vat, eori, iso6523]
+        recovery_window:
+          type: integer
+          description: Seconds within which a higher-priority rotation key may nullify operations (01-discovery.md §3.4)

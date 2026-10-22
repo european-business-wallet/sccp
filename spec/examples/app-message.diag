@@ -1,0 +1,18 @@
+{
+  "to": {
+    "role": "invoices",
+    "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v"
+  },
+  "body": h'255044462d312e37202864656d6f20626f647929',
+  "from": {
+    "role": "purchasing",
+    "owner": "ebw:baar3g6q3z7rabmz5w4soq43"
+  },
+  "salt": h'3261b4a8fbe54b47c0109b1cc71a9cb5',
+  "sent_at": 1792310460,
+  "subject": "Invoice 2026-0815",
+  "expires_at": 1793520060,
+  "message_id": h'b526aef1a341cfe6e5c377ed4c222888',
+  "consignment": "consented",
+  "content_type": "application/pdf"
+}

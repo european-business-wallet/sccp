@@ -1,0 +1,1794 @@
+{
+  "openrpc": "1.3.2",
+  "info": {
+    "title": "SCC Delivery Protocol",
+    "version": "1.0.0-draft",
+    "description": "JSON-RPC methods of spec/04-delivery.md. Tags give the direction: endpoint-to-rds (WebSocket, §4.1), rds-to-endpoint (queued notifications, §4.2) and rds-to-rds (HTTPS with mutual TLS, §4.3). Binary values are base64url without padding. Methods without a result are notifications. wmp.message.deliver and wmp.evidence.notify are used in more than one direction; their descriptions say which parameters apply where."
+  },
+  "servers": [
+    {
+      "name": "client",
+      "url": "wss://rds.example-provider.eu/scc",
+      "summary": "Endpoint to home RDS"
+    },
+    {
+      "name": "federation",
+      "url": "https://rds.example-provider.eu/scc/federation",
+      "summary": "RDS to RDS"
+    }
+  ],
+  "methods": [
+    {
+      "name": "scc.connect",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Start authentication (§4.1)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "versions",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "name": "owner",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/EbwUrl"
+          }
+        },
+        {
+          "name": "subject",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SubjectId"
+          }
+        }
+      ],
+      "result": {
+        "name": "connected",
+        "schema": {
+          "type": "object",
+          "required": [
+            "version",
+            "challenge",
+            "expires_at"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "challenge": {
+              "$ref": "#/components/schemas/B64"
+            },
+            "expires_at": {
+              "$ref": "#/components/schemas/Time"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/WrongRds"
+        }
+      ]
+    },
+    {
+      "name": "scc.authenticate",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Complete authentication with a credential and a connect proof (§4.1)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "credential",
+          "required": true,
+          "description": "Encoded endpoint credential (CDDL endpoint-credential)",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "signature",
+          "required": true,
+          "description": "Encoded connect proof (CDDL connect-proof)",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        }
+      ],
+      "result": {
+        "name": "authenticated",
+        "schema": {
+          "type": "object",
+          "required": [
+            "registered",
+            "queue_head"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "registered": {
+              "const": true
+            },
+            "queue_head": {
+              "$ref": "#/components/schemas/Seq"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/NotAuthorized"
+        },
+        {
+          "$ref": "#/components/errors/InvalidCredential"
+        },
+        {
+          "$ref": "#/components/errors/WrongRds"
+        }
+      ]
+    },
+    {
+      "name": "scc.deregister",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "End the endpoint's registration (§5)",
+      "paramStructure": "by-name",
+      "params": [],
+      "result": {
+        "name": "deregistered",
+        "schema": {
+          "type": "object",
+          "required": [
+            "deregistered"
+          ],
+          "properties": {
+            "deregistered": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "scc.queue.ack",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Confirm queued items up to a sequence number (§4.2)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "up_to",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Seq"
+          }
+        }
+      ],
+      "result": {
+        "name": "acked",
+        "schema": {
+          "type": "object",
+          "required": [
+            "removed"
+          ],
+          "properties": {
+            "removed": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "wmp.message.fetch",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Resend queued items after a sequence number (§4.2)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "after",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Seq"
+          }
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "result": {
+        "name": "items",
+        "schema": {
+          "type": "object",
+          "required": [
+            "items",
+            "more"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/QueuedItem"
+              }
+            },
+            "more": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "scc.keypackage.publish",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Upload KeyPackages (§6.1)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "key_packages",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/B64"
+            }
+          }
+        }
+      ],
+      "result": {
+        "name": "pool",
+        "schema": {
+          "$ref": "#/components/schemas/PoolStatus"
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/InvalidCredential"
+        },
+        {
+          "$ref": "#/components/errors/MlsError"
+        }
+      ]
+    },
+    {
+      "name": "scc.keypackage.get",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Get KeyPackages for an address (§6.2)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "address",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Address"
+          }
+        },
+        {
+          "name": "cipher_suite",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/CipherSuite"
+          }
+        },
+        {
+          "name": "subjects",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectId"
+            }
+          }
+        }
+      ],
+      "result": {
+        "name": "reservation",
+        "schema": {
+          "$ref": "#/components/schemas/Reservation"
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/UnknownAddress"
+        },
+        {
+          "$ref": "#/components/errors/OwnerNotActive"
+        },
+        {
+          "$ref": "#/components/errors/RateLimited"
+        },
+        {
+          "$ref": "#/components/errors/NoKeyPackage"
+        }
+      ]
+    },
+    {
+      "name": "wmp.session.create",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Create a session with its first Commit (§8.1)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "group_info",
+          "required": true,
+          "description": "Epoch 0 GroupInfo with the ratchet_tree extension",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "commit",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "welcome",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "reservations",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "result": {
+        "name": "epoch",
+        "schema": {
+          "$ref": "#/components/schemas/EpochResult"
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/MlsError"
+        },
+        {
+          "$ref": "#/components/errors/InvalidCredential"
+        },
+        {
+          "$ref": "#/components/errors/OwnerNotActive"
+        }
+      ]
+    },
+    {
+      "name": "scc.commit.submit",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Submit a Commit for two-sided acceptance (§8.2)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "commit",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "welcome",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "reservations",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "result": {
+        "name": "epoch",
+        "schema": {
+          "$ref": "#/components/schemas/EpochResult"
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/StaleEpoch"
+        },
+        {
+          "$ref": "#/components/errors/CommitConflict"
+        },
+        {
+          "$ref": "#/components/errors/UnknownSession"
+        },
+        {
+          "$ref": "#/components/errors/SessionClosed"
+        },
+        {
+          "$ref": "#/components/errors/MlsError"
+        }
+      ]
+    },
+    {
+      "name": "scc.commit.fetch",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Get accepted Commits after an epoch (§8.4)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "after_epoch",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ],
+      "result": {
+        "name": "commits",
+        "schema": {
+          "type": "object",
+          "required": [
+            "commits"
+          ],
+          "properties": {
+            "commits": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LogEntry"
+              }
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/UnknownSession"
+        }
+      ]
+    },
+    {
+      "name": "scc.session.log",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Get the whole Commit log of a session (§8.4)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        }
+      ],
+      "result": {
+        "name": "log",
+        "schema": {
+          "type": "object",
+          "required": [
+            "group_info",
+            "commits"
+          ],
+          "properties": {
+            "group_info": {
+              "$ref": "#/components/schemas/B64"
+            },
+            "commits": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LogEntry"
+              }
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/UnknownSession"
+        }
+      ]
+    },
+    {
+      "name": "scc.commit.report",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Report an accepted Commit that cannot be processed (§8.5)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "epoch",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        {
+          "name": "report",
+          "required": true,
+          "description": "Encoded commit failure report (CDDL signed-commit-failure-report)",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        }
+      ],
+      "result": {
+        "name": "closed",
+        "schema": {
+          "type": "object",
+          "required": [
+            "closed",
+            "evidence"
+          ],
+          "properties": {
+            "closed": {
+              "const": true
+            },
+            "evidence": {
+              "$ref": "#/components/schemas/B64"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "wmp.message.deliver",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        },
+        {
+          "name": "rds-to-rds"
+        },
+        {
+          "name": "rds-to-endpoint"
+        }
+      ],
+      "summary": "Submit (§7.1), relay (§7.2) or deliver (§7.3) an application message",
+      "description": "Endpoint to RDS: a request without seq or submission_evidence; the result carries A.1 evidence. RDS to RDS: a request with submission_evidence; the result carries B.1 evidence. RDS to endpoint: a notification with seq and no submission_evidence.",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "message",
+          "required": true,
+          "description": "Encoded MLSMessage (PrivateMessage)",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        {
+          "name": "plaintext_hash",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Hash"
+          }
+        },
+        {
+          "name": "epoch_authenticator",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "submission_evidence",
+          "required": false,
+          "description": "RDS to RDS only: the A.1 artefact",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "relayed_at",
+          "required": false,
+          "description": "RDS to RDS only: relay time (EN 319 522-2 MD02)",
+          "schema": {
+            "$ref": "#/components/schemas/Time"
+          }
+        },
+        {
+          "name": "seq",
+          "required": false,
+          "description": "RDS to endpoint only",
+          "schema": {
+            "$ref": "#/components/schemas/Seq"
+          }
+        }
+      ],
+      "result": {
+        "name": "accepted",
+        "schema": {
+          "$ref": "#/components/schemas/EvidenceResult"
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/MembershipMismatch"
+        },
+        {
+          "$ref": "#/components/errors/StaleEpoch"
+        },
+        {
+          "$ref": "#/components/errors/UnknownSession"
+        },
+        {
+          "$ref": "#/components/errors/SessionClosed"
+        },
+        {
+          "$ref": "#/components/errors/DuplicateMessageId"
+        },
+        {
+          "$ref": "#/components/errors/BadTime"
+        },
+        {
+          "$ref": "#/components/errors/OwnerNotActive"
+        },
+        {
+          "$ref": "#/components/errors/ConsignmentUnsupported"
+        },
+        {
+          "$ref": "#/components/errors/QueueFull"
+        },
+        {
+          "$ref": "#/components/errors/WrongRds"
+        },
+        {
+          "$ref": "#/components/errors/NoKeyPackage"
+        }
+      ]
+    },
+    {
+      "name": "wmp.message.ack",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Send a decryption report (§7.5) or a consent decision (§7.4)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "message_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/MessageId"
+          }
+        },
+        {
+          "name": "status",
+          "required": true,
+          "schema": {
+            "enum": [
+              "processed",
+              "failed",
+              "accepted",
+              "rejected"
+            ]
+          }
+        },
+        {
+          "name": "report",
+          "required": false,
+          "description": "With processed or failed: encoded decryption report (CDDL signed-decryption-report)",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "decision",
+          "required": false,
+          "description": "With accepted or rejected: encoded consent decision (CDDL signed-consent-decision)",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        }
+      ],
+      "result": {
+        "name": "recorded",
+        "schema": {
+          "type": "object",
+          "required": [
+            "recorded"
+          ],
+          "properties": {
+            "recorded": {
+              "const": true
+            },
+            "evidence": {
+              "$ref": "#/components/schemas/B64"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/InvalidCredential"
+        },
+        {
+          "$ref": "#/components/errors/NotAuthorized"
+        }
+      ]
+    },
+    {
+      "name": "scc.evidence.get",
+      "tags": [
+        {
+          "name": "endpoint-to-rds"
+        }
+      ],
+      "summary": "Get the evidence package for a message (§7.6)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "message_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/MessageId"
+          }
+        }
+      ],
+      "result": {
+        "name": "package",
+        "schema": {
+          "type": "object",
+          "required": [
+            "package"
+          ],
+          "properties": {
+            "package": {
+              "$ref": "#/components/schemas/B64",
+              "description": "Encoded evidence artefact holding an evidence package"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/NotAuthorized"
+        },
+        {
+          "$ref": "#/components/errors/EvidenceIncomplete"
+        }
+      ]
+    },
+    {
+      "name": "scc.consent.request",
+      "tags": [
+        {
+          "name": "rds-to-endpoint"
+        }
+      ],
+      "summary": "Ask the endpoint to accept or reject a message (§7.4)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "seq",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Seq"
+          }
+        },
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "meta",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        {
+          "name": "envelope_hash",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Hash"
+          }
+        },
+        {
+          "name": "size",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "scc.handshake",
+      "tags": [
+        {
+          "name": "rds-to-endpoint"
+        }
+      ],
+      "summary": "Deliver an accepted Commit, or a Welcome to a new member (§8.3)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "seq",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Seq"
+          }
+        },
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "epoch",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        {
+          "name": "commit",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "welcome",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "wmp.evidence.notify",
+      "tags": [
+        {
+          "name": "rds-to-endpoint"
+        },
+        {
+          "name": "rds-to-rds"
+        }
+      ],
+      "summary": "Send evidence (§7.6)",
+      "description": "RDS to endpoint: a notification with seq. RDS to RDS: a request without seq; the result confirms storage.",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "event",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Event"
+          }
+        },
+        {
+          "name": "evidence",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "message_id",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/MessageId"
+          }
+        },
+        {
+          "name": "session_id",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "seq",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/Seq"
+          }
+        }
+      ],
+      "result": {
+        "name": "stored",
+        "schema": {
+          "type": "object",
+          "required": [
+            "stored"
+          ],
+          "properties": {
+            "stored": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "scc.keypackage.status",
+      "tags": [
+        {
+          "name": "rds-to-endpoint"
+        }
+      ],
+      "summary": "Report KeyPackage pool levels (§6.1)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "seq",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Seq"
+          }
+        },
+        {
+          "name": "available",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SuiteCounts"
+          }
+        }
+      ]
+    },
+    {
+      "name": "scc.rds.subjects",
+      "tags": [
+        {
+          "name": "rds-to-rds"
+        }
+      ],
+      "summary": "List the subject IDs eligible for an address (§9)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "address",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Address"
+          }
+        },
+        {
+          "name": "cipher_suite",
+          "required": true,
+          "description": "The cipher suite for which no_key_packages is computed",
+          "schema": {
+            "$ref": "#/components/schemas/CipherSuite"
+          }
+        }
+      ],
+      "result": {
+        "name": "subjects",
+        "schema": {
+          "type": "object",
+          "required": [
+            "as_of",
+            "expires_at",
+            "no_key_packages",
+            "subjects"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "as_of": {
+              "$ref": "#/components/schemas/Time"
+            },
+            "subjects": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SubjectId"
+              }
+            },
+            "no_key_packages": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SubjectId"
+              }
+            },
+            "expires_at": {
+              "$ref": "#/components/schemas/Time"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/WrongRds"
+        },
+        {
+          "$ref": "#/components/errors/UnknownAddress"
+        }
+      ]
+    },
+    {
+      "name": "scc.rds.keypackage.reserve",
+      "tags": [
+        {
+          "name": "rds-to-rds"
+        }
+      ],
+      "summary": "Reserve KeyPackages for an address (§6.2, §6.3)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "address",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/Address"
+          }
+        },
+        {
+          "name": "cipher_suite",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/CipherSuite"
+          }
+        },
+        {
+          "name": "subjects",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectId"
+            }
+          }
+        },
+        {
+          "name": "requester",
+          "required": true,
+          "description": "The endpoint on whose behalf KeyPackages are reserved",
+          "schema": {
+            "$ref": "#/components/schemas/EndpointRef"
+          }
+        }
+      ],
+      "result": {
+        "name": "reservation",
+        "schema": {
+          "$ref": "#/components/schemas/Reservation"
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/WrongRds"
+        },
+        {
+          "$ref": "#/components/errors/UnknownAddress"
+        },
+        {
+          "$ref": "#/components/errors/RateLimited"
+        },
+        {
+          "$ref": "#/components/errors/NoKeyPackage"
+        }
+      ]
+    },
+    {
+      "name": "scc.rds.session.create",
+      "tags": [
+        {
+          "name": "rds-to-rds"
+        }
+      ],
+      "summary": "Register a session at the peer RDS (§8.1)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "group_info",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        }
+      ],
+      "result": {
+        "name": "registered",
+        "schema": {
+          "type": "object",
+          "required": [
+            "registered"
+          ],
+          "properties": {
+            "registered": {
+              "const": true
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/MlsError"
+        },
+        {
+          "$ref": "#/components/errors/WrongRds"
+        }
+      ]
+    },
+    {
+      "name": "scc.rds.commit",
+      "tags": [
+        {
+          "name": "rds-to-rds"
+        }
+      ],
+      "summary": "Two-sided Commit acceptance (doc 3 §6.3)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "commit",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "welcome",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        },
+        {
+          "name": "reservations",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "result": {
+        "name": "accepted",
+        "schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "epoch"
+          ],
+          "properties": {
+            "status": {
+              "const": "accepted"
+            },
+            "epoch": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "$ref": "#/components/errors/StaleEpoch"
+        },
+        {
+          "$ref": "#/components/errors/CommitConflict"
+        },
+        {
+          "$ref": "#/components/errors/UnknownSession"
+        },
+        {
+          "$ref": "#/components/errors/SessionClosed"
+        },
+        {
+          "$ref": "#/components/errors/MlsError"
+        }
+      ]
+    },
+    {
+      "name": "scc.rds.commit.report",
+      "tags": [
+        {
+          "name": "rds-to-rds"
+        }
+      ],
+      "summary": "Report a bad Commit and close the session (§8.5)",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SessionId"
+          }
+        },
+        {
+          "name": "evidence",
+          "required": true,
+          "description": "The commit failure evidence (doc 5 §3.4)",
+          "schema": {
+            "$ref": "#/components/schemas/B64"
+          }
+        }
+      ],
+      "result": {
+        "name": "closed",
+        "schema": {
+          "type": "object",
+          "required": [
+            "closed"
+          ],
+          "properties": {
+            "closed": {
+              "const": true
+            }
+          }
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "B64": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]+$",
+        "description": "base64url without padding"
+      },
+      "Hash": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]{43}$",
+        "description": "SHA-256, base64url"
+      },
+      "EbwUrl": {
+        "type": "string",
+        "pattern": "^ebw:[a-z2-7]{24}$"
+      },
+      "Role": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]{1,32}$"
+      },
+      "SubjectId": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9._-]{1,64}$"
+      },
+      "Address": {
+        "type": "object",
+        "required": [
+          "owner",
+          "role"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/EbwUrl"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          }
+        }
+      },
+      "EndpointRef": {
+        "type": "object",
+        "required": [
+          "owner",
+          "subject"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/EbwUrl"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/SubjectId"
+          }
+        }
+      },
+      "Time": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "Seq": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "CipherSuite": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535
+      },
+      "SessionId": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]{22,43}$",
+        "description": "16 to 32 bytes, base64url"
+      },
+      "MessageId": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]{22}$",
+        "description": "16 bytes, base64url"
+      },
+      "ConsignmentMode": {
+        "enum": [
+          "basic",
+          "consented"
+        ]
+      },
+      "Event": {
+        "enum": [
+          "A.1",
+          "A.2",
+          "B.1",
+          "B.2",
+          "B.3",
+          "C.1",
+          "C.2",
+          "C.3",
+          "C.4",
+          "C.5",
+          "C.6",
+          "D.1",
+          "D.2",
+          "E.1",
+          "E.2",
+          "commit-failure"
+        ],
+        "description": "Short code of the event; the evidence carries the full ETSI event URI (doc 5 §3.3)"
+      },
+      "Meta": {
+        "type": "object",
+        "required": [
+          "message_id",
+          "from",
+          "to",
+          "sent_at",
+          "expires_at",
+          "consignment"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "message_id": {
+            "$ref": "#/components/schemas/MessageId"
+          },
+          "from": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "to": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "sent_at": {
+            "$ref": "#/components/schemas/Time"
+          },
+          "expires_at": {
+            "$ref": "#/components/schemas/Time"
+          },
+          "consignment": {
+            "$ref": "#/components/schemas/ConsignmentMode"
+          }
+        }
+      },
+      "SuiteCounts": {
+        "type": "object",
+        "patternProperties": {
+          "^[0-9]+$": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "PoolStatus": {
+        "type": "object",
+        "required": [
+          "available"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "$ref": "#/components/schemas/SuiteCounts"
+          }
+        }
+      },
+      "Reservation": {
+        "type": "object",
+        "required": [
+          "reservation",
+          "eligible",
+          "key_packages",
+          "missing",
+          "expires_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "reservation": {
+            "type": "string"
+          },
+          "eligible": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectId"
+            }
+          },
+          "key_packages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "subject",
+                "key_package"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "subject": {
+                  "$ref": "#/components/schemas/SubjectId"
+                },
+                "key_package": {
+                  "$ref": "#/components/schemas/B64"
+                }
+              }
+            }
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectId"
+            }
+          },
+          "expires_at": {
+            "$ref": "#/components/schemas/Time"
+          }
+        }
+      },
+      "EpochResult": {
+        "type": "object",
+        "required": [
+          "epoch"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "epoch": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "EvidenceResult": {
+        "type": "object",
+        "required": [
+          "evidence"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "evidence": {
+            "$ref": "#/components/schemas/B64"
+          }
+        }
+      },
+      "LogEntry": {
+        "type": "object",
+        "required": [
+          "epoch",
+          "commit",
+          "accepted_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "commit": {
+            "$ref": "#/components/schemas/B64"
+          },
+          "welcome": {
+            "$ref": "#/components/schemas/B64"
+          },
+          "accepted_at": {
+            "$ref": "#/components/schemas/Time"
+          }
+        }
+      },
+      "QueuedItem": {
+        "type": "object",
+        "required": [
+          "method",
+          "params"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "enum": [
+              "wmp.message.deliver",
+              "scc.consent.request",
+              "scc.handshake",
+              "wmp.evidence.notify",
+              "scc.keypackage.status"
+            ]
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "seq"
+            ]
+          }
+        }
+      },
+      "MembershipMismatchData": {
+        "type": "object",
+        "required": [
+          "add",
+          "remove"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "add": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EndpointRef"
+            }
+          },
+          "remove": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "RejectionData": {
+        "type": "object",
+        "properties": {
+          "evidence": {
+            "$ref": "#/components/schemas/B64",
+            "description": "A.2 or B.2 artefact, when the rejection is evidenced"
+          }
+        }
+      }
+    },
+    "errors": {
+      "NotAuthorized": {
+        "code": -31002,
+        "message": "Not authorized"
+      },
+      "MlsError": {
+        "code": -31004,
+        "message": "MLS error"
+      },
+      "RateLimited": {
+        "code": -31007,
+        "message": "Rate limited"
+      },
+      "QueueFull": {
+        "code": -31014,
+        "message": "Queue full"
+      },
+      "ConsignmentUnsupported": {
+        "code": -31016,
+        "message": "Consignment mode unsupported",
+        "data": {
+          "$ref": "#/components/schemas/RejectionData"
+        }
+      },
+      "MembershipMismatch": {
+        "code": -31100,
+        "message": "Membership mismatch",
+        "data": {
+          "$ref": "#/components/schemas/MembershipMismatchData"
+        }
+      },
+      "StaleEpoch": {
+        "code": -31101,
+        "message": "Stale epoch",
+        "data": {
+          "type": "object",
+          "required": [
+            "epoch"
+          ],
+          "properties": {
+            "epoch": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "CommitConflict": {
+        "code": -31102,
+        "message": "Commit conflict"
+      },
+      "UnknownSession": {
+        "code": -31103,
+        "message": "Unknown session"
+      },
+      "SessionClosed": {
+        "code": -31104,
+        "message": "Session closed"
+      },
+      "NoKeyPackage": {
+        "code": -31105,
+        "message": "No KeyPackage",
+        "data": {
+          "type": "object",
+          "required": [
+            "subjects"
+          ],
+          "properties": {
+            "subjects": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EndpointRef"
+              }
+            },
+            "evidence": {
+              "$ref": "#/components/schemas/B64",
+              "description": "A.2 or B.2 artefact"
+            }
+          }
+        }
+      },
+      "InvalidCredential": {
+        "code": -31106,
+        "message": "Invalid credential"
+      },
+      "DuplicateMessageId": {
+        "code": -31107,
+        "message": "Duplicate message ID",
+        "data": {
+          "$ref": "#/components/schemas/RejectionData"
+        }
+      },
+      "BadTime": {
+        "code": -31108,
+        "message": "Bad time",
+        "data": {
+          "$ref": "#/components/schemas/RejectionData"
+        }
+      },
+      "OwnerNotActive": {
+        "code": -31109,
+        "message": "Owner not active",
+        "data": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "$ref": "#/components/schemas/EbwUrl"
+            },
+            "status": {
+              "type": "string"
+            },
+            "evidence": {
+              "$ref": "#/components/schemas/B64"
+            }
+          }
+        }
+      },
+      "UnknownAddress": {
+        "code": -31110,
+        "message": "Unknown address"
+      },
+      "WrongRds": {
+        "code": -31111,
+        "message": "Wrong RDS"
+      },
+      "EvidenceIncomplete": {
+        "code": -31112,
+        "message": "Evidence incomplete"
+      }
+    }
+  }
+}

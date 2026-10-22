@@ -1,0 +1,21 @@
+; SCC MLS Profile (03-mls.md)
+;
+; MLS structures (SCCSession, EBWEndpointCredential)
+; use the TLS presentation language and are defined in 03-mls.md and
+; 02-credentials.md, not here.
+
+; ---- Application message (§7.1): the application_data of a PrivateMessage ----
+
+app-message = {
+  "message_id": message-id,
+  "from": address,
+  "to": address,
+  "sent_at": time,
+  "expires_at": time,
+  "consignment": consignment-mode,
+  "content_type": tstr,
+  ? "subject": tstr,
+  ? "in_reply_to": message-id,
+  "salt": bstr .size (16..32),
+  "body": bstr,
+}

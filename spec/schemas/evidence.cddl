@@ -1,0 +1,194 @@
+; SCC Evidence (05-evidence.md)
+;
+; The rules in §2 and §3 are copied from 05-evidence.md; tools/check.py
+; checks that the two agree.
+
+; ---- Artefacts (§2) ----
+
+evidence-artefact = [
+  seal: bstr .cbor evidence-seal,
+  timestamp: bstr,   ; RFC 3161 TimeStampToken
+]
+
+; COSE_Sign1 over an evidence body
+evidence-seal = [cose-protected, cose-unprotected, payload: bstr .cbor evidence-body, cose-signature]
+
+evidence-body = message-evidence / commit-failure-evidence / evidence-package
+
+; ---- Evidence bodies (§3) ----
+
+message-evidence = {
+  "v": 1,
+  "evidence_id": evidence-id,
+  "event": message-event,
+  "issuer": issuer,
+  "event_time": time,
+  "message": message-ref,
+  ? "mls": mls-ref,
+  ? "reason": reason,
+  "heads": [* bstr .cbor head-statement],   ; head statements relied on
+  ? "statuses": [+ bstr .cbor status-list-token],   ; status lists relied on
+  "sender_assurance": assurance,
+  ? "recipient_assurance": assurance,
+  ? "peer": tstr,                 ; provider ID of the other RDS (B events)
+  ? "prev": [+ hash32],           ; evidence this follows (§3.7)
+  ? "endpoint": endpoint-ref,     ; see the event table
+  ? "handovers": [+ handover],    ; E.1, E.2
+  ? "decisions": [+ bstr .cbor signed-consent-decision],  ; C.3, C.4
+  ? "reports": [+ bstr .cbor signed-decryption-report],   ; E.1, E.2
+  ? "eligible_holders": uint,     ; C.1: holders that could accept
+}
+
+issuer = {
+  "provider": tstr,               ; provider ID
+  "name": tstr,                   ; legal name of the provider
+  "policies": [+ tstr],           ; evidence policy identifiers (URIs)
+}
+
+message-ref = {
+  "message_id": message-id,
+  "session_id": session-id,
+  "from": address,
+  "to": address,
+  "sent_at": time,
+  "expires_at": time,
+  "consignment": consignment-mode,
+  "plaintext_hash": hash32,
+  "envelope_hash": hash32,
+}
+
+mls-ref = {
+  "group_context": bstr,          ; TLS-encoded GroupContext of the message's epoch
+  "epoch_authenticator": bstr,    ; as reported by the sender
+}
+
+assurance = {
+  "identity": {
+    "level": tstr,                ; URI, e.g. "http://eidas.europa.eu/LoA/high"
+    ? "policy": tstr,             ; URI of the identification policy
+  },
+  "authentication": {
+    "level": tstr,                ; URI
+    ? "method": tstr,             ; URI of the authentication method
+    ? "at": time,                 ; when the authentication took place
+  },
+}
+
+endpoint-ref = {
+  "owner": ebw-url,
+  "subject": subject-id,
+}
+
+handover = {
+  "subject": subject-id,
+  "transferred_at": time,
+  ? "acknowledged_at": time,      ; when the decryption report arrived
+  ? "result": report-result,      ; the report's result
+}
+
+message-event = "http://uri.etsi.org/19522/Event/SubmissionAcceptance"          ; A.1
+              / "http://uri.etsi.org/19522/Event/SubmissionRejection"           ; A.2
+              / "http://uri.etsi.org/19522/Event/RelayAcceptance"               ; B.1
+              / "http://uri.etsi.org/19522/Event/RelayRejection"                ; B.2
+              / "http://uri.etsi.org/19522/Event/RelayFailure"                  ; B.3
+              / "http://uri.etsi.org/19522/Event/NotificationForAcceptance"     ; C.1
+              / "http://uri.etsi.org/19522/Event/NotificationForAcceptanceFailure" ; C.2
+              / "http://uri.etsi.org/19522/Event/ConsignmentAcceptance"         ; C.3
+              / "http://uri.etsi.org/19522/Event/ConsignmentRejection"          ; C.4
+              / "http://uri.etsi.org/19522/Event/AcceptanceRejectionExpiry"     ; C.5
+              / "http://uri.etsi.org/19522/Event/NotificationDelivered"         ; C.6
+              / "http://uri.etsi.org/19522/Event/ContentConsignment"            ; D.1
+              / "http://uri.etsi.org/19522/Event/ContentConsignmentFailure"     ; D.2
+              / "http://uri.etsi.org/19522/Event/ContentHandover"               ; E.1
+              / "http://uri.etsi.org/19522/Event/ContentHandoverFailure"        ; E.2
+
+commit-failure-evidence = {
+  "v": 1,
+  "evidence_id": evidence-id,
+  "event": "urn:ebw:scc:event:CommitFailure",
+  "issuer": issuer,
+  "event_time": time,
+  "session_id": session-id,
+  "commit_ref": hash32,     ; SHA-256 of the Commit's MLSMessage
+  "group_context": bstr,    ; GroupContext after the Commit, from the issuer's log
+  "report": bstr .cbor signed-commit-failure-report,    ; §5
+}
+
+reason = {
+  "code": etsi-reason-code,
+  ? "scc": scc-reason,
+  ? "text": tstr,
+}
+
+etsi-reason-code = tstr .regexp "R[A-F]([0-9]{2}|XX)"
+
+evidence-package = {
+  "v": 1,
+  "type": "evidence-package",
+  "message_id": message-id,
+  "composed_at": time,
+  "items": [+ evidence-artefact],
+}
+
+scc-reason = "malformed" / "bad-time" / "duplicate-message-id"
+           / "consignment-unsupported" / "sender-not-active"
+           / "recipient-not-active" / "recipient-retired"
+           / "recipient-merged" / "unknown-address" / "no-keypackage"
+           / "membership-mismatch" / "rds-unreachable"
+           / "rds-not-identified" / "notification-failed" / "refused"
+           / "expired" / "decryption-failed" / "not-acknowledged"
+
+; ---- Endpoint statements (§4, §5, §6), signed by endpoint keys ----
+
+signed-decryption-report = [cose-protected, cose-unprotected, payload: bstr .cbor decryption-report, cose-signature]
+
+decryption-report = {
+  "type": "decryption-report",
+  "message_id": message-id,
+  "session_id": session-id,
+  "epoch": uint,
+  "envelope_hash": hash32,
+  "result": report-result,
+  ? "plaintext_hash": hash32,
+  ? "epoch_authenticator": bstr,
+  ? "held_epoch": uint,
+  "owner": ebw-url,
+  "subject": subject-id,
+  "reported_at": time,
+}
+
+report-result = "match" / "mismatch" / "decrypt-failed" / "invalid-epoch"
+              / "join-failure"
+
+agreed-epoch = {
+  "epoch": uint,
+  "epoch_authenticator": bstr,
+}
+
+signed-commit-failure-report = [cose-protected, cose-unprotected, payload: bstr .cbor commit-failure-report, cose-signature]
+
+commit-failure-report = {
+  "type": "commit-failure-report",
+  "session_id": session-id,
+  "commit_ref": hash32,
+  "epoch": uint,
+  "failure": "confirmation-tag" / "path-secret" / "welcome" / "other",
+  ? "last_agreed": agreed-epoch,     ; absent if the endpoint never joined
+  "owner": ebw-url,
+  "subject": subject-id,
+  "reported_at": time,
+}
+
+signed-consent-decision = [cose-protected, cose-unprotected, payload: bstr .cbor consent-decision, cose-signature]
+
+consent-decision = {
+  "type": "consent-decision",
+  "message_id": message-id,
+  "session_id": session-id,
+  "envelope_hash": hash32,
+  "decision": "accept" / "reject",
+  "owner": ebw-url,
+  "subject": subject-id,
+  ? "holder": holder-id,
+  "decided_at": time,
+}

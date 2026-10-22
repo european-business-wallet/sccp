@@ -1,0 +1,132 @@
+[
+  {
+    "nullified": false,
+    "submission": << [
+      << {
+        1: -8,
+        4: h'b2d756d3f2067b31d21e7d10df7771dcef23ae1ad5709c52ed62b9b1d29ef62b',
+        33: h'3082012c3081dfa003020102020101300506032b65703040312a302806035504030c2177616c6c65742e6578616d706c652d70726f76696465722e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a3040312a302806035504030c2177616c6c65742e6578616d706c652d70726f76696465722e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b6570032100ef596b9a47a47f8c3a794f5b06f7976aeac60aa69c74bb337a91b069c085ea79300506032b6570034100d448331d1a7002137c4b25492259281c881b35639653e2e64e3519ad2a1ad791e09eaab54d170a8f50c01487814e6ed33b0ca1e4adc5039802d3315eaf771d0e'
+      } >>,
+      {},
+      << {
+        "type": "submission",
+        "provider": "wallet.example-provider.eu",
+        "operation": << [
+          << {
+            1: -8,
+            4: h'e4954bc5cf1b1046ae55e107b2e82959aefcafe3efd886acfa45f52b432f28ff'
+          } >>,
+          {},
+          << {
+            "rds": {
+              "url": "https://rds.example-provider.eu",
+              "provider": "rds.example-provider.eu"
+            },
+            "prev": null,
+            "type": "create",
+            "signed_at": 1792224000,
+            "identifiers": [
+              {
+                "type": "vat",
+                "value": "DE123456789"
+              }
+            ],
+            "rotation_keys": [
+              {
+                1: 1,
+                -1: 6,
+                -2: h'd5753fc8d99deaa4387c4e618e41df8c810dfacfdcc3a598716a3704f1034820'
+              },
+              {
+                1: 1,
+                -1: 6,
+                -2: h'12998839a6e67f1f48114665df3060a529f2fbdc109d7def86406ace1159ac79'
+              }
+            ],
+            "credential_keys": [
+              {
+                1: 1,
+                -1: 6,
+                -2: h'3c01e121ac321e7b3d7e7e915e6b907381e166802d3ef7b3ee4190b24978c387'
+              }
+            ],
+            "acceptance_policies": {
+              "default": "any"
+            }
+          } >>,
+          h'fddd57c1a7c8d4609067206dfe032351beafc38b31241f564d07041a80d4e96bbfce097499a49f3dc3eb52849435ea70e510cbed078e2fdad7d3b6cfcde08f0d'
+        ] >>,
+        "submitted_at": 1792224000
+      } >>,
+      h'0fd59660c58972294e3d46cb7a987a0c46ce203f91a3636551dc4030071afda9da09617575007cfcc79eef912ad79326ea6a3b00010f30fd605b5d8386fff201'
+    ] >>,
+    "received_at": 1792224010
+  },
+  {
+    "nullified": false,
+    "submission": << [
+      << {
+        1: -8,
+        4: h'b2d756d3f2067b31d21e7d10df7771dcef23ae1ad5709c52ed62b9b1d29ef62b',
+        33: h'3082012c3081dfa003020102020101300506032b65703040312a302806035504030c2177616c6c65742e6578616d706c652d70726f76696465722e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a3040312a302806035504030c2177616c6c65742e6578616d706c652d70726f76696465722e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b6570032100ef596b9a47a47f8c3a794f5b06f7976aeac60aa69c74bb337a91b069c085ea79300506032b6570034100d448331d1a7002137c4b25492259281c881b35639653e2e64e3519ad2a1ad791e09eaab54d170a8f50c01487814e6ed33b0ca1e4adc5039802d3315eaf771d0e'
+      } >>,
+      {},
+      << {
+        "type": "submission",
+        "provider": "wallet.example-provider.eu",
+        "operation": << [
+          << {
+            1: -8,
+            4: h'7c0599204103c07c108cd13e6876dcfc3bf440d9f9c9121084d8568a784bb86a'
+          } >>,
+          {},
+          << {
+            "rds": {
+              "url": "https://rds.example-provider.eu",
+              "provider": "rds.example-provider.eu"
+            },
+            "prev": h'08011d9bd0de7f100599edb927439bd75f4c1f9107f9ca7e47747e098f17e686',
+            "type": "update",
+            "signed_at": 1792306800,
+            "identifiers": [
+              {
+                "type": "vat",
+                "value": "DE123456789"
+              }
+            ],
+            "rotation_keys": [
+              {
+                1: 1,
+                -1: 6,
+                -2: h'd5753fc8d99deaa4387c4e618e41df8c810dfacfdcc3a598716a3704f1034820'
+              },
+              {
+                1: 1,
+                -1: 6,
+                -2: h'12998839a6e67f1f48114665df3060a529f2fbdc109d7def86406ace1159ac79'
+              }
+            ],
+            "credential_keys": [
+              {
+                1: 1,
+                -1: 6,
+                -2: h'3c01e121ac321e7b3d7e7e915e6b907381e166802d3ef7b3ee4190b24978c387'
+              }
+            ],
+            "acceptance_policies": {
+              "default": "any",
+              "contracts": [
+                "quorum",
+                2
+              ]
+            }
+          } >>,
+          h'9343b9c6eb85dae7f0a6134755597fdca313c4718e21e716806a7c0a901d0bb01d8dce3f0c9aa0e996f87dc5e486fd165948085b1ff1170685d0dcbdbc458f03'
+        ] >>,
+        "submitted_at": 1792306800
+      } >>,
+      h'14a0816c67d8c7a9411422da0124b5efaf5f2e22f04c243cf078008316259e9bd087c1f1103cd4c1a92b4396af68b9d97385844f9058d25132fc49d4f2ab120b'
+    ] >>,
+    "received_at": 1792306810
+  }
+]

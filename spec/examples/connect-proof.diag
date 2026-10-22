@@ -1,0 +1,16 @@
+[
+  << {
+    1: -8,
+    4: h'66ce51c730c4ca55aafd7c68f37bfceff06b7001269d835ade1800c67521e8f7'
+  } >>,
+  {},
+  << {
+    "type": "connect-proof",
+    "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+    "subject": "Kq7vT2mXr9Lp",
+    "provider": "rds.example-provider.eu",
+    "challenge": h'2dd00bd77e0222ced882665481a9c1d9',
+    "signed_at": 1792310450
+  } >>,
+  h'669b0df9b1dd1912871f878ccc753eb2c2cf2d409df7c035ba970449c246de40fc913fac31b2c07a741160048b27d66da529e441edbbdf36ff2491ff89499f08'
+]

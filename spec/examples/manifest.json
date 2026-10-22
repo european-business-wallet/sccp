@@ -1,0 +1,205 @@
+{
+  "generated_by": "tools/gen_examples.py",
+  "owners": {
+    "A": "ebw:baar3g6q3z7rabmz5w4soq43",
+    "B": "ebw:6ha5v4f3uf5ffcypbnudb45v"
+  },
+  "examples": [
+    {
+      "file": "create-op.cbor",
+      "rule": "operation",
+      "valid": true
+    },
+    {
+      "file": "update-op.cbor",
+      "rule": "operation",
+      "valid": true
+    },
+    {
+      "file": "head-statement.cbor",
+      "rule": "head-statement",
+      "valid": true
+    },
+    {
+      "file": "identifier-attestation.cbor",
+      "rule": "identifier-attestation",
+      "valid": true
+    },
+    {
+      "file": "submission.cbor",
+      "rule": "submission",
+      "valid": true
+    },
+    {
+      "file": "registration-request.cbor",
+      "rule": "registration-request",
+      "valid": true
+    },
+    {
+      "file": "resolution-response.cbor",
+      "rule": "resolution-response",
+      "valid": true
+    },
+    {
+      "file": "log.cbor",
+      "rule": "log",
+      "valid": true
+    },
+    {
+      "file": "endpoint-credential.cbor",
+      "rule": "endpoint-credential",
+      "valid": true
+    },
+    {
+      "file": "endpoint-credential-b.cbor",
+      "rule": "endpoint-credential",
+      "valid": true
+    },
+    {
+      "file": "credential-request.cbor",
+      "rule": "credential-request",
+      "valid": true
+    },
+    {
+      "file": "connect-proof.cbor",
+      "rule": "connect-proof",
+      "valid": true
+    },
+    {
+      "file": "app-message.cbor",
+      "rule": "app-message",
+      "valid": true
+    },
+    {
+      "file": "status-list-token.cbor",
+      "rule": "status-list-token",
+      "valid": true
+    },
+    {
+      "file": "consent-decision.cbor",
+      "rule": "signed-consent-decision",
+      "valid": true
+    },
+    {
+      "file": "decryption-report.cbor",
+      "rule": "signed-decryption-report",
+      "valid": true
+    },
+    {
+      "file": "evidence-a1.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-b1.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-c1.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-c6.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-c3.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-d1.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-e1.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-package.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-e2-decryption-failed.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-e2-not-acknowledged.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "evidence-a2.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "commit-failure-report.cbor",
+      "rule": "signed-commit-failure-report",
+      "valid": true
+    },
+    {
+      "file": "evidence-commit-failure.cbor",
+      "rule": "evidence-artefact",
+      "valid": true
+    },
+    {
+      "file": "invalid/create-op-six-rotation-keys.cbor",
+      "rule": "operation",
+      "valid": false
+    },
+    {
+      "file": "invalid/credential-no-roles.cbor",
+      "rule": "endpoint-credential",
+      "valid": false
+    },
+    {
+      "file": "invalid/credential-no-status.cbor",
+      "rule": "endpoint-credential",
+      "valid": false
+    },
+    {
+      "file": "invalid/evidence-bad-event.cbor",
+      "rule": "evidence-artefact",
+      "valid": false
+    },
+    {
+      "file": "invalid/app-message-short-salt.cbor",
+      "rule": "app-message",
+      "valid": false
+    },
+    {
+      "file": "invalid/head-statement-bad-owner.cbor",
+      "rule": "head-statement",
+      "valid": false
+    }
+  ],
+  "json": [
+    "delivery/connect.json",
+    "delivery/keypackages.json",
+    "delivery/session.json",
+    "delivery/submit.json",
+    "delivery/relay.json",
+    "delivery/federation.json",
+    "delivery/consignment.json",
+    "delivery/acks.json",
+    "delivery/commit-failure.json",
+    "delivery/federation-sessions.json",
+    "delivery/keypackage-status.json",
+    {
+      "file": "json/rds-metadata.json",
+      "schema": "rds-metadata.schema.json"
+    },
+    {
+      "file": "json/edd-metadata.json",
+      "schema": "edd.openapi.yaml#EddMetadata"
+    }
+  ]
+}

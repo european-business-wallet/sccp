@@ -1,0 +1,61 @@
+{
+  "direction": "endpoint-to-rds",
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": "k1",
+      "method": "scc.keypackage.publish",
+      "params": {
+        "key_packages": [
+          "AAEAAShkZW1vIEtleVBhY2thZ2UgMCk",
+          "AAEAAShkZW1vIEtleVBhY2thZ2UgMSk",
+          "AAEAAShkZW1vIEtleVBhY2thZ2UgMik"
+        ]
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "k1",
+      "result": {
+        "available": {
+          "1": 12
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "k2",
+      "method": "scc.keypackage.get",
+      "params": {
+        "address": {
+          "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v",
+          "role": "invoices"
+        },
+        "cipher_suite": 1
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "k2",
+      "result": {
+        "reservation": "Tz0b5sN1cWQe7uJ9",
+        "expires_at": 1792310760,
+        "eligible": [
+          "Bx4nW8sYt2Qe",
+          "Hc3pZ6uVj5Rd"
+        ],
+        "key_packages": [
+          {
+            "subject": "Bx4nW8sYt2Qe",
+            "key_package": "AAEAAShkZW1vIEtleVBhY2thZ2UgMCk"
+          },
+          {
+            "subject": "Hc3pZ6uVj5Rd",
+            "key_package": "AAEAAShkZW1vIEtleVBhY2thZ2UgMSk"
+          }
+        ],
+        "missing": []
+      }
+    }
+  ]
+}

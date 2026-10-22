@@ -1,0 +1,50 @@
+{
+  "provider": "rds.example-provider.eu",
+  "governing_body": {
+    "name": "Example Provider SE",
+    "identifier": "urn:ebw:euid:DEHRB.HRB999999"
+  },
+  "trust_domains": [
+    "eu-qualified"
+  ],
+  "versions": [
+    "scc/1"
+  ],
+  "endpoints": {
+    "client": "wss://rds.example-provider.eu/scc",
+    "federation": "https://rds.example-provider.eu/scc/federation"
+  },
+  "cipher_suites": [
+    1,
+    2
+  ],
+  "consignment_modes": [
+    "basic",
+    "consented"
+  ],
+  "max_message_size": 26214400,
+  "max_ttl": 2592000,
+  "session_idle_limit": 31536000,
+  "max_clock_skew": 300,
+  "expiry": true,
+  "scheduled_delivery": false,
+  "assurance": {
+    "identity": [
+      "http://eidas.europa.eu/LoA/high"
+    ],
+    "authentication": [
+      "http://eidas.europa.eu/LoA/high"
+    ]
+  },
+  "evidence": {
+    "policies": [
+      "https://rds.example-provider.eu/policy/erds-2026"
+    ],
+    "retention": "P10Y",
+    "seal_certificates": [
+      [
+        "MIIBJjCB2aADAgECAgEBMAUGAytlcDA9MScwJQYDVQQDDB5yZHMuZXhhbXBsZS1wcm92aWRlci5ldSAoZGVtbykxEjAQBgNVBAoMCURFTU8gT05MWTAeFw0yNjAxMDEwMDAwMDBaFw0yODAxMDEwMDAwMDBaMD0xJzAlBgNVBAMMHnJkcy5leGFtcGxlLXByb3ZpZGVyLmV1IChkZW1vKTESMBAGA1UECgwJREVNTyBPTkxZMCowBQYDK2VwAyEAX24Lfmll/cJbf1JdeuGtGaqJMBZOJQm0g9j7jHXD6/owBQYDK2VwA0EAS8J42sLcIMIwYalE7z4bQFwjxSUVrJPZbJ6a8fTltHhkT4R1JYIgusjxXQPmeZIgvspVFQXU/y2hGa3zP7z/BQ=="
+      ]
+    ]
+  }
+}

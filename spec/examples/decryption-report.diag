@@ -1,0 +1,52 @@
+[
+  << {
+    1: -8,
+    4: h'e4e34f679ea7b9ecb7283aa54108ade83f5053d0460d6368a286ea5dbefb063b',
+    "scc-cred": << [
+      << {
+        1: -8,
+        4: h'602a7538843da35a8528e8279f4bd1cb5e6b8e1599947535055b2fdb68283dd2'
+      } >>,
+      {},
+      << {
+        1: "ebw:6ha5v4f3uf5ffcypbnudb45v",
+        2: "Bx4nW8sYt2Qe",
+        4: 1794816000,
+        5: 1792224000,
+        6: 1792224000,
+        8: {
+          1: {
+            1: 1,
+            -1: 6,
+            -2: h'3bb122cbad30ab4113d8b6b6b51d9d27afa889e88ad571afb46935e2d567d464'
+          }
+        },
+        65535: {
+          "status_list": {
+            "idx": 0,
+            "uri": "https://status.other-provider.eu/v4f3uf5f/1"
+          }
+        },
+        "roles": [
+          "default",
+          "invoices"
+        ],
+        "holder": "h-07aa"
+      } >>,
+      h'1f360c5d41d4b1faa6d06313f5fd789a69281a73cedd412e585fe02e1ca2f772e9e3240a7b9bcdcbcd5cc6f639333744f2cffb429d56ed9d074d30f3348d090c'
+    ] >>
+  } >>,
+  {},
+  << {
+    "type": "decryption-report",
+    "epoch": 6,
+    "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v",
+    "result": "match",
+    "subject": "Bx4nW8sYt2Qe",
+    "message_id": h'b526aef1a341cfe6e5c377ed4c222888',
+    "session_id": h'7dbd06d023712b32c0964dcc971212a1',
+    "reported_at": 1792311370,
+    "envelope_hash": h'cb16e5b7d31b6774db03d912a33fd4a8c8231f65e09afd33470a73349810493e'
+  } >>,
+  h'd711400fa91c4b6e71d8ebf151bf3971fa51933ccf9240e910481d55be2eadf0be6ba71db83046abf1d4cde4e8ceb9e39daf5e43d8636087c1065a9c21684402'
+]

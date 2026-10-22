@@ -1,0 +1,59 @@
+{
+  "direction": "endpoint-to-rds",
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": "x1",
+      "method": "scc.commit.report",
+      "params": {
+        "session_id": "fb0G0CNxKzLAlk3MlxISoQ",
+        "epoch": 7,
+        "report": "hFkBcKMBJwRYIN-gu417cnhybjI0tL2dazc7aHuWld8tBxTUj6UJhlaKaHNjYy1jcmVkWQE-hFgmogEnBFggYCp1OIQ9o1qFKOgnn0vRy15rjhWZlHU1BVsv22goPdKgWNCpAXgcZWJ3OjZoYTV2NGYzdWY1ZmZjeXBibnVkYjQ1dgJsSGMzcFo2dVZqNVJkBBpq-rgABRpq0ysABhpq0ysACKEBowEBIAYhWCAbtF0Boi402PvLvLrbE9LHG9zrocYzE58fiXG1B0cmeBn__6Frc3RhdHVzX2xpc3SiY2lkeAFjdXJpeCtodHRwczovL3N0YXR1cy5vdGhlci1wcm92aWRlci5ldS92NGYzdWY1Zi8xZXJvbGVzgWhpbnZvaWNlc2Zob2xkZXJmaC01ZjMxWEB34xTwL9P92ylKC-pxjZmgkI-8L8Mt4OU1vUhOAeGCB3Zd6J99m-Um6tw0eknOGUyhxW3GOygvhvbo8dtoqJMCoFkBGalkdHlwZXVjb21taXQtZmFpbHVyZS1yZXBvcnRlZXBvY2gHZW93bmVyeBxlYnc6NmhhNXY0ZjN1ZjVmZmN5cGJudWRiNDV2Z2ZhaWx1cmVwY29uZmlybWF0aW9uLXRhZ2dzdWJqZWN0bEhjM3BaNnVWajVSZGpjb21taXRfcmVmWCA_LShnznApg2cCmGUVGx20_c1dZyCDcu7p1cYEoidbwmpzZXNzaW9uX2lkUH29BtAjcSsywJZNzJcSEqFrbGFzdF9hZ3JlZWSiZWVwb2NoBnNlcG9jaF9hdXRoZW50aWNhdG9yWCByibRW0VhHRKrX3LA1dU5p8yHjr7GGQmw9LJFDn0XtzmtyZXBvcnRlZF9hdBpq1ISMWEAv1hGvAY_AwRDSyHrJ5FHvBqXvxgeBPg-QpL4Kv1meDTjOLi2UX0rVAzp31F_TtWsoPHEBLN40tLz6a9TLLRUN"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "x1",
+      "result": {
+        "closed": true,
+        "evidence": "glkGXIRZAVGjAScEWCCZRW98il6NcT4h6JNAb27BVbzRMk7pbxSqq5KJWutIMRghWQEmMIIBIjCB1aADAgECAgEBMAUGAytlcDA7MSUwIwYDVQQDDBxyZHMub3RoZXItcHJvdmlkZXIuZXUgKGRlbW8pMRIwEAYDVQQKDAlERU1PIE9OTFkwHhcNMjYwMTAxMDAwMDAwWhcNMjgwMTAxMDAwMDAwWjA7MSUwIwYDVQQDDBxyZHMub3RoZXItcHJvdmlkZXIuZXUgKGRlbW8pMRIwEAYDVQQKDAlERU1PIE9OTFkwKjAFBgMrZXADIQDJphG3UryXKvO-gLAPOIPgP-vDR0VJ9l35isJW5VuGTTAFBgMrZXADQQB2sJP7g3YPL1YNRRYYHb1OfD95qeVRI9kE5881V0WkPvYsoWsCJyfP_9CELwzDkF9Lo32x8q3I-RliCz-SqbMNoFkEwalhdgFlZXZlbnR4H3VybjplYnc6c2NjOmV2ZW50OkNvbW1pdEZhaWx1cmVmaXNzdWVyo2RuYW1lck90aGVyIFByb3ZpZGVyIFNBU2hwb2xpY2llc4F4KWh0dHBzOi8vcmRzLm90aGVyLXByb3ZpZGVyLmV1L3BvbGljeS9lcmRzaHByb3ZpZGVydXJkcy5vdGhlci1wcm92aWRlci5ldWZyZXBvcnRZAtOEWQFwowEnBFgg36C7jXtyeHJuMjS0vZ1rNztoe5aV3y0HFNSPpQmGVopoc2NjLWNyZWRZAT6EWCaiAScEWCBgKnU4hD2jWoUo6CefS9HLXmuOFZmUdTUFWy_baCg90qBY0KkBeBxlYnc6NmhhNXY0ZjN1ZjVmZmN5cGJudWRiNDV2AmxIYzNwWjZ1Vmo1UmQEGmr6uAAFGmrTKwAGGmrTKwAIoQGjAQEgBiFYIBu0XQGiLjTY-8u8utsT0scb3OuhxjMTnx-JcbUHRyZ4Gf__oWtzdGF0dXNfbGlzdKJjaWR4AWN1cml4K2h0dHBzOi8vc3RhdHVzLm90aGVyLXByb3ZpZGVyLmV1L3Y0ZjN1ZjVmLzFlcm9sZXOBaGludm9pY2VzZmhvbGRlcmZoLTVmMzFYQHfjFPAv0_3bKUoL6nGNmaCQj7wvwy3g5TW9SE4B4YIHdl3on32b5Sbq3DR6Sc4ZTKHFbcY7KC-G9ujx22iokwKgWQEZqWR0eXBldWNvbW1pdC1mYWlsdXJlLXJlcG9ydGVlcG9jaAdlb3duZXJ4HGVidzo2aGE1djRmM3VmNWZmY3lwYm51ZGI0NXZnZmFpbHVyZXBjb25maXJtYXRpb24tdGFnZ3N1YmplY3RsSGMzcFo2dVZqNVJkamNvbW1pdF9yZWZYID8tKGfOcCmDZwKYZRUbHbT9zV1nIINy7unVxgSiJ1vCanNlc3Npb25faWRQfb0G0CNxKzLAlk3MlxISoWtsYXN0X2FncmVlZKJlZXBvY2gGc2Vwb2NoX2F1dGhlbnRpY2F0b3JYIHKJtFbRWEdEqtfcsDV1TmnzIeOvsYZCbD0skUOfRe3Oa3JlcG9ydGVkX2F0GmrUhIxYQC_WEa8Bj8DBENLIesnkUe8Gpe_GB4E-D5Ckvgq_WZ4NOM4uLZRfStUDOnfUX9O1ayg8cQEs3jS0vPpr1MstFQ1qY29tbWl0X3JlZlggPy0oZ85wKYNnAphlFRsdtP3NXWcgg3Lu6dXGBKInW8JqZXZlbnRfdGltZRpq1ISNanNlc3Npb25faWRQfb0G0CNxKzLAlk3MlxISoWtldmlkZW5jZV9pZFClV6PHoOZ_N64bJ4KJHXG5bWdyb3VwX2NvbnRleHRYvwABAAEQfb0G0CNxKzLAlk3MlxISoQAAAAAAAAAHIPI8negMind9C88Vxz6CjjP6hTcYsgGVKkOPRsunL0vyIEUpWzHOYoHxkqjJAUGEErnhW3JjT9oHtEH3p2wJAQKbQF7w7EBOHGVidzpiYWFyM2c2cTN6N3JhYm16NXc0c29xNDMKcHVyY2hhc2luZxxlYnc6NmhhNXY0ZjN1ZjVmZmN5cGJudWRiNDV2CGludm9pY2VzAAMJAvDsAAQAA_DrWEDQ5gKx4Ee0LTmuykj6ETDVuHMx-xkEzu43UYleehxwnLM55iwSwW_ys4TMz84Svr6-2MX51EkPYy7wUPbJBXgLWD9ERU1PLVBMQUNFSE9MREVSLVJGQzMxNjEtVE9LRU46w4_SPz7dvRn7kncDbdTcZv3QgxfK81CisAqrmh_FUi4"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "x2",
+      "method": "scc.session.log",
+      "params": {
+        "session_id": "fb0G0CNxKzLAlk3MlxISoQ"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "x2",
+      "result": {
+        "group_info": "AAEABBB9vQbQI3ErMsCWTcyXEhKhAAAAAAAAAAAoZGVtbyBHcm91cEluZm8p",
+        "commits": [
+          {
+            "epoch": 1,
+            "commit": "AAEAARB9vQbQI3ErMsCWTcyXEhKhAAAAAAAAAAUoZGVtbyBDb21taXQp",
+            "welcome": "AAEAAyhkZW1vIFdlbGNvbWUp",
+            "accepted_at": 1792310400
+          }
+        ]
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "x3",
+      "method": "scc.deregister",
+      "params": {}
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "x3",
+      "result": {
+        "deregistered": true
+      }
+    }
+  ]
+}

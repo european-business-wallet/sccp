@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/scc/rds-metadata.schema.json",
+  "title": "SCC RDS metadata (spec/04-delivery.md \u00a73)",
+  "type": "object",
+  "required": [
+    "provider",
+    "governing_body",
+    "trust_domains",
+    "versions",
+    "endpoints",
+    "cipher_suites",
+    "consignment_modes",
+    "max_message_size",
+    "max_ttl",
+    "session_idle_limit",
+    "max_clock_skew",
+    "expiry",
+    "scheduled_delivery",
+    "assurance",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "provider": {
+      "type": "string",
+      "pattern": "^[a-z0-9.-]+$"
+    },
+    "governing_body": {
+      "type": "object",
+      "required": [
+        "name",
+        "identifier"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "identifier": {
+          "type": "string"
+        }
+      }
+    },
+    "trust_domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "versions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "required": [
+        "client",
+        "federation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "client": {
+          "type": "string",
+          "pattern": "^wss://"
+        },
+        "federation": {
+          "type": "string",
+          "pattern": "^https://"
+        }
+      }
+    },
+    "cipher_suites": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": 1
+      },
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535
+      }
+    },
+    "consignment_modes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "basic",
+          "consented"
+        ]
+      }
+    },
+    "max_message_size": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "max_ttl": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "session_idle_limit": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "max_clock_skew": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "expiry": {
+      "const": true
+    },
+    "scheduled_delivery": {
+      "const": false
+    },
+    "assurance": {
+      "type": "object",
+      "required": [
+        "identity",
+        "authentication"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "identity": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "authentication": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "policies",
+        "retention",
+        "seal_certificates"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "policies": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "retention": {
+          "type": "string",
+          "pattern": "^P"
+        },
+        "seal_certificates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

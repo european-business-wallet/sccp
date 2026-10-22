@@ -1,0 +1,16 @@
+{
+  "direction": "rds-to-endpoint",
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "method": "scc.keypackage.status",
+      "params": {
+        "seq": 505,
+        "available": {
+          "1": 4,
+          "2": 9
+        }
+      }
+    }
+  ]
+}

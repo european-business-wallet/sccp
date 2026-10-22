@@ -1,0 +1,50 @@
+{
+  "direction": "rds-to-rds",
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": "f1",
+      "method": "scc.rds.subjects",
+      "params": {
+        "address": {
+          "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v",
+          "role": "invoices"
+        },
+        "cipher_suite": 1
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "f1",
+      "result": {
+        "as_of": 1792310455,
+        "expires_at": 1792310515,
+        "subjects": [
+          "Bx4nW8sYt2Qe",
+          "Hc3pZ6uVj5Rd",
+          "Mf8kD1yGn7Ta"
+        ],
+        "no_key_packages": [
+          "Mf8kD1yGn7Ta"
+        ]
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "f2",
+      "method": "scc.rds.commit",
+      "params": {
+        "session_id": "fb0G0CNxKzLAlk3MlxISoQ",
+        "commit": "AAEAARB9vQbQI3ErMsCWTcyXEhKhAAAAAAAAAAUoZGVtbyBDb21taXQp"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "f2",
+      "result": {
+        "status": "accepted",
+        "epoch": 6
+      }
+    }
+  ]
+}

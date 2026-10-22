@@ -1,0 +1,122 @@
+[
+  << [
+    << {
+      1: -8,
+      4: h'8b1b05f2941096cd9b39c9d81847ea38b711050dcb926bd86704be30a247785c',
+      33: h'308201263081d9a003020102020101300506032b6570303d3127302506035504030c1e7264732e6578616d706c652d70726f76696465722e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a303d3127302506035504030c1e7264732e6578616d706c652d70726f76696465722e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b65700321005f6e0b7e6965fdc25b7f525d7ae1ad19aa8930164e2509b483d8fb8c75c3ebfa300506032b65700341004bc278dac2dc20c23061a944ef3e1b405c23c52515ac93d96c9e9af1f4e5b478644f8475258220bac8f15d03e6799220beca551505d4ff2da119adf33fbcff05'
+    } >>,
+    {},
+    << {
+      "v": 1,
+      "mls": {
+        "group_context": h'00010001107dbd06d023712b32c0964dcc971212a100000000000000062008d2b19f9c704ab24142a9666df50ae30864a76faa5d9e34a8e285c29895be49205c8434696385e25c931f66fb6996136c4f6cee21e011f82e83b5fc633036c9d6405ef0ec404e1c6562773a6261617233673671337a377261626d7a357734736f7134330a70757263686173696e671c6562773a36686135763466337566356666637970626e75646234357608696e766f6963657300030902f0ec00040003f0eb',
+        "epoch_authenticator": h'7289b456d1584744aad7dcb035754e69f321e3afb186426c3d2c91439f45edce'
+      },
+      "event": "http://uri.etsi.org/19522/Event/SubmissionAcceptance",
+      "heads": [
+        << [
+          << {
+            1: -8,
+            4: h'775e334bb601d0ae3f7200b77e10c2b9c2958cb0a86052e778b3bb7791b6ef43',
+            33: h'308201123081c5a003020102020101300506032b65703033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a3033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b657003210087efec3277a1f76a54c2911291dc416976e151b0dec8df7bc7835bf0bce56ef7300506032b657003410037ff76e154b86015ef7541b1eabcb41a85e483c26582b1eab601738550d1eda88f48b80898bd59b9bf3a3fd69413b15a1e337a090988b8eb54eba5e36f40ff05'
+          } >>,
+          {},
+          << {
+            "seq": 2,
+            "head": h'ffda0fcda3434715b0685a099b6e388e5c89c8b5b5cbb6acd1122ea08fc8a9a4',
+            "type": "head-statement",
+            "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+            "status": "active",
+            "issued_at": 1792310431,
+            "expires_at": 1792310731
+          } >>,
+          h'4c2aff86d6b387028cf0ffdf1b8df2c36c7ab3b31107adadc8f7f40fd052344934ac69515e1a9bcbf50ca17ada1ab8cfdc3607850cf8a56f9b67d45f7b71c105'
+        ] >>,
+        << [
+          << {
+            1: -8,
+            4: h'775e334bb601d0ae3f7200b77e10c2b9c2958cb0a86052e778b3bb7791b6ef43',
+            33: h'308201123081c5a003020102020101300506032b65703033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a3033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b657003210087efec3277a1f76a54c2911291dc416976e151b0dec8df7bc7835bf0bce56ef7300506032b657003410037ff76e154b86015ef7541b1eabcb41a85e483c26582b1eab601738550d1eda88f48b80898bd59b9bf3a3fd69413b15a1e337a090988b8eb54eba5e36f40ff05'
+          } >>,
+          {},
+          << {
+            "seq": 1,
+            "head": h'f1c1daf0bba17a528b0f0b6830f3b5eba4cdd513214e3eb13edad933a2ee2720',
+            "type": "head-statement",
+            "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v",
+            "status": "active",
+            "issued_at": 1792310431,
+            "expires_at": 1792310731
+          } >>,
+          h'2d63ca43a77f048aa22f664035146a9b85d72bfb8d552b881a9319f52238ddc44d04b44c60dc8088a802d2c2006d54edfc46bbd6ae657b2f8eaae7a2ba0bb90f'
+        ] >>
+      ],
+      "issuer": {
+        "name": "Example Provider SE",
+        "policies": [
+          "https://rds.example-provider.eu/policy/erds-2026"
+        ],
+        "provider": "rds.example-provider.eu"
+      },
+      "message": {
+        "to": {
+          "role": "invoices",
+          "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v"
+        },
+        "from": {
+          "role": "purchasing",
+          "owner": "ebw:baar3g6q3z7rabmz5w4soq43"
+        },
+        "sent_at": 1792310460,
+        "expires_at": 1793520060,
+        "message_id": h'b526aef1a341cfe6e5c377ed4c222888',
+        "session_id": h'7dbd06d023712b32c0964dcc971212a1',
+        "consignment": "consented",
+        "envelope_hash": h'cb16e5b7d31b6774db03d912a33fd4a8c8231f65e09afd33470a73349810493e',
+        "plaintext_hash": h'966558ed91b044ebf53a6c13d00641ffa5a55c5c0a8aa9a7adebfd43662e6ded'
+      },
+      "endpoint": {
+        "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+        "subject": "Kq7vT2mXr9Lp"
+      },
+      "statuses": [
+        << 18([
+          << {
+            1: -8,
+            4: h'0b0b62baa42542c1347470fd2f8f26de737b78eef51d70dfd792ea3b1e9b6912',
+            16: "application/statuslist+cwt"
+          } >>,
+          {},
+          << {
+            1: "ebw:baar3g6q3z7rabmz5w4soq43",
+            2: "https://status.example-provider.eu/3g6q3z7r/1",
+            4: 1792396260,
+            5: 1792309860,
+            6: 1792309860,
+            65533: {
+              "lst": h'78da6360000000020001',
+              "bits": 2
+            },
+            65534: 3600
+          } >>,
+          h'36d8664ba59ae550db44de29dfecb2b66ca07385cbb724180d4899c3ed2b08c6570457a6242a01cc550c436dfd9bb77cbb3094438ba8ac72b3406d5b20a2890e'
+        ]) >>
+      ],
+      "event_time": 1792310461,
+      "evidence_id": h'c1141b27cde2602d810c31a3457ed9f2',
+      "sender_assurance": {
+        "identity": {
+          "level": "http://eidas.europa.eu/LoA/high",
+          "policy": "https://edd.europa.eu/policy/identification"
+        },
+        "authentication": {
+          "at": 1792310450,
+          "level": "http://eidas.europa.eu/LoA/high",
+          "method": "urn:ebw:scc:auth:endpoint-credential"
+        }
+      }
+    } >>,
+    h'18c5efb5e1c020ebeacb9eb2b9b2ece42c1663410d3c8dd589e5b313fb0cf822cf96e83a3b3d1ef97b4efb9c433ea554fbe56c2b1d9e873b76f4aa9e84dc8006'
+  ] >>,
+  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3a8b3a9ddc1de2c16b750bf23399e4ce0659bef5eba9344d422729533a9b453da4'
+]

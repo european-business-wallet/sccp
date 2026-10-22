@@ -1,0 +1,65 @@
+[
+  << {
+    1: -8,
+    4: h'e4954bc5cf1b1046ae55e107b2e82959aefcafe3efd886acfa45f52b432f28ff'
+  } >>,
+  {},
+  << {
+    "rds": {
+      "url": "https://rds.example-provider.eu",
+      "provider": "rds.example-provider.eu"
+    },
+    "prev": null,
+    "type": "create",
+    "signed_at": 1792224000,
+    "identifiers": [
+      {
+        "type": "vat",
+        "value": "DE123456789"
+      }
+    ],
+    "rotation_keys": [
+      {
+        1: 1,
+        -1: 6,
+        -2: h'35a865bf7da3209959ea6fdbc11de0fd3177c4ea3060f54f785d8104de29a9da'
+      },
+      {
+        1: 1,
+        -1: 6,
+        -2: h'10442ca5ed24e342568de63d0b7ad29a259fa5399be3e936d7f49b226396433a'
+      },
+      {
+        1: 1,
+        -1: 6,
+        -2: h'444fd6e552bba5d4a1e8ced614e5d21f0fcf3c8b54c9dd31360f2ad5b22b3eac'
+      },
+      {
+        1: 1,
+        -1: 6,
+        -2: h'83a7ad5f122ccaf986a4425dfe9f7fbbc6b3b1e7783a11e6114fa8a033bf12a2'
+      },
+      {
+        1: 1,
+        -1: 6,
+        -2: h'3dc9bf60fccf25244a642a49e83986559dd48e7a7f864cb144d5b83aab51d3c2'
+      },
+      {
+        1: 1,
+        -1: 6,
+        -2: h'15c9218567a6796a3cc48520c5708fa4b18ca212942844e4f16c63d3b089f3ac'
+      }
+    ],
+    "credential_keys": [
+      {
+        1: 1,
+        -1: 6,
+        -2: h'3c01e121ac321e7b3d7e7e915e6b907381e166802d3ef7b3ee4190b24978c387'
+      }
+    ],
+    "acceptance_policies": {
+      "default": "any"
+    }
+  } >>,
+  h'bf2a3faf6195caaccfae46c3687de578e670417f556167611f549cbe93893b74a4fc1ba53d5cc94656d42b80add94964b0b5d8a6a3b10ec5bbd26009c0663a0b'
+]

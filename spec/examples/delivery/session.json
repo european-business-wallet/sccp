@@ -1,0 +1,65 @@
+{
+  "direction": "endpoint-to-rds",
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": "s1",
+      "method": "wmp.session.create",
+      "params": {
+        "session_id": "fb0G0CNxKzLAlk3MlxISoQ",
+        "group_info": "AAEABBB9vQbQI3ErMsCWTcyXEhKhAAAAAAAAAAAoZGVtbyBHcm91cEluZm8p",
+        "commit": "AAEAARB9vQbQI3ErMsCWTcyXEhKhAAAAAAAAAAUoZGVtbyBDb21taXQp",
+        "welcome": "AAEAAyhkZW1vIFdlbGNvbWUp",
+        "reservations": [
+          "Tz0b5sN1cWQe7uJ9"
+        ]
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "s1",
+      "result": {
+        "epoch": 1
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "s2",
+      "method": "scc.commit.submit",
+      "params": {
+        "session_id": "fb0G0CNxKzLAlk3MlxISoQ",
+        "commit": "AAEAARB9vQbQI3ErMsCWTcyXEhKhAAAAAAAAAAUoZGVtbyBDb21taXQp"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "s2",
+      "error": {
+        "code": -31102,
+        "message": "Commit conflict"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "s3",
+      "method": "scc.commit.fetch",
+      "params": {
+        "session_id": "fb0G0CNxKzLAlk3MlxISoQ",
+        "after_epoch": 5
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "s3",
+      "result": {
+        "commits": [
+          {
+            "epoch": 6,
+            "commit": "AAEAARB9vQbQI3ErMsCWTcyXEhKhAAAAAAAAAAUoZGVtbyBDb21taXQp",
+            "accepted_at": 1792310430
+          }
+        ]
+      }
+    }
+  ]
+}

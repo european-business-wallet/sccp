@@ -1,0 +1,66 @@
+; SCC common types (spec/README.md, "Conventions")
+;
+; All SCC CDDL files are validated together: common.cddl first, then the
+; others. Signed objects use deterministic CBOR (RFC 8949 §4.2.1), which
+; CDDL cannot express; tools/check.py checks it separately.
+
+; ---- Scalars ----
+
+time = uint                                   ; seconds since the epoch
+hash32 = bstr .size 32                        ; SHA-256 output
+
+ebw-url = tstr .regexp "ebw:[a-z2-7]{24}"
+role = tstr .regexp "[a-z0-9-]{1,32}"
+subject-id = tstr .regexp "[A-Za-z0-9_-]{1,64}"   ; opaque
+holder-id = tstr .size (1..64)
+message-id = bstr .size 16
+evidence-id = bstr .size 16
+session-id = bstr .size (16..32)
+
+address = {
+  "owner": ebw-url,
+  "role": role,
+}
+
+consignment-mode = "basic" / "consented"
+
+; ---- COSE (RFC 9052) ----
+
+COSE_Key = OKP_Key / EC2_Key
+
+OKP_Key = {
+  1 => 1,                                     ; kty: OKP
+  -1 => 6,                                    ; crv: Ed25519
+  -2 => bstr .size 32,                        ; x
+}
+
+EC2_Key = {
+  1 => 2,                                     ; kty: EC2
+  -1 => 1,                                    ; crv: P-256
+  -2 => bstr .size 32,                        ; x
+  -3 => bstr .size 32,                        ; y
+}
+
+scc-alg = -8 / -7                             ; EdDSA, ES256
+
+; Protected header of an SCC signature. kid is the COSE Key Thumbprint
+; (RFC 9679) of the signing key. x5chain (33) carries a certificate chain
+; for EDD and RDS seals. "scc-cred" carries an endpoint credential for
+; endpoint statements.
+protected-header = {
+  1 => scc-alg,
+  ? 4 => hash32,
+  ? 16 => "application/statuslist+cwt",      ; typ (status list tokens)
+  ? 33 => bstr / [2* bstr],
+  ? "scc-cred" => bstr,
+}
+
+; A COSE_Sign1 over X is written as
+;
+;   x = [cose-protected, cose-unprotected, payload: bstr .cbor x-body, cose-signature]
+;
+; (A generic COSE_Sign1<T> would be shorter, but the cddl tool binds T
+; wrongly when one COSE_Sign1 is nested inside another.)
+cose-protected = bstr .cbor protected-header
+cose-unprotected = {}
+cose-signature = bstr

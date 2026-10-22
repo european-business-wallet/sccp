@@ -1,0 +1,187 @@
+[
+  << [
+    << {
+      1: -8,
+      4: h'99456f7c8a5e8d713e21e893406f6ec155bcd1324ee96f14aaab92895aeb4831',
+      33: h'308201223081d5a003020102020101300506032b6570303b3125302306035504030c1c7264732e6f746865722d70726f76696465722e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a303b3125302306035504030c1c7264732e6f746865722d70726f76696465722e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b6570032100c9a611b752bc972af3be80b00f3883e03febc3474549f65df98ac256e55b864d300506032b657003410076b093fb83760f2f560d4516181dbd4e7c3f79a9e55123d904e7cf355745a43ef62ca16b022727cfffd0842f0cc3905f4ba37db1f2adc8f919620b3f92a9b30d'
+    } >>,
+    {},
+    << {
+      "v": 1,
+      "mls": {
+        "group_context": h'00010001107dbd06d023712b32c0964dcc971212a100000000000000062008d2b19f9c704ab24142a9666df50ae30864a76faa5d9e34a8e285c29895be49205c8434696385e25c931f66fb6996136c4f6cee21e011f82e83b5fc633036c9d6405ef0ec404e1c6562773a6261617233673671337a377261626d7a357734736f7134330a70757263686173696e671c6562773a36686135763466337566356666637970626e75646234357608696e766f6963657300030902f0ec00040003f0eb',
+        "epoch_authenticator": h'7289b456d1584744aad7dcb035754e69f321e3afb186426c3d2c91439f45edce'
+      },
+      "prev": [
+        h'a140bf0973918d6dc40bd3733e2013757b15fa7e29e0b4f9ad49807019b26427'
+      ],
+      "event": "http://uri.etsi.org/19522/Event/ContentHandoverFailure",
+      "heads": [
+        << [
+          << {
+            1: -8,
+            4: h'775e334bb601d0ae3f7200b77e10c2b9c2958cb0a86052e778b3bb7791b6ef43',
+            33: h'308201123081c5a003020102020101300506032b65703033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a3033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b657003210087efec3277a1f76a54c2911291dc416976e151b0dec8df7bc7835bf0bce56ef7300506032b657003410037ff76e154b86015ef7541b1eabcb41a85e483c26582b1eab601738550d1eda88f48b80898bd59b9bf3a3fd69413b15a1e337a090988b8eb54eba5e36f40ff05'
+          } >>,
+          {},
+          << {
+            "seq": 2,
+            "head": h'ffda0fcda3434715b0685a099b6e388e5c89c8b5b5cbb6acd1122ea08fc8a9a4',
+            "type": "head-statement",
+            "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+            "status": "active",
+            "issued_at": 1793520030,
+            "expires_at": 1793520330
+          } >>,
+          h'659add6117977d050aefd3682329e97698ad0847a48115563b23f19a56d244d9de368d829e187260dd01355041fa9e198fd02c2a706852170914649fee63d40f'
+        ] >>,
+        << [
+          << {
+            1: -8,
+            4: h'775e334bb601d0ae3f7200b77e10c2b9c2958cb0a86052e778b3bb7791b6ef43',
+            33: h'308201123081c5a003020102020101300506032b65703033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a3033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b657003210087efec3277a1f76a54c2911291dc416976e151b0dec8df7bc7835bf0bce56ef7300506032b657003410037ff76e154b86015ef7541b1eabcb41a85e483c26582b1eab601738550d1eda88f48b80898bd59b9bf3a3fd69413b15a1e337a090988b8eb54eba5e36f40ff05'
+          } >>,
+          {},
+          << {
+            "seq": 1,
+            "head": h'f1c1daf0bba17a528b0f0b6830f3b5eba4cdd513214e3eb13edad933a2ee2720',
+            "type": "head-statement",
+            "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v",
+            "status": "active",
+            "issued_at": 1793520030,
+            "expires_at": 1793520330
+          } >>,
+          h'aff34812f3f4b92ce24426327868aefef50c0b0a47cdcf2df0bd573145f420d1b347c36fb4a1cfd3be246854423e73104ffb5e313acfb13a20564ff89c284704'
+        ] >>
+      ],
+      "issuer": {
+        "name": "Other Provider SAS",
+        "policies": [
+          "https://rds.other-provider.eu/policy/erds"
+        ],
+        "provider": "rds.other-provider.eu"
+      },
+      "reason": {
+        "scc": "decryption-failed",
+        "code": "REXX"
+      },
+      "message": {
+        "to": {
+          "role": "invoices",
+          "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v"
+        },
+        "from": {
+          "role": "purchasing",
+          "owner": "ebw:baar3g6q3z7rabmz5w4soq43"
+        },
+        "sent_at": 1792310460,
+        "expires_at": 1793520060,
+        "message_id": h'84768ddee659efeafdeb972b55143141',
+        "session_id": h'7dbd06d023712b32c0964dcc971212a1',
+        "consignment": "basic",
+        "envelope_hash": h'258b92f4aacbce5c41895a57150904a5e3e9274d6d581336cc97f64034f5a3c4',
+        "plaintext_hash": h'a652ce183ab376d5fa5422e903e639fd4a6560baf80f2065d98fd9a8800997ad'
+      },
+      "reports": [
+        << [
+          << {
+            1: -8,
+            4: h'e4e34f679ea7b9ecb7283aa54108ade83f5053d0460d6368a286ea5dbefb063b',
+            "scc-cred": << [
+              << {
+                1: -8,
+                4: h'602a7538843da35a8528e8279f4bd1cb5e6b8e1599947535055b2fdb68283dd2'
+              } >>,
+              {},
+              << {
+                1: "ebw:6ha5v4f3uf5ffcypbnudb45v",
+                2: "Bx4nW8sYt2Qe",
+                4: 1794816000,
+                5: 1792224000,
+                6: 1792224000,
+                8: {
+                  1: {
+                    1: 1,
+                    -1: 6,
+                    -2: h'3bb122cbad30ab4113d8b6b6b51d9d27afa889e88ad571afb46935e2d567d464'
+                  }
+                },
+                65535: {
+                  "status_list": {
+                    "idx": 0,
+                    "uri": "https://status.other-provider.eu/v4f3uf5f/1"
+                  }
+                },
+                "roles": [
+                  "default",
+                  "invoices"
+                ],
+                "holder": "h-07aa"
+              } >>,
+              h'1f360c5d41d4b1faa6d06313f5fd789a69281a73cedd412e585fe02e1ca2f772e9e3240a7b9bcdcbcd5cc6f639333744f2cffb429d56ed9d074d30f3348d090c'
+            ] >>
+          } >>,
+          {},
+          << {
+            "type": "decryption-report",
+            "epoch": 6,
+            "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v",
+            "result": "decrypt-failed",
+            "subject": "Bx4nW8sYt2Qe",
+            "message_id": h'84768ddee659efeafdeb972b55143141',
+            "session_id": h'7dbd06d023712b32c0964dcc971212a1',
+            "reported_at": 1792311760,
+            "envelope_hash": h'258b92f4aacbce5c41895a57150904a5e3e9274d6d581336cc97f64034f5a3c4'
+          } >>,
+          h'e1db149661d5a8c3187059f1a4a7a400737052d22bfe92f0b96bd49d38e0588c987e7d3de48dd225e8aeb9ef2342dd0b84df17441bdd96f640f7ae55350f4501'
+        ] >>
+      ],
+      "statuses": [
+        << 18([
+          << {
+            1: -8,
+            4: h'602a7538843da35a8528e8279f4bd1cb5e6b8e1599947535055b2fdb68283dd2',
+            16: "application/statuslist+cwt"
+          } >>,
+          {},
+          << {
+            1: "ebw:6ha5v4f3uf5ffcypbnudb45v",
+            2: "https://status.other-provider.eu/v4f3uf5f/1",
+            4: 1792398100,
+            5: 1792311700,
+            6: 1792311700,
+            65533: {
+              "lst": h'78da73e00000008a0049',
+              "bits": 2
+            },
+            65534: 3600
+          } >>,
+          h'b9e34fd563e48ba690eeb5c9aaeff59e6cfbca96a14a0d971f0aad056645fea91ba0d3d4ac65a221687e452eaa27ec2aed30fb97bed69cde3a419bccbd646c0a'
+        ]) >>
+      ],
+      "handovers": [
+        {
+          "result": "decrypt-failed",
+          "subject": "Bx4nW8sYt2Qe",
+          "transferred_at": 1792311750,
+          "acknowledged_at": 1792311760
+        }
+      ],
+      "event_time": 1793520060,
+      "evidence_id": h'cc223836b1eed5e0b7dbbff2c09b750b',
+      "sender_assurance": {
+        "identity": {
+          "level": "http://eidas.europa.eu/LoA/high",
+          "policy": "https://edd.europa.eu/policy/identification"
+        },
+        "authentication": {
+          "at": 1792310450,
+          "level": "http://eidas.europa.eu/LoA/high",
+          "method": "urn:ebw:scc:auth:endpoint-credential"
+        }
+      }
+    } >>,
+    h'ed47c1bfa61553fa0ef16fc4f2e2a67958e7254eb423edd2f8ac66aa62c83684771ac9fb0bdb30766483992ff4b3e57bf56c5a68fa847bc4e73dd7fee6306407'
+  ] >>,
+  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3abb7b3742fa9142367b7242c6b5f353442700db5f34c177911962f19eed69fab7'
+]

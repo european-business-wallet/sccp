@@ -1,0 +1,20 @@
+{
+  "edd": "https://edd.europa.eu",
+  "seal_certificates": [
+    {
+      "x5c": [
+        "MIIBEjCBxaADAgECAgEBMAUGAytlcDAzMR0wGwYDVQQDDBRlZGQuZXVyb3BhLmV1IChkZW1vKTESMBAGA1UECgwJREVNTyBPTkxZMB4XDTI2MDEwMTAwMDAwMFoXDTI4MDEwMTAwMDAwMFowMzEdMBsGA1UEAwwUZWRkLmV1cm9wYS5ldSAoZGVtbykxEjAQBgNVBAoMCURFTU8gT05MWTAqMAUGAytlcAMhAIfv7DJ3ofdqVMKREpHcQWl24VGw3sjfe8eDW/C85W73MAUGAytlcANBADf/duFUuGAV73VBseq8tBqF5IPCZYKx6rYBc4VQ0e2oj0i4CJi9Wbm/Oj/WlBOxWh4zegkJiLjrVOul429A/wU="
+      ],
+      "not_before": "2026-01-01T00:00:00Z",
+      "not_after": "2028-01-01T00:00:00Z"
+    }
+  ],
+  "identifier_types": [
+    "euid",
+    "lei",
+    "vat",
+    "eori",
+    "iso6523"
+  ],
+  "recovery_window": 259200
+}

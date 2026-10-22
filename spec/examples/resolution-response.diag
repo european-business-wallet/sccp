@@ -1,0 +1,69 @@
+{
+  "head": << [
+    << {
+      1: -8,
+      4: h'775e334bb601d0ae3f7200b77e10c2b9c2958cb0a86052e778b3bb7791b6ef43',
+      33: h'308201123081c5a003020102020101300506032b65703033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a3033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b657003210087efec3277a1f76a54c2911291dc416976e151b0dec8df7bc7835bf0bce56ef7300506032b657003410037ff76e154b86015ef7541b1eabcb41a85e483c26582b1eab601738550d1eda88f48b80898bd59b9bf3a3fd69413b15a1e337a090988b8eb54eba5e36f40ff05'
+    } >>,
+    {},
+    << {
+      "seq": 2,
+      "head": h'ffda0fcda3434715b0685a099b6e388e5c89c8b5b5cbb6acd1122ea08fc8a9a4',
+      "type": "head-statement",
+      "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+      "status": "active",
+      "issued_at": 1792310400,
+      "expires_at": 1792310700
+    } >>,
+    h'fb43abd2ce2850654ae7e18d7d3fa93c0103ab8fe381bec2e0bafdae37ed644cae58c40efd45585e846a9e6ecfbcaa701a8aa8b4a7f783ed92ea05bd005bb109'
+  ] >>,
+  "operation": << [
+    << {
+      1: -8,
+      4: h'7c0599204103c07c108cd13e6876dcfc3bf440d9f9c9121084d8568a784bb86a'
+    } >>,
+    {},
+    << {
+      "rds": {
+        "url": "https://rds.example-provider.eu",
+        "provider": "rds.example-provider.eu"
+      },
+      "prev": h'08011d9bd0de7f100599edb927439bd75f4c1f9107f9ca7e47747e098f17e686',
+      "type": "update",
+      "signed_at": 1792306800,
+      "identifiers": [
+        {
+          "type": "vat",
+          "value": "DE123456789"
+        }
+      ],
+      "rotation_keys": [
+        {
+          1: 1,
+          -1: 6,
+          -2: h'd5753fc8d99deaa4387c4e618e41df8c810dfacfdcc3a598716a3704f1034820'
+        },
+        {
+          1: 1,
+          -1: 6,
+          -2: h'12998839a6e67f1f48114665df3060a529f2fbdc109d7def86406ace1159ac79'
+        }
+      ],
+      "credential_keys": [
+        {
+          1: 1,
+          -1: 6,
+          -2: h'3c01e121ac321e7b3d7e7e915e6b907381e166802d3ef7b3ee4190b24978c387'
+        }
+      ],
+      "acceptance_policies": {
+        "default": "any",
+        "contracts": [
+          "quorum",
+          2
+        ]
+      }
+    } >>,
+    h'9343b9c6eb85dae7f0a6134755597fdca313c4718e21e716806a7c0a901d0bb01d8dce3f0c9aa0e996f87dc5e486fd165948085b1ff1170685d0dcbdbc458f03'
+  ] >>
+}

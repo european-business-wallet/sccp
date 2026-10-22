@@ -1,0 +1,17 @@
+{
+  "to": {
+    "role": "invoices",
+    "owner": "ebw:6ha5v4f3uf5ffcypbnudb45v"
+  },
+  "body": h'6869',
+  "from": {
+    "role": "purchasing",
+    "owner": "ebw:baar3g6q3z7rabmz5w4soq43"
+  },
+  "salt": h'73686f7274',
+  "sent_at": 1792310460,
+  "expires_at": 1793520060,
+  "message_id": h'b526aef1a341cfe6e5c377ed4c222888',
+  "consignment": "basic",
+  "content_type": "text/plain"
+}

@@ -1,0 +1,48 @@
+[package]
+name = "scc"
+version = "0.1.0"
+edition = "2021"
+description = "Reference implementation of the EBW Secure Communication Channel (SCC)"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+name = "scc"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = "1.0.104"
+axum = { version = "0.8.9", features = ["ws"] }
+axum-server = { version = "0.8.0", features = ["tls-rustls"] }
+base64 = "0.23.1"
+cddl = "0.10.7"
+ciborium = "0.2.2"
+clap = { version = "4.6.7", features = ["derive", "env"] }
+coset = "0.4.2"
+data-encoding = "2.11.1"
+ed25519-dalek = { version = "3.0.0", features = ["pkcs8"] }
+flate2 = "1.1.10"
+futures-util = "0.3.34"
+hex = "0.4.3"
+mls-rs = { version = "0.56.0", default-features = false, features = ["std", "rfc_compliant", "tree_index", "fast_serialize", "external_client", "sqlite-bundled"] }
+mls-rs-codec = "0.7.0"
+mls-rs-core = "0.27.0"
+mls-rs-crypto-rustcrypto = "0.22.1"
+p256 = { version = "0.14.0", features = ["ecdsa"] }
+rand = "0.8"
+rcgen = "0.14.10"
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "json"] }
+rustls = "0.23.46"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_bytes = "0.11.19"
+serde_json = "1.0.154"
+sha2 = "0.11.1"
+thiserror = "2.0.21"
+time = "0.3"
+tokio = { version = "1.53.3", features = ["full"] }
+tokio-tungstenite = { version = "0.30.0", features = ["rustls-tls-webpki-roots"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+webpki-roots = "1"
+x509-parser = "0.18.1"
+
