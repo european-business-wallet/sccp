@@ -75,20 +75,20 @@ ebw_a_cert = demo_cert(ebw_a_key, "wallet.example-provider.eu (demo)")
 
 
 def owner(label, provider, url, identifiers, policies):
-    rot = [ed25519_key(f"demo/{label}/rotation/{i}") for i in range(2)]
+    ukeys = [ed25519_key(f"demo/{label}/update/{i}") for i in range(2)]
     cred = ed25519_key(f"demo/{label}/credential/0")
     body = {
         "type": "create",
         "prev": None,
-        "rotation_keys": [cose_key(k) for k in rot],
+        "update_keys": [cose_key(k) for k in ukeys],
         "credential_keys": [cose_key(cred)],
         "rds": {"provider": provider, "url": url},
         "identifiers": identifiers,
         "acceptance_policies": policies,
         "signed_at": T0 - 86400,
     }
-    op = sign1(rot[0], body)
-    return {"rot": rot, "cred": cred, "body": body, "create": op, "owner": url_from_create(op)}
+    op = sign1(ukeys[0], body)
+    return {"ukeys": ukeys, "cred": cred, "body": body, "create": op, "owner": url_from_create(op)}
 
 
 A = owner("owner-a", "rds.example-provider.eu", "https://rds.example-provider.eu",
@@ -104,7 +104,7 @@ write("create-op", A["create"], "operation")
 
 upd_body = dict(A["body"], type="update", prev=sha256(A["create"]), signed_at=T0 - 3600,
                 acceptance_policies={"default": "any", "contracts": ["quorum", 2]})
-update_op = sign1(A["rot"][1], upd_body)
+update_op = sign1(A["ukeys"][1], upd_body)
 write("update-op", update_op, "operation")
 
 
@@ -142,8 +142,8 @@ write("registration-request", dcbor({"submission": sub_create, "proof": b"EDD-de
       "registration-request")
 write("resolution-response", dcbor({"operation": update_op, "head": head_a}), "resolution-response")
 write("log", dcbor([
-    {"submission": sub_create, "received_at": T0 - 86390, "nullified": False},
-    {"submission": sub_update, "received_at": T0 - 3590, "nullified": False},
+    {"submission": sub_create, "received_at": T0 - 86390, "overridden": False},
+    {"submission": sub_update, "received_at": T0 - 3590, "overridden": False},
 ]), "log")
 
 # ---- Credentials (02-credentials.md) ----
@@ -425,8 +425,8 @@ write("evidence-commit-failure", x2, "evidence-artefact")
 
 # ---- Invalid examples: each must fail its rule ----
 
-too_many = dict(A["body"], rotation_keys=[cose_key(ed25519_key(f"x{i}")) for i in range(6)])
-write("create-op-six-rotation-keys", sign1(A["rot"][0], too_many), "operation", valid=False)
+too_many = dict(A["body"], update_keys=[cose_key(ed25519_key(f"x{i}")) for i in range(6)])
+write("create-op-six-update-keys", sign1(A["ukeys"][0], too_many), "operation", valid=False)
 
 bad_claims = {1: A["owner"], 2: "Zz0aaaaaaaa0", 4: T0, 5: T0, 6: T0, 8: {1: cose_key(ep_a_key)}, "roles": []}
 write("credential-no-roles", sign1(A["cred"], bad_claims), "endpoint-credential", valid=False)
@@ -631,13 +631,13 @@ write_json("edd-metadata", {
     "seal_certificates": [{"x5c": [base64.b64encode(edd_cert).decode()],
                            "not_before": "2026-01-01T00:00:00Z", "not_after": "2028-01-01T00:00:00Z"}],
     "identifier_types": ["euid", "lei", "vat", "eori", "iso6523"],
-    "recovery_window": 259200,
+    "recovery_window": 604800,
 }, "edd.openapi.yaml#EddMetadata")
 
 # ---- Self-checks ----
 
-assert verify1(raw_public(A["rot"][0]), A["create"])["type"] == "create"
-assert verify1(raw_public(A["rot"][1]), update_op)["prev"] == sha256(A["create"])
+assert verify1(raw_public(A["ukeys"][0]), A["create"])["type"] == "create"
+assert verify1(raw_public(A["ukeys"][1]), update_op)["prev"] == sha256(A["create"])
 claims = verify1(raw_public(A["cred"]), cred_a)
 assert claims[8][1] == cose_key(ep_a_key)
 assert thumbprint(cose_key(A["cred"])) == cbor2.loads(

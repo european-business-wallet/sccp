@@ -13,8 +13,8 @@ use scc::types::{Address, Consignment, OwnerStatus, EndpointRef};
 use scc::util::{now, random_bytes};
 use serde_bytes::ByteBuf;
 
-const A: &str = "ebw:baar3g6q3z7rabmz5w4soq43";
-const B: &str = "ebw:6ha5v4f3uf5ffcypbnudb45v";
+const A: &str = "ebw:ytf2ob7mxuljkyweuwq4jpr3";
+const B: &str = "ebw:hp7dsh3axazs4spf7xytom23";
 
 fn sealer(name: &str) -> Sealer {
     let key = PrivateKey::generate_ed25519();

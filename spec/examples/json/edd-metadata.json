@@ -16,5 +16,5 @@
     "eori",
     "iso6523"
   ],
-  "recovery_window": 259200
+  "recovery_window": 604800
 }

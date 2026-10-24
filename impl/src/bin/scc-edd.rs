@@ -45,7 +45,7 @@ enum Cmd {
         #[arg(long, default_value_t = 300)]
         head_validity: u64,
         /// Recovery window (§3.4), in seconds.
-        #[arg(long, default_value_t = 259200)]
+        #[arg(long, default_value_t = 604800)]
         recovery_window: u64,
         /// Trust store with the EBW provider seal certificates (§3.6).
         #[arg(long, env = "SCC_TRUST")]

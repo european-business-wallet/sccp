@@ -1,7 +1,7 @@
 [
   << {
     1: -8,
-    4: h'e4954bc5cf1b1046ae55e107b2e82959aefcafe3efd886acfa45f52b432f28ff'
+    4: h'90f893e255ee6eccc22f77189b44642d50d1e489264c8eaa8a41d284eb0088f1'
   } >>,
   {},
   << {
@@ -18,7 +18,7 @@
         "value": "DE123456789"
       }
     ],
-    "rotation_keys": [
+    "update_keys": [
       {
         1: 1,
         -1: 6,
@@ -61,5 +61,5 @@
       "default": "any"
     }
   } >>,
-  h'bf2a3faf6195caaccfae46c3687de578e670417f556167611f549cbe93893b74a4fc1ba53d5cc94656d42b80add94964b0b5d8a6a3b10ec5bbd26009c0663a0b'
+  h'85b90fc921d58edf1d10cb05e385d1354b704e1c6932559a580d699c8a7f2f7fd6376c6df8213938ffa72f7e3535f69683f8abcadf9f9dbd097469dc63f62a0e'
 ]

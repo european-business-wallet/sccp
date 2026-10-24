@@ -280,9 +280,9 @@ etsi-reason-code = tstr .regexp "R[A-F]([0-9]{2}|XX)"
 | `bad-time` | A.2, B.2 | `sent_at` or `expires_at` out of range | RA05, RB06 |
 | `duplicate-message-id` | A.2 | Message ID reused for another message | RA05 |
 | `consignment-unsupported` | A.2, B.2 | Mode not supported | RA05, RB06 |
-| `sender-not-active` | A.2, B.2 | Sender suspended, retired, merged or deactivated | RA05, RB06 |
+| `sender-not-active` | A.2, B.2 | Sender suspended, retired, merged or closed | RA05, RB06 |
 | `recipient-not-active` | A.2, B.2 | Recipient suspended | RA05, RB06 |
-| `recipient-retired` | A.2, B.2, D.2 | Recipient retired or deactivated | RA05, RB21, RD21 |
+| `recipient-retired` | A.2, B.2, D.2 | Recipient retired or closed | RA05, RB21, RD21 |
 | `recipient-merged` | A.2, B.2, D.2 | Recipient merged; see successor in head statement | RA05, RB21, RD21 |
 | `unknown-address` | A.2, B.2 | No such EBW URL, or no eligible endpoint for the role | RA05, RB21 |
 | `no-keypackage` | A.2, B.2 | An eligible endpoint has no KeyPackage (doc 3 §5.1) | RA05, RB06 |

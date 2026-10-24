@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 /// The registry document set by a create or update operation (§3).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RegistryDocument {
-    pub rotation_keys: Vec<CoseKey>,
+    pub update_keys: Vec<CoseKey>,
     pub credential_keys: Vec<CoseKey>,
     pub rds: RdsRef,
     pub identifiers: Vec<Identifier>,
@@ -32,8 +32,8 @@ impl RegistryDocument {
     }
 
     fn check(&self) -> Result<()> {
-        if !(1..=5).contains(&self.rotation_keys.len()) {
-            bail!("rotation_keys must have 1 to 5 keys");
+        if !(1..=5).contains(&self.update_keys.len()) {
+            bail!("update_keys must have 1 to 5 keys");
         }
         if !(1..=5).contains(&self.credential_keys.len()) {
             bail!("credential_keys must have 1 to 5 keys");
@@ -61,7 +61,7 @@ struct OpBodyWire {
     op_type: String,
     prev: Option<ByteBuf>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    rotation_keys: Option<Vec<CoseKey>>,
+    update_keys: Option<Vec<CoseKey>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     credential_keys: Option<Vec<CoseKey>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -79,21 +79,21 @@ struct OpBodyWire {
 pub enum OpBody {
     Create(RegistryDocument),
     Update { prev: Vec<u8>, state: RegistryDocument },
-    Deactivate { prev: Vec<u8> },
+    Close { prev: Vec<u8> },
 }
 
 impl OpBody {
     pub fn prev(&self) -> Option<&[u8]> {
         match self {
             OpBody::Create(_) => None,
-            OpBody::Update { prev, .. } | OpBody::Deactivate { prev } => Some(prev),
+            OpBody::Update { prev, .. } | OpBody::Close { prev } => Some(prev),
         }
     }
 
     pub fn document(&self) -> Option<&RegistryDocument> {
         match self {
             OpBody::Create(s) | OpBody::Update { state: s, .. } => Some(s),
-            OpBody::Deactivate { .. } => None,
+            OpBody::Close { .. } => None,
         }
     }
 
@@ -101,7 +101,7 @@ impl OpBody {
         match self {
             OpBody::Create(_) => "create",
             OpBody::Update { .. } => "update",
-            OpBody::Deactivate { .. } => "deactivate",
+            OpBody::Close { .. } => "close",
         }
     }
 
@@ -109,7 +109,7 @@ impl OpBody {
         let mut w = OpBodyWire {
             op_type: self.type_name().into(),
             prev: self.prev().map(|p| ByteBuf::from(p.to_vec())),
-            rotation_keys: None,
+            update_keys: None,
             credential_keys: None,
             rds: None,
             identifiers: None,
@@ -117,7 +117,7 @@ impl OpBody {
             signed_at: None,
         };
         if let Some(s) = self.document() {
-            w.rotation_keys = Some(s.rotation_keys.clone());
+            w.update_keys = Some(s.update_keys.clone());
             w.credential_keys = Some(s.credential_keys.clone());
             w.rds = Some(s.rds.clone());
             w.identifiers = Some(s.identifiers.clone());
@@ -130,7 +130,7 @@ impl OpBody {
     fn from_wire(w: OpBodyWire) -> Result<Self> {
         let state = || -> Result<RegistryDocument> {
             let s = RegistryDocument {
-                rotation_keys: w.rotation_keys.clone().ok_or_else(|| anyhow!("missing rotation_keys"))?,
+                update_keys: w.update_keys.clone().ok_or_else(|| anyhow!("missing update_keys"))?,
                 credential_keys: w.credential_keys.clone().ok_or_else(|| anyhow!("missing credential_keys"))?,
                 rds: w.rds.clone().ok_or_else(|| anyhow!("missing rds"))?,
                 identifiers: w.identifiers.clone().ok_or_else(|| anyhow!("missing identifiers"))?,
@@ -158,11 +158,11 @@ impl OpBody {
                 OpBody::Create(state()?)
             }
             "update" => OpBody::Update { prev: prev32(&w.prev)?, state: state()? },
-            "deactivate" => {
-                if w.rotation_keys.is_some() || w.rds.is_some() || w.signed_at.is_some() {
-                    bail!("deactivate operation carries state fields");
+            "close" => {
+                if w.update_keys.is_some() || w.rds.is_some() || w.signed_at.is_some() {
+                    bail!("close operation carries state fields");
                 }
-                OpBody::Deactivate { prev: prev32(&w.prev)? }
+                OpBody::Close { prev: prev32(&w.prev)? }
             }
             t => bail!("unknown operation type {t}"),
         })
@@ -200,10 +200,10 @@ impl Operation {
         sha256(&self.raw)
     }
 
-    /// Check the signature against the rotation keys of `signer_state`
+    /// Check the signature against the update keys of `signer_state`
     /// (§3.1). Returns the index of the signing key.
     pub fn verify_with(&self, signer_state: &RegistryDocument) -> Result<usize> {
-        self.cose.verify_kid(&signer_state.rotation_keys)
+        self.cose.verify_kid(&signer_state.update_keys)
     }
 }
 
@@ -399,7 +399,7 @@ pub struct ResolutionResponse {
 pub struct LogEntry {
     pub submission: ByteBuf,
     pub received_at: u64,
-    pub nullified: bool,
+    pub overridden: bool,
 }
 
 /// A registry document resolved from the EDD and checked against a head statement.
@@ -425,7 +425,7 @@ impl ResolvedDocument {
             bail!("head statement does not name the returned operation");
         }
         let document = match &operation.body {
-            OpBody::Deactivate { .. } => bail!("EBW URL is deactivated"),
+            OpBody::Close { .. } => bail!("EBW URL is closed"),
             b => b.document().unwrap().clone(),
         };
         Ok(ResolvedDocument { owner: owner.into(), operation, document, head })
@@ -435,8 +435,8 @@ impl ResolvedDocument {
 /// Audit an EBW URL log (§6.4): the first entry is a create operation whose
 /// hash gives the EBW URL; each entry's submission seal verifies; each
 /// entry is validly signed against the registry document its `prev`
-/// names; the non-nullified entries form a chain. Returns, for each entry,
-/// the operation and the registry document it sets (None for deactivate).
+/// names; the non-overridden entries form a chain. Returns, for each entry,
+/// the operation and the registry document it sets (None for close).
 pub fn audit_log(owner: &str, log: &[LogEntry], trust: &TrustStore) -> Result<Vec<(Operation, Option<RegistryDocument>, bool)>> {
     let mut out: Vec<(Operation, Option<RegistryDocument>, bool)> = Vec::new();
     let mut last_live: Option<Vec<u8>> = None;
@@ -460,22 +460,22 @@ pub fn audit_log(owner: &str, log: &[LogEntry], trust: &TrustStore) -> Result<Ve
                     .iter()
                     .find(|(o, _, _)| o.hash() == prev)
                     .ok_or_else(|| anyhow!("entry {i}: prev names no earlier operation"))?;
-                let pstate = pstate.as_ref().ok_or_else(|| anyhow!("entry {i} follows a deactivation"))?;
+                let pstate = pstate.as_ref().ok_or_else(|| anyhow!("entry {i} follows a close operation"))?;
                 op.verify_with(pstate)?;
-                if !e.nullified && last_live.as_deref() != Some(prev) {
-                    // A recovery: everything after prev must be nullified.
+                if !e.overridden && last_live.as_deref() != Some(prev) {
+                    // A recovery: everything after prev must be overridden.
                     let pos = out.iter().position(|(o, _, _)| o.hash() == prev).unwrap();
                     if out[pos + 1..].iter().any(|(_, _, n)| !*n) {
-                        bail!("entry {i}: recovery leaves non-nullified operations");
+                        bail!("entry {i}: recovery leaves non-overridden operations");
                     }
                 }
             }
         }
-        if !e.nullified {
+        if !e.overridden {
             last_live = Some(op.hash());
         }
         let st = op.body.document().cloned();
-        out.push((op, st, e.nullified));
+        out.push((op, st, e.overridden));
     }
     if out.is_empty() {
         bail!("empty log");

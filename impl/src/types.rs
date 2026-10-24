@@ -173,7 +173,7 @@ pub enum OwnerStatus {
     Suspended,
     Retired,
     Merged,
-    Deactivated,
+    Closed,
 }
 
 impl OwnerStatus {
@@ -183,7 +183,7 @@ impl OwnerStatus {
             OwnerStatus::Suspended => "suspended",
             OwnerStatus::Retired => "retired",
             OwnerStatus::Merged => "merged",
-            OwnerStatus::Deactivated => "deactivated",
+            OwnerStatus::Closed => "closed",
         }
     }
 }

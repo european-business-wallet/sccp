@@ -27,39 +27,39 @@ fn manifest_owner(o: &str) -> String {
 }
 
 fn owner_a_state() -> (RegistryDocument, Vec<PrivateKey>, PrivateKey) {
-    let rot: Vec<PrivateKey> = (0..2).map(|i| PrivateKey::ed25519_from_label(&format!("demo/owner-a/rotation/{i}"))).collect();
+    let ukeys: Vec<PrivateKey> = (0..2).map(|i| PrivateKey::ed25519_from_label(&format!("demo/owner-a/update/{i}"))).collect();
     let cred = PrivateKey::ed25519_from_label("demo/owner-a/credential/0");
     let mut pol = BTreeMap::new();
     pol.insert("default".to_string(), AcceptancePolicy::Any);
     let st = RegistryDocument {
-        rotation_keys: rot.iter().map(|k| k.public()).collect(),
+        update_keys: ukeys.iter().map(|k| k.public()).collect(),
         credential_keys: vec![cred.public()],
         rds: RdsRef { provider: "rds.example-provider.eu".into(), url: "https://rds.example-provider.eu".into() },
         identifiers: vec![Identifier { id_type: "vat".into(), value: "DE123456789".into() }],
         acceptance_policies: pol,
         signed_at: T0 - 86400,
     };
-    (st, rot, cred)
+    (st, ukeys, cred)
 }
 
 #[test]
 fn create_op_reproduces() {
-    let (st, rot, _) = owner_a_state();
-    let op = Operation::sign(OpBody::Create(st), &rot[0]);
+    let (st, ukeys, _) = owner_a_state();
+    let op = Operation::sign(OpBody::Create(st), &ukeys[0]);
     assert_eq!(op.raw, ex("create-op.cbor"), "create-op.cbor differs");
     assert_eq!(registry::url_from_create(&op.raw), manifest_owner("A"));
 }
 
 #[test]
 fn update_op_verifies_and_reproduces() {
-    let (st, rot, _) = owner_a_state();
+    let (st, ukeys, _) = owner_a_state();
     let create = Operation::parse(&ex("create-op.cbor")).unwrap();
     let upd = Operation::parse(&ex("update-op.cbor")).unwrap();
     assert_eq!(upd.body.prev().unwrap(), create.hash().as_slice());
     assert_eq!(upd.verify_with(&st).unwrap(), 1);
     let mut st2 = upd.body.document().unwrap().clone();
     st2.signed_at = T0 - 3600;
-    let again = Operation::sign(OpBody::Update { prev: create.hash(), state: st2 }, &rot[1]);
+    let again = Operation::sign(OpBody::Update { prev: create.hash(), state: st2 }, &ukeys[1]);
     assert_eq!(again.raw, upd.raw);
     // The log audits.
     let log: Vec<registry::LogEntry> = cbor::from_slice(&ex("log.cbor")).unwrap();
@@ -88,9 +88,9 @@ fn head_statement_and_attestation_verify() {
     let sub = registry::Submission::parse(&req.submission).unwrap();
     sub.verify(&trust, T0).unwrap();
     assert_eq!(sub.op.raw, ex("create-op.cbor"));
-    let upd = registry::Submission::parse(&ex("submission.cbor")).unwrap();
-    upd.verify(&trust, T0).unwrap();
-    assert_eq!(upd.op.raw, ex("update-op.cbor"));
+    let ukeys = registry::Submission::parse(&ex("submission.cbor")).unwrap();
+    ukeys.verify(&trust, T0).unwrap();
+    assert_eq!(ukeys.op.raw, ex("update-op.cbor"));
 }
 
 #[test]
@@ -167,7 +167,7 @@ fn evidence_package_chain_and_statements() {
 
 #[test]
 fn invalid_examples_are_rejected() {
-    assert!(Operation::parse(&ex("invalid/create-op-six-rotation-keys.cbor")).is_err());
+    assert!(Operation::parse(&ex("invalid/create-op-six-update-keys.cbor")).is_err());
     assert!(Credential::parse(&ex("invalid/credential-no-roles.cbor")).is_err());
     assert!(Credential::parse(&ex("invalid/credential-no-status.cbor")).is_err());
     assert!(HeadStatement::parse(&ex("invalid/head-statement-bad-owner.cbor")).is_err());

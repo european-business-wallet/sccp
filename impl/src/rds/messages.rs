@@ -368,7 +368,7 @@ impl Rds {
                 "sender-not-active"
             } else {
                 match status {
-                    OwnerStatus::Retired | OwnerStatus::Deactivated => "recipient-retired",
+                    OwnerStatus::Retired | OwnerStatus::Closed => "recipient-retired",
                     OwnerStatus::Merged => "recipient-merged",
                     _ => "recipient-not-active",
                 }

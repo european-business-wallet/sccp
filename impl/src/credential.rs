@@ -413,7 +413,7 @@ mod tests {
     #[test]
     fn status_list_roundtrip() {
         let k = PrivateKey::generate_ed25519();
-        let owner = "ebw:baar3g6q3z7rabmz5w4soq43";
+        let owner = "ebw:ytf2ob7mxuljkyweuwq4jpr3";
         let t = StatusListToken::build(&k, owner, "https://x/1", &[0, 0, 0, 1, 0, 2, 0, 0], 100, 200, Some(10));
         assert_eq!(t.claims.bits, 2);
         assert_eq!(t.status(3).unwrap(), 1);

@@ -100,7 +100,7 @@ sequenceDiagram
 - **Registry document:** the identity, keying and routing information
   for an EBW URL, as set by the latest valid operation in its log
   (doc 1).
-- **Rotation key:** a key in the registry document that may sign operations.
+- **Update key:** a key in the registry document that may sign operations.
 - **Credential key:** a key in the registry document that may sign endpoint
   credentials.
 - **Endpoint key:** a long-lived key held by one endpoint and certified by
@@ -154,7 +154,7 @@ capitals.
 
 | Identifier | Form | Example |
 |---|---|---|
-| EBW URL | `ebw:` + 24 base32 characters | `ebw:baar3g6q3z7rabmz5w4soq43` |
+| EBW URL | `ebw:` + 24 base32 characters | `ebw:ytf2ob7mxuljkyweuwq4jpr3` |
 | Role | 1 to 32 characters from `a-z`, `0-9`, `-` | `invoices` |
 | Subject ID | Opaque, 1 to 64 characters from `A-Z`, `a-z`, `0-9`, `_`, `-` | `Kq7vT2mXr9Lp` |
 | Message ID | 16 random bytes | `h'0192f1a3...'` |

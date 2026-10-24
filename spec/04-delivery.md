@@ -62,7 +62,7 @@ SCC uses WMP's error codes where they fit, and adds codes in the range
 | -31106 | Invalid credential | A credential failed verification (doc 2 §3) |
 | -31107 | Duplicate message ID | The message ID was used for a different message |
 | -31108 | Bad time | `sent_at` or `expires_at` is out of range |
-| -31109 | Owner not active | An EBW owner is suspended, retired, merged or deactivated. `data` has `owner` and `status` |
+| -31109 | Owner not active | An EBW owner is suspended, retired, merged or closed. `data` has `owner` and `status` |
 | -31110 | Unknown address | The EBW URL does not exist, or the role has no eligible endpoints |
 | -31111 | Wrong RDS | The EBW URL is not served by this RDS |
 | -31112 | Evidence incomplete | The message has no terminal event yet, or the RDS does not yet hold its whole evidence chain |
@@ -196,7 +196,7 @@ Example:
 
 ```json
 {"jsonrpc": "2.0", "id": "c1", "method": "scc.connect",
- "params": {"versions": ["scc/1"], "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+ "params": {"versions": ["scc/1"], "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
             "subject": "Kq7vT2mXr9Lp"}}
 
 {"jsonrpc": "2.0", "id": "c1",
@@ -287,7 +287,7 @@ the address is served by another RDS, its home RDS calls
 
 ```json
 {"jsonrpc": "2.0", "id": "k2", "method": "scc.keypackage.get",
- "params": {"address": {"owner": "ebw:6ha5v4f3uf5ffcypbnudb45v", "role": "invoices"},
+ "params": {"address": {"owner": "ebw:hp7dsh3axazs4spf7xytom23", "role": "invoices"},
             "cipher_suite": 1}}
 
 {"jsonrpc": "2.0", "id": "k2",
@@ -341,8 +341,8 @@ The sender submits a message with `wmp.message.deliver`:
    "message": "AAEAAgAQXA6a...",
    "meta": {
      "message_id": "AZLxo7bWdsSRiMFmJqsa8g",
-     "from": {"owner": "ebw:baar3g6q3z7rabmz5w4soq43", "role": "purchasing"},
-     "to": {"owner": "ebw:6ha5v4f3uf5ffcypbnudb45v", "role": "invoices"},
+     "from": {"owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3", "role": "purchasing"},
+     "to": {"owner": "ebw:hp7dsh3axazs4spf7xytom23", "role": "invoices"},
      "sent_at": 1792310460,
      "expires_at": 1793520060,
      "consignment": "consented"
@@ -514,7 +514,7 @@ list every handover attempt in `handovers`, with its steps and result.
 
 D.1 is not a final outcome. D-class events end a message only when
 consignment itself fails fatally: D.2 ContentConsignmentFailure when the
-recipient is retired, merged or deactivated (§7.8).
+recipient is retired, merged or closed (§7.8).
 
 ```mermaid
 sequenceDiagram
@@ -620,7 +620,7 @@ decrypted it and confirmed the plaintext hash.
 | B.1, B.2, B.3 | Yes | Relay accepted, rejected or failed (§7.2) |
 | C.1, C.2, C.3, C.4, C.5, C.6 | In `consented` mode | §7.4 |
 | D.1 | Yes | Message made available to the recipient's endpoints (§7.3). Not final. |
-| D.2 | Yes | Consignment failed fatally: recipient retired, merged or deactivated (§7.8) |
+| D.2 | Yes | Consignment failed fatally: recipient retired, merged or closed (§7.8) |
 | D.3, D.4, D.5 | No | SCC has no separate notification channel |
 | D.6 | No | Access is part of the handover (E.1); EN 319 522-1 Table 1 note 4 says E.1 and D.6 should not both be present |
 | E.1 | Yes | Successful handover: delivered (§7.3) |
@@ -690,7 +690,7 @@ If the recipient becomes `suspended`, the receiving RDS **holds** the
 message: it stops delivering and issuing evidence, but keeps the message.
 If the suspension ends before `expires_at`, delivery resumes. Otherwise
 the message expires (C.2, C.5 or E.2). If the recipient becomes `retired`,
-`merged` or `deactivated`, the receiving RDS ends the message with D.2 and
+`merged` or `closed`, the receiving RDS ends the message with D.2 and
 the matching reason.
 
 ## 8. Sessions and Commits
@@ -779,7 +779,7 @@ since registered or been revoked. The answering RDS chooses the period.
 
 ```json
 {"jsonrpc": "2.0", "id": "f1", "method": "scc.rds.subjects",
- "params": {"address": {"owner": "ebw:6ha5v4f3uf5ffcypbnudb45v", "role": "invoices"},
+ "params": {"address": {"owner": "ebw:hp7dsh3axazs4spf7xytom23", "role": "invoices"},
             "cipher_suite": 1}}
 
 {"jsonrpc": "2.0", "id": "f1",

@@ -54,7 +54,7 @@ pub struct OwnerConfig {
     pub edd: String,
     /// Directory of the EBW provider that submits this owner's operations.
     pub provider: PathBuf,
-    pub rotation_keys: Vec<PrivateKey>,
+    pub update_keys: Vec<PrivateKey>,
     pub credential_key: PrivateKey,
     pub rds: RdsRef,
     pub status_uri: String,
@@ -89,25 +89,25 @@ impl Owner {
         if dir.join("owner.json").exists() {
             bail!("{} already holds an owner", dir.display());
         }
-        let rotation_keys = vec![PrivateKey::generate_ed25519(), PrivateKey::generate_ed25519()];
+        let update_keys = vec![PrivateKey::generate_ed25519(), PrivateKey::generate_ed25519()];
         let credential_key = PrivateKey::generate_ed25519();
         let mut acceptance_policies = policies;
         acceptance_policies.entry("default".into()).or_insert(AcceptancePolicy::Any);
         let state = RegistryDocument {
-            rotation_keys: rotation_keys.iter().map(|k| k.public()).collect(),
+            update_keys: update_keys.iter().map(|k| k.public()).collect(),
             credential_keys: vec![credential_key.public()],
             rds: rds.clone(),
             identifiers,
             acceptance_policies,
             signed_at: now(),
         };
-        let op = Operation::sign(OpBody::Create(state), &rotation_keys[0]);
+        let op = Operation::sign(OpBody::Create(state), &update_keys[0]);
         let sub = EbwProvider::load(provider)?.submit(&op);
         let r = edd.register(&sub, b"demo identity proof").await?;
         let status_uri = crate::rds::Rds::status_uri(&rds.url, &r.owner);
         let o = Owner {
             dir: dir.into(),
-            cfg: OwnerConfig { owner: r.owner, edd: edd.base.clone(), provider: provider.into(), rotation_keys, credential_key, rds, status_uri, issued: vec![] },
+            cfg: OwnerConfig { owner: r.owner, edd: edd.base.clone(), provider: provider.into(), update_keys, credential_key, rds, status_uri, issued: vec![] },
         };
         o.save()?;
         Ok(o)

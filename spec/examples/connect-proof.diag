@@ -6,11 +6,11 @@
   {},
   << {
     "type": "connect-proof",
-    "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+    "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
     "subject": "Kq7vT2mXr9Lp",
     "provider": "rds.example-provider.eu",
     "challenge": h'2dd00bd77e0222ced882665481a9c1d9',
     "signed_at": 1792310450
   } >>,
-  h'669b0df9b1dd1912871f878ccc753eb2c2cf2d409df7c035ba970449c246de40fc913fac31b2c07a741160048b27d66da529e441edbbdf36ff2491ff89499f08'
+  h'4a690ea16bfbe7c486e7fe229b5439e6649c7cb3f20ce6386f71f9673ba3f57d23a8832f4d5a2814f011d3b0879cdd42ae41475856db679fe4383eb30173be0e'
 ]

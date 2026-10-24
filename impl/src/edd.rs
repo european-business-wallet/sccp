@@ -64,8 +64,8 @@ struct Entry {
     /// operation.
     sub: Submission,
     received_at: u64,
-    nullified: bool,
-    /// Index of the signing key in the rotation keys it was checked against.
+    overridden: bool,
+    /// Index of the signing key in the update keys it was checked against.
     signer_index: usize,
 }
 
@@ -78,15 +78,15 @@ struct RegistryRecord {
 
 impl RegistryRecord {
     fn head(&self) -> &Entry {
-        self.entries.iter().rev().find(|e| !e.nullified).expect("an EBW URL has a create operation")
+        self.entries.iter().rev().find(|e| !e.overridden).expect("an EBW URL has a create operation")
     }
 
     fn seq(&self) -> u64 {
-        self.entries.iter().filter(|e| !e.nullified).count() as u64
+        self.entries.iter().filter(|e| !e.overridden).count() as u64
     }
 
-    fn deactivated(&self) -> bool {
-        matches!(self.head().sub.op.body, OpBody::Deactivate { .. })
+    fn closed(&self) -> bool {
+        matches!(self.head().sub.op.body, OpBody::Close { .. })
     }
 }
 
@@ -129,7 +129,7 @@ impl Edd {
 
     fn head_statement(&self, owner: &str, rec: &RegistryRecord) -> Vec<u8> {
         let t = now();
-        let status = if rec.deactivated() { OwnerStatus::Deactivated } else { rec.status };
+        let status = if rec.closed() { OwnerStatus::Closed } else { rec.status };
         HeadStatement::issue(
             &self.sealer,
             &HeadStatementBody {
@@ -206,7 +206,7 @@ impl Edd {
             self.attest(&mut st, &owner, id)?;
         }
         let rec = RegistryRecord {
-            entries: vec![Entry { sub: sub.clone(), received_at: now(), nullified: false, signer_index: idx }],
+            entries: vec![Entry { sub: sub.clone(), received_at: now(), overridden: false, signer_index: idx }],
             status: OwnerStatus::Active,
             successor: None,
         };
@@ -216,7 +216,7 @@ impl Edd {
         Ok(cbor::to_vec(&RegistrationResponse { owner, head: ByteBuf::from(head) }).unwrap())
     }
 
-    /// `POST /{url}` (§6.5): an update or deactivate operation in a
+    /// `POST /{url}` (§6.5): an update or close operation in a
     /// submission, with the recovery rule of §3.4.
     pub fn update(&self, owner: &str, body: &[u8]) -> PResult<Vec<u8>> {
         let sub = self.submission(body)?;
@@ -227,8 +227,8 @@ impl Edd {
         };
         let mut st = self.state.lock().unwrap();
         let rec = st.owners.get(owner).ok_or_else(|| Problem::not_found(owner))?.clone();
-        if rec.deactivated() {
-            return Err(Problem::new(410, "deactivated", format!("{owner} is deactivated")));
+        if rec.closed() {
+            return Err(Problem::new(410, "closed", format!("{owner} is closed")));
         }
         let head = rec.head();
         let mut rec2 = rec.clone();
@@ -241,16 +241,16 @@ impl Edd {
             let pos = rec
                 .entries
                 .iter()
-                .position(|e| !e.nullified && e.sub.op.hash() == prev)
+                .position(|e| !e.overridden && e.sub.op.hash() == prev)
                 .ok_or_else(|| Problem::new(409, "stale-prev", "prev names no live operation"))?;
             let pstate = rec.entries[pos]
                 .sub
                 .op
                 .body
                 .document()
-                .ok_or_else(|| Problem::new(409, "stale-prev", "prev is a deactivation"))?;
+                .ok_or_else(|| Problem::new(409, "stale-prev", "prev is a close operation"))?;
             let i = op.verify_with(pstate).map_err(|e| Problem::new(403, "unauthorized-key", e.to_string()))?;
-            let later: Vec<&Entry> = rec.entries[pos + 1..].iter().filter(|e| !e.nullified).collect();
+            let later: Vec<&Entry> = rec.entries[pos + 1..].iter().filter(|e| !e.overridden).collect();
             if later.iter().any(|e| e.signer_index <= i) {
                 return Err(Problem::new(409, "stale-prev", "a later operation was signed by a key of equal or higher priority"));
             }
@@ -259,17 +259,17 @@ impl Edd {
                 return Err(Problem::new(409, "stale-prev", "recovery window has passed"));
             }
             for e in rec2.entries[pos + 1..].iter_mut() {
-                e.nullified = true;
+                e.overridden = true;
             }
             signer_index = i;
         }
         if let Some(s) = op.body.document() {
             self.check_identifiers(&st, owner, &s.identifiers)?;
         }
-        if matches!(op.body, OpBody::Deactivate { .. }) {
-            rec2.status = OwnerStatus::Deactivated;
+        if matches!(op.body, OpBody::Close { .. }) {
+            rec2.status = OwnerStatus::Closed;
         }
-        rec2.entries.push(Entry { sub: sub.clone(), received_at: now(), nullified: false, signer_index });
+        rec2.entries.push(Entry { sub: sub.clone(), received_at: now(), overridden: false, signer_index });
         let head = self.head_statement(owner, &rec2);
         st.owners.insert(owner.into(), rec2);
         Ok(head)
@@ -303,7 +303,7 @@ impl Edd {
         }
         let log: Vec<LogEntry> = entries
             .iter()
-            .map(|e| LogEntry { submission: ByteBuf::from(e.sub.raw.clone()), received_at: e.received_at, nullified: e.nullified })
+            .map(|e| LogEntry { submission: ByteBuf::from(e.sub.raw.clone()), received_at: e.received_at, overridden: e.overridden })
             .collect();
         Ok(cbor::to_vec(&log).unwrap())
     }
@@ -376,7 +376,7 @@ impl EddClient {
         Ok(r)
     }
 
-    /// Submit an update or deactivate operation, in a submission (§6.5).
+    /// Submit an update or close operation, in a submission (§6.5).
     pub async fn update(&self, owner: &str, submission: &[u8]) -> Result<HeadStatement> {
         let resp = crate::net::post_cbor(&self.http, &format!("{}/{}", self.base, owner), submission.to_vec()).await?;
         let h = HeadStatement::parse(&resp)?;

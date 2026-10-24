@@ -7,12 +7,12 @@
   {},
   << {
     "seq": 2,
-    "head": h'ffda0fcda3434715b0685a099b6e388e5c89c8b5b5cbb6acd1122ea08fc8a9a4',
+    "head": h'048e6b41b24c7098e54a5cb675d8aa3f378e6958e02727c5c4b7b117bdfaeaec',
     "type": "head-statement",
-    "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+    "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
     "status": "active",
     "issued_at": 1792310400,
     "expires_at": 1792310700
   } >>,
-  h'fb43abd2ce2850654ae7e18d7d3fa93c0103ab8fe381bec2e0bafdae37ed644cae58c40efd45585e846a9e6ecfbcaa701a8aa8b4a7f783ed92ea05bd005bb109'
+  h'78f8abb572305cc86311d55dc4cfbed74d163107c3c83cc1a2059e3ed6dd2db12c9975f82abf90fc4f8363bd335b51f56ff8afd6b6f45a29dacf914fd3d77902'
 ]

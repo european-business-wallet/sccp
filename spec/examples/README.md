@@ -20,8 +20,8 @@ The two EBW owners in the examples are:
 
 | Owner | EBW URL | RDS | Policies |
 |---|---|---|---|
-| A (sender) | `ebw:baar3g6q3z7rabmz5w4soq43` | `rds.example-provider.eu` | `default: any` |
-| B (recipient) | `ebw:6ha5v4f3uf5ffcypbnudb45v` | `rds.other-provider.eu` | `default: any`, `invoices: quorum 2` |
+| A (sender) | `ebw:ytf2ob7mxuljkyweuwq4jpr3` | `rds.example-provider.eu` | `default: any` |
+| B (recipient) | `ebw:hp7dsh3axazs4spf7xytom23` | `rds.other-provider.eu` | `default: any`, `invoices: quorum 2` |
 
 Endpoint A/`Kq7vT2mXr9Lp` (role `purchasing`) sends an invoice in
 `consented` mode to B's `invoices` role. B's endpoints `Bx4nW8sYt2Qe` and
@@ -45,7 +45,7 @@ against.
 | Example | Rule | Shows |
 |---|---|---|
 | `create-op` | `operation` | Owner A's create operation |
-| `update-op` | `operation` | An update signed by A's second rotation key, adding an acceptance policy |
+| `update-op` | `operation` | An update signed by A's second update key, adding an acceptance policy |
 | `submission` | `submission` | The update, sealed by A's EBW provider for submission to the EDD |
 | `head-statement` | `head-statement` | The EDD's head statement for A |
 | `identifier-attestation` | `identifier-attestation` | A's VAT number attested by the EDD |

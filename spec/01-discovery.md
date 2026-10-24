@@ -5,12 +5,12 @@
 ## 1. Introduction
 
 Each EBW owner has a digital address: an **EBW URL**, such as
-`ebw:baar3g6q3z7rabmz5w4soq43`. The part after `ebw:` is derived from a
+`ebw:ytf2ob7mxuljkyweuwq4jpr3`. The part after `ebw:` is derived from a
 hash of the operation that created it. The European Digital Directory
 (EDD) stores, for each EBW URL, a log of signed operations. The latest
 valid operation sets the URL's **registry document**, which holds:
 
-- the **rotation keys** that may sign later operations;
+- the **update keys** that may sign later operations;
 - the **credential keys** that may sign endpoint credentials (doc 2);
 - the owner's **home RDS**;
 - the owner's **existing identifiers**, such as an EUID or VAT number;
@@ -23,7 +23,7 @@ The EDD also signs two kinds of statement:
 - a **head statement**, which gives the current head of an EBW URL's log and
   the owner's lifecycle status.
 
-Operations are signed by the owner's rotation keys. The owner's EBW
+Operations are signed by the owner's update keys. The owner's EBW
 provider submits them to the EDD on the owner's behalf, and seals each one
 when it submits it (§3.6).
 
@@ -35,7 +35,7 @@ identifiers, and EDD-managed lifecycle status.
 ### 1.1 Trust in the EDD
 
 The EDD cannot forge or corrupt a registry document, because every
-operation is signed by a rotation key. Relying parties can check a
+operation is signed by an update key. Relying parties can check a
 registry document without trusting the EDD. The EDD is trusted only:
 
 1. not to refuse valid operations;
@@ -74,7 +74,7 @@ operation whose EBW URL is already registered.
 An operation is a COSE_Sign1. Its payload is an `op-body`:
 
 ```cddl
-op-body = create-op / update-op / deactivate-op
+op-body = create-op / update-op / close-op
 
 create-op = {
   "type": "create",
@@ -88,13 +88,13 @@ update-op = {
   registry-document,
 }
 
-deactivate-op = {
-  "type": "deactivate",
+close-op = {
+  "type": "close",
   "prev": op-hash,
 }
 
 registry-document = (
-  "rotation_keys": [1*5 COSE_Key],
+  "update_keys": [1*5 COSE_Key],
   "credential_keys": [1*5 COSE_Key],
   "rds": rds-ref,
   "identifiers": [* identifier],
@@ -121,18 +121,18 @@ The protected header of the COSE_Sign1 MUST contain:
 
 The signing key MUST be one of:
 
-- for a create operation: the operation's own `rotation_keys`;
-- for any other operation: the `rotation_keys` of the registry document
+- for a create operation: the operation's own `update_keys`;
+- for any other operation: the `update_keys` of the registry document
   set by the operation named in `prev`.
 
 ### 3.2 Fields
 
-**`rotation_keys`** — keys that may sign operations, in order of priority.
+**`update_keys`** — keys that may sign operations, in order of priority.
 Index 0 has the highest priority. Priority matters only for recovery
 (§3.4).
 
 **`credential_keys`** — keys that may sign endpoint credentials. They
-SHOULD NOT also be rotation keys.
+SHOULD NOT also be update keys.
 
 **`rds`** — the owner's home RDS:
 
@@ -196,7 +196,7 @@ The EDD MUST accept an operation only if all of these hold:
    matching `op-body`, in a valid submission (§3.6).
 2. The signature verifies with a key allowed by §3.1.
 3. `prev` names the current head, or the recovery rule (§3.4) applies.
-4. The EBW URL is not deactivated.
+4. The EBW URL is not closed.
 5. Every identifier in the new registry document is attested for this
    EBW URL (§4).
 6. The `rds.url` is an `https` URL.
@@ -205,14 +205,14 @@ A create operation is accepted only through registration (§6.2).
 
 ### 3.4 Recovery
 
-A rotation key can override recent operations signed by lower-priority
+An update key can override recent operations signed by lower-priority
 keys. This lets an owner undo changes made by a compromised or misbehaving
 key, such as one held by its RDS.
 
-An update or deactivate operation MAY name in `prev` an operation `P`
+An update or close operation MAY name in `prev` an operation `P`
 that is not the current head, if:
 
-1. it is signed by the rotation key at index `i` in the registry
+1. it is signed by the update key at index `i` in the registry
    document set by `P`;
 2. every operation after `P` was signed by a key with an index greater
    than `i` in the registry document that operation was checked
@@ -221,24 +221,24 @@ that is not the current head, if:
    recovery window ago. The EDD publishes the window in its metadata
    (§6.6).
 
-The operations after `P` are then **nullified**. They stay in the log,
-marked as nullified, and the new operation becomes the head.
+The operations after `P` are then **overridden**. They stay in the log,
+marked as overridden, and the new operation becomes the head.
 
 ```mermaid
 flowchart LR
-    C[create] --> U1[update 1<br/>signed by rot key 1]
-    U1 --> U2[update 2<br/>signed by rot key 1]
-    C -. recovery .-> R[update R<br/>signed by rot key 0]
-    U1:::nullified
-    U2:::nullified
-    classDef nullified stroke-dasharray: 5 5
+    C[create] --> U1[update 1<br/>signed by update key 1]
+    U1 --> U2[update 2<br/>signed by update key 1]
+    C -. recovery .-> R[update R<br/>signed by update key 0]
+    U1:::overridden
+    U2:::overridden
+    classDef overridden stroke-dasharray: 5 5
 ```
 
-### 3.5 Deactivation
+### 3.5 Closing
 
-A deactivate operation ends the EBW URL. The EDD MUST NOT accept later
+A close operation ends the EBW URL. The EDD MUST NOT accept later
 operations. Resolution returns the last registry document with status
-`deactivated`.
+`closed`.
 
 ### 3.6 Submission
 
@@ -260,7 +260,7 @@ seal verifies, and that the certificate was valid and qualified when the
 EDD received the submission, using the EU Trusted Lists.
 
 The seal records which provider submitted the operation. It does not
-authorize the operation: only the rotation key's signature does (§3.1).
+authorize the operation: only the update key's signature does (§3.1).
 The EDD keeps the submission in the log (§6.4), so an auditor can see
 which provider submitted each operation.
 
@@ -307,7 +307,7 @@ not in it, because the EDD sets it, not the owner.
 | `suspended` | Temporarily barred, e.g. by a court order | RDSes hold in-flight messages and reject new ones. Held messages expire normally. |
 | `retired` | The entity no longer exists | Messages fail with reason `recipient-retired`. |
 | `merged` | The entity merged into another | Messages fail with reason `recipient-merged`. The statement names the successor EBW URL. |
-| `deactivated` | The owner deactivated the EBW URL | As `retired`. |
+| `closed` | The owner closed the EBW URL | As `retired`. |
 
 ### 5.2 Head statement
 
@@ -318,13 +318,13 @@ head-statement-body = {
   "type": "head-statement",
   "owner": ebw-url,
   "head": op-hash,
-  "seq": uint,                ; number of non-nullified operations
+  "seq": uint,                ; number of non-overridden operations
   "status": owner-status,
   ? "successor": ebw-url,         ; present if status is "merged"
   "issued_at": time,
   "expires_at": time,
 }
-owner-status = "active" / "suspended" / "retired" / "merged" / "deactivated"
+owner-status = "active" / "suspended" / "retired" / "merged" / "closed"
 ```
 
 The statement is valid from `issued_at` until `expires_at`. The EDD
@@ -368,7 +368,7 @@ Errors use Concise Problem Details (RFC 9290,
 | EDD metadata | `GET /.well-known/edd` | EDD keys and limits (JSON) |
 
 `{url}` is the whole EBW URL, for example
-`GET /ebw:baar3g6q3z7rabmz5w4soq43`. All reads are public. Signed objects
+`GET /ebw:ytf2ob7mxuljkyweuwq4jpr3`. All reads are public. Signed objects
 state their own validity, and MUST NOT be relied on outside it. For other
 responses, clients follow the HTTP caching headers the EDD sends.
 
@@ -410,7 +410,7 @@ sequenceDiagram
     participant O as EBW owner
     participant P as EBW provider
     participant EDD
-    O->>O: generate rotation and credential keys
+    O->>O: generate update and credential keys
     O->>O: build and sign create operation
     O->>P: create operation, identification
     P->>P: seal submission
@@ -429,14 +429,14 @@ existing identifier, or 404. The `value` is percent-encoded.
 ### 6.4 Auditing
 
 `GET /{url}/log` returns every operation for the EBW URL in order,
-including nullified ones, in the submissions that carried them:
+including overridden ones, in the submissions that carried them:
 
 ```cddl
 log = [+ log-entry]
 log-entry = {
   "submission": bstr .cbor submission,
   "received_at": time,        ; EDD receipt time
-  "nullified": bool,
+  "overridden": bool,
 }
 ```
 
@@ -449,7 +449,7 @@ An auditor checks that:
 2. each entry is valid under §3.3 against the registry document before
    it, or is a valid recovery (§3.4), and its submission seal verifies
    (§3.6);
-3. the head in a recent head statement is the last non-nullified entry.
+3. the head in a recent head statement is the last non-overridden entry.
 
 Auditors SHOULD compare logs fetched at different times and from
 different vantage points. A log that shrinks, or two logs that disagree
@@ -457,7 +457,7 @@ on an operation's successor, shows the EDD misbehaving.
 
 ### 6.5 Update
 
-`POST /{url}` submits an update or deactivate operation, in an encoded
+`POST /{url}` submits an update or close operation, in an encoded
 submission (§3.6). The EDD checks it (§3.3) and returns the new head
 statement.
 
@@ -468,7 +468,7 @@ statement.
 | Bad signature or key not allowed | 403 | `unauthorized-key` |
 | `prev` is not the head and recovery does not apply | 409 | `stale-prev` |
 | Identifier not attested | 422 | `identifier-not-attested` |
-| EBW URL deactivated | 410 | `deactivated` |
+| EBW URL closed | 410 | `closed` |
 
 ### 6.6 EDD metadata
 
@@ -481,7 +481,7 @@ statement.
     {"x5c": ["MIIC...", "MIID..."], "not_before": "2026-01-01T00:00:00Z", "not_after": "2028-01-01T00:00:00Z"}
   ],
   "identifier_types": ["euid", "lei", "vat", "eori", "iso6523"],
-  "recovery_window": 259200
+  "recovery_window": 604800
 }
 ```
 
@@ -512,7 +512,7 @@ A create operation, in CBOR diagnostic notation (payload shown decoded):
   / payload / << {
     "type": "create",
     "prev": null,
-    "rotation_keys": [
+    "update_keys": [
       { 1: 1, -1: 6, -2: h'd75a...511a' },
       { 1: 1, -1: 6, -2: h'3d40...660c' }
     ],
@@ -534,8 +534,8 @@ Complete examples are in [`examples/`](examples/): `create-op.diag`,
 
 ## 9. Security considerations
 
-- **Rotation key custody.** An owner SHOULD hold its highest-priority
-  rotation key offline. A lower-priority key MAY be held by the RDS for
+- **Update key custody.** An owner SHOULD hold its highest-priority
+  update key offline. A lower-priority key MAY be held by the RDS for
   routine updates. The owner can then undo the RDS's changes within the
   recovery window.
 - **Withholding.** The EDD could serve different logs to different

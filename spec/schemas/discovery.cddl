@@ -4,7 +4,7 @@
 
 operation = [cose-protected, cose-unprotected, payload: bstr .cbor op-body, cose-signature]
 
-op-body = create-op / update-op / deactivate-op
+op-body = create-op / update-op / close-op
 
 op-hash = hash32                              ; SHA-256 of an encoded operation
 
@@ -20,13 +20,13 @@ update-op = {
   registry-document,
 }
 
-deactivate-op = {
-  "type": "deactivate",
+close-op = {
+  "type": "close",
   "prev": op-hash,
 }
 
 registry-document = (
-  "rotation_keys": [1*5 COSE_Key],
+  "update_keys": [1*5 COSE_Key],
   "credential_keys": [1*5 COSE_Key],
   "rds": rds-ref,
   "identifiers": [* identifier],
@@ -90,7 +90,7 @@ head-statement-body = {
   "expires_at": time,
 }
 
-owner-status = "active" / "suspended" / "retired" / "merged" / "deactivated"
+owner-status = "active" / "suspended" / "retired" / "merged" / "closed"
 
 ; ---- EDD API bodies (§6) ----
 
@@ -114,5 +114,5 @@ log = [+ log-entry]
 log-entry = {
   "submission": bstr .cbor submission,
   "received_at": time,
-  "nullified": bool,
+  "overridden": bool,
 }

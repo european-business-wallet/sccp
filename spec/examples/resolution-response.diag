@@ -8,19 +8,19 @@
     {},
     << {
       "seq": 2,
-      "head": h'ffda0fcda3434715b0685a099b6e388e5c89c8b5b5cbb6acd1122ea08fc8a9a4',
+      "head": h'048e6b41b24c7098e54a5cb675d8aa3f378e6958e02727c5c4b7b117bdfaeaec',
       "type": "head-statement",
-      "owner": "ebw:baar3g6q3z7rabmz5w4soq43",
+      "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
       "status": "active",
       "issued_at": 1792310400,
       "expires_at": 1792310700
     } >>,
-    h'fb43abd2ce2850654ae7e18d7d3fa93c0103ab8fe381bec2e0bafdae37ed644cae58c40efd45585e846a9e6ecfbcaa701a8aa8b4a7f783ed92ea05bd005bb109'
+    h'78f8abb572305cc86311d55dc4cfbed74d163107c3c83cc1a2059e3ed6dd2db12c9975f82abf90fc4f8363bd335b51f56ff8afd6b6f45a29dacf914fd3d77902'
   ] >>,
   "operation": << [
     << {
       1: -8,
-      4: h'7c0599204103c07c108cd13e6876dcfc3bf440d9f9c9121084d8568a784bb86a'
+      4: h'bafe474c0410cee358e08a4ce8b58b910d69c17d70dce8cdcd48c6544c013074'
     } >>,
     {},
     << {
@@ -28,7 +28,7 @@
         "url": "https://rds.example-provider.eu",
         "provider": "rds.example-provider.eu"
       },
-      "prev": h'08011d9bd0de7f100599edb927439bd75f4c1f9107f9ca7e47747e098f17e686',
+      "prev": h'c4cba707ecbd169562c4a5a1c4be3b8d95abf73e944137c1ed77a6b02440a278',
       "type": "update",
       "signed_at": 1792306800,
       "identifiers": [
@@ -37,16 +37,16 @@
           "value": "DE123456789"
         }
       ],
-      "rotation_keys": [
+      "update_keys": [
         {
           1: 1,
           -1: 6,
-          -2: h'd5753fc8d99deaa4387c4e618e41df8c810dfacfdcc3a598716a3704f1034820'
+          -2: h'b0a8f98556303a24bcac31684b2475e7ad977c77216e61cc579009760262406f'
         },
         {
           1: 1,
           -1: 6,
-          -2: h'12998839a6e67f1f48114665df3060a529f2fbdc109d7def86406ace1159ac79'
+          -2: h'5943bf39eb99a942fb3481985a74af4fb7fe566d387efff271466ab55088581d'
         }
       ],
       "credential_keys": [
@@ -64,6 +64,6 @@
         ]
       }
     } >>,
-    h'9343b9c6eb85dae7f0a6134755597fdca313c4718e21e716806a7c0a901d0bb01d8dce3f0c9aa0e996f87dc5e486fd165948085b1ff1170685d0dcbdbc458f03'
+    h'6e62e2e1a751cfd0dbc8e53eddbec319d62b1a80839afb02d921e9aad4161e0570409bd4ab8f74a7074806099c469f4533ae97b6e087a3c0cfa4a7dfafdf260a'
   ] >>
 }

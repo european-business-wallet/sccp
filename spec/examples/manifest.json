@@ -1,8 +1,8 @@
 {
   "generated_by": "tools/gen_examples.py",
   "owners": {
-    "A": "ebw:baar3g6q3z7rabmz5w4soq43",
-    "B": "ebw:6ha5v4f3uf5ffcypbnudb45v"
+    "A": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
+    "B": "ebw:hp7dsh3axazs4spf7xytom23"
   },
   "examples": [
     {
@@ -151,7 +151,7 @@
       "valid": true
     },
     {
-      "file": "invalid/create-op-six-rotation-keys.cbor",
+      "file": "invalid/create-op-six-update-keys.cbor",
       "rule": "operation",
       "valid": false
     },

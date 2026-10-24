@@ -11,7 +11,7 @@
     "operation": << [
       << {
         1: -8,
-        4: h'7c0599204103c07c108cd13e6876dcfc3bf440d9f9c9121084d8568a784bb86a'
+        4: h'bafe474c0410cee358e08a4ce8b58b910d69c17d70dce8cdcd48c6544c013074'
       } >>,
       {},
       << {
@@ -19,7 +19,7 @@
           "url": "https://rds.example-provider.eu",
           "provider": "rds.example-provider.eu"
         },
-        "prev": h'08011d9bd0de7f100599edb927439bd75f4c1f9107f9ca7e47747e098f17e686',
+        "prev": h'c4cba707ecbd169562c4a5a1c4be3b8d95abf73e944137c1ed77a6b02440a278',
         "type": "update",
         "signed_at": 1792306800,
         "identifiers": [
@@ -28,16 +28,16 @@
             "value": "DE123456789"
           }
         ],
-        "rotation_keys": [
+        "update_keys": [
           {
             1: 1,
             -1: 6,
-            -2: h'd5753fc8d99deaa4387c4e618e41df8c810dfacfdcc3a598716a3704f1034820'
+            -2: h'b0a8f98556303a24bcac31684b2475e7ad977c77216e61cc579009760262406f'
           },
           {
             1: 1,
             -1: 6,
-            -2: h'12998839a6e67f1f48114665df3060a529f2fbdc109d7def86406ace1159ac79'
+            -2: h'5943bf39eb99a942fb3481985a74af4fb7fe566d387efff271466ab55088581d'
           }
         ],
         "credential_keys": [
@@ -55,9 +55,9 @@
           ]
         }
       } >>,
-      h'9343b9c6eb85dae7f0a6134755597fdca313c4718e21e716806a7c0a901d0bb01d8dce3f0c9aa0e996f87dc5e486fd165948085b1ff1170685d0dcbdbc458f03'
+      h'6e62e2e1a751cfd0dbc8e53eddbec319d62b1a80839afb02d921e9aad4161e0570409bd4ab8f74a7074806099c469f4533ae97b6e087a3c0cfa4a7dfafdf260a'
     ] >>,
     "submitted_at": 1792306800
   } >>,
-  h'14a0816c67d8c7a9411422da0124b5efaf5f2e22f04c243cf078008316259e9bd087c1f1103cd4c1a92b4396af68b9d97385844f9058d25132fc49d4f2ab120b'
+  h'4d98678c050d88a6ea39f14d9ce5f5b554990881eeac23d8b6416461f4e1cc503e7fad0b1b29278d62bdfd8997e6aff059940822cc0605b4f92fdf0eb9a85407'
 ]

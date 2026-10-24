@@ -22,19 +22,19 @@ struct Owner {
 }
 
 fn owner() -> Owner {
-    let rot = PrivateKey::generate_ed25519();
+    let ukeys = PrivateKey::generate_ed25519();
     let cred_key = PrivateKey::generate_ed25519();
     let mut pol = BTreeMap::new();
     pol.insert("default".into(), AcceptancePolicy::Any);
     let state = RegistryDocument {
-        rotation_keys: vec![rot.public()],
+        update_keys: vec![ukeys.public()],
         credential_keys: vec![cred_key.public()],
         rds: RdsRef { provider: "rds.test".into(), url: "https://rds.test".into() },
         identifiers: vec![],
         acceptance_policies: pol,
         signed_at: 0,
     };
-    let op = Operation::sign(OpBody::Create(state.clone()), &rot);
+    let op = Operation::sign(OpBody::Create(state.clone()), &ukeys);
     Owner { owner: url_from_create(&op.raw), state, cred_key }
 }
 

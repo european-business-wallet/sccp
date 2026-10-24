@@ -40,7 +40,7 @@ paths:
     post:
       tags: [update]
       operationId: submitOperation
-      summary: Update (submit an update or deactivate operation, sealed by the EBW provider)
+      summary: Update (submit an update or close operation, sealed by the EBW provider)
       requestBody:
         required: true
         content:
@@ -99,7 +99,7 @@ paths:
             pattern: "^[0-9a-f]{64}$"
       responses:
         "200":
-          description: Log entries in order, including nullified operations.
+          description: Log entries in order, including overridden operations.
           content:
             application/cbor:
               schema:
@@ -204,7 +204,7 @@ components:
     Problem:
       description: |
         The request failed. Problem types: malformed-operation (400),
-        unauthorized-key (403), invalid-seal (403), stale-prev (409), deactivated (410),
+        unauthorized-key (403), invalid-seal (403), stale-prev (409), closed (410),
         identifier-not-attested (422).
       content:
         application/concise-problem-details+cbor:
@@ -252,4 +252,4 @@ components:
             enum: [euid, lei, vat, eori, iso6523]
         recovery_window:
           type: integer
-          description: Seconds within which a higher-priority rotation key may nullify operations (01-discovery.md §3.4)
+          description: Seconds within which a higher-priority update key may override operations (01-discovery.md §3.4)
