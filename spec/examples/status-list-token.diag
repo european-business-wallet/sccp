@@ -6,8 +6,8 @@
   } >>,
   {},
   << {
-    1: "ebw:r7jhgo5eukazsq5homclvxdc",
-    2: "https://status.other-provider.eu/go5eukaz/1",
+    1: "ebw:b6dfjgp65nghmp7glsnrbvq4",
+    2: "https://status.other-provider.eu/jgp65ngh/1",
     4: 1792396260,
     5: 1792309860,
     6: 1792309860,
@@ -17,5 +17,5 @@
     },
     65534: 3600
   } >>,
-  h'f805bf2848748fa142d2258ddb4cb4c93cffd974854c3fd334736bd9b14b636161532c4c3f819e891afea8655cab72452bbdf632878d64bc9aa359b938668e06'
+  h'10ecb1fc7bf1ec72c511b086e842e68799bd50b4df63db852bf9e795e0cd719c51e17c0236d31ba1206a9d2a000aca2811d18db7b9e48f17ca199617fa51ab03'
 ])

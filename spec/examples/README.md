@@ -20,8 +20,8 @@ The two EBW owners in the examples are:
 
 | Owner | EBW URL | RDS | Policies |
 |---|---|---|---|
-| A (sender) | `ebw:bo6frcnfdr54irr3eybahmh6` | `rds.example-provider.eu` | `default: any` |
-| B (recipient) | `ebw:r7jhgo5eukazsq5homclvxdc` | `rds.other-provider.eu` | `default: any`, `invoices: quorum 2` |
+| A (sender) | `ebw:zloeskxezkk6rcwjazemu3kv` | `rds.example-provider.eu` | `default: any` |
+| B (recipient) | `ebw:b6dfjgp65nghmp7glsnrbvq4` | `rds.other-provider.eu` | `default: any`, `invoices: quorum 2` |
 
 Endpoint A/`Kq7vT2mXr9Lp` (role `purchasing`) sends an invoice in
 `consented` mode to B's `invoices` role. B's endpoints `Bx4nW8sYt2Qe` and
@@ -47,7 +47,9 @@ against.
 | `create-op` | `operation` | Owner A's create operation |
 | `update-op` | `operation` | An update signed by A's second update key, adding an acceptance policy |
 | `submission` | `submission` | The update, sealed by A's EBW provider for submission to the EDD |
+| `status-op` | `operation` | A's EBW provider suspends A, sealing a status operation |
 | `head-statement` | `head-statement` | The EDD's head statement for A |
+| `edd-status-list` | `status-list-token` | The EDD's status list for head statements: entry 0 (A's create operation) replaced |
 | `identifier-attestation` | `identifier-attestation` | A's VAT number attested by the EDD |
 | `registration-request`, `resolution-response`, `log` | EDD API bodies | |
 | `endpoint-credential`, `endpoint-credential-b` | `endpoint-credential` | Credentials for A/`Kq7vT2mXr9Lp` and B/`Bx4nW8sYt2Qe` |

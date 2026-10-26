@@ -10,9 +10,11 @@
     "head": h'2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881',
     "type": "head-statement",
     "owner": "ebw:TOO-SHORT",
-    "status": "active",
     "issued_at": 1792310400,
-    "expires_at": 1792310700
+    "status_list": {
+      "idx": 0,
+      "uri": "https://edd.europa.eu/status-list"
+    }
   } >>,
-  h'364334b753c5bf6cfda423401f69e4d0ef6ab4e115093ea0a3d594e4a684c280f471026e881b21d4215d6c479651d31cdf5bc58b7bb7a8bc5b01f7152f998a03'
+  h'5fc37eb84336c0c0ca6d39859b1964819f4cf8bdc73cfff76b16148fde49a0ab020f368dce59761436c5f31cc85c5bf5bff48c19f4bcc8e50dc7ed6e422af70a'
 ]

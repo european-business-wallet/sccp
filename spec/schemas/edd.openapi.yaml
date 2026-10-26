@@ -40,7 +40,7 @@ paths:
     post:
       tags: [update]
       operationId: submitOperation
-      summary: Update (submit an update or close operation, sealed by the EBW provider)
+      summary: Update (submit an update or status operation, sealed by the EBW provider)
       requestBody:
         required: true
         content:
@@ -75,13 +75,26 @@ paths:
       summary: Current head statement
       responses:
         "200":
-          description: A head statement. It states its own validity (issued_at, expires_at).
+          description: The head statement of the current head. Whether it is still current is shown by the status list it names.
           content:
             application/cbor:
               schema:
                 $ref: "#/components/schemas/CborHeadStatement"
         "404":
           $ref: "#/components/responses/NotFound"
+  /status-list:
+    get:
+      tags: [resolution]
+      operationId: getStatusList
+      summary: Status list for head statements (01-discovery.md §5.3)
+      responses:
+        "200":
+          description: A status list token signed by the EDD. It states its own validity (iat, exp).
+          content:
+            application/statuslist+cwt:
+              schema:
+                type: string
+                format: binary
   /{url}/log:
     parameters:
       - $ref: "#/components/parameters/url"
@@ -204,8 +217,9 @@ components:
     Problem:
       description: |
         The request failed. Problem types: malformed-operation (400),
-        unauthorized-key (403), invalid-seal (403), stale-prev (409), closed (410),
-        identifier-not-attested (422).
+        unauthorized-key (403), unauthorized-provider (403), invalid-seal (403),
+        stale-prev (409), ended (410), identifier-not-attested (422),
+        invalid-status-change (422).
       content:
         application/concise-problem-details+cbor:
           schema:

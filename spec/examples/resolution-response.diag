@@ -8,14 +8,16 @@
     {},
     << {
       "seq": 2,
-      "head": h'2aaa13369fc7fabee6f59a42c2a9d504866a91be944a5dd4da5200a399cc5060',
+      "head": h'b72181b5594fee7bb5905a4b62caf7413b40572eb9d2b9ec0e30fd76b2cc62f4',
       "type": "head-statement",
-      "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
-      "status": "active",
-      "issued_at": 1792310400,
-      "expires_at": 1792310700
+      "owner": "ebw:zloeskxezkk6rcwjazemu3kv",
+      "issued_at": 1792306810,
+      "status_list": {
+        "idx": 1,
+        "uri": "https://edd.europa.eu/status-list"
+      }
     } >>,
-    h'c56842b8e1e62330e6fe349101924499c8ffa6b613924132f16b517ab01c47b0be2681995a46c7cecad007aa3cd543028138a5e51f19f8cda13118aa5070cb03'
+    h'474ea81f52708e8d304f0c5b5f38ffb5bcb4266df1905183320bb2dfeba99fb9b3463ed8ab3ff7455c6d666a73d634185afe3741169c983b1d29721111a97f0c'
   ] >>,
   "operation": << [
     << {
@@ -25,8 +27,9 @@
     {},
     << {
       "rds": "https://rds.example-provider.eu/scc-rds",
-      "prev": h'0bbc5889a51c7bc4463b260203b0fef00cac24bb783ce241a9e995bed7054948',
+      "prev": h'cadc492ae4ca95e88ac90648ca6d556991b834c16ec79bf8276d1324bdc908f7',
       "type": "update",
+      "status": "active",
       "signed_at": 1792306800,
       "identifiers": [
         {
@@ -61,6 +64,6 @@
         ]
       }
     } >>,
-    h'c4d2c4a400ab8ec02cdfc25ee4376b1a5673593fb8f7fa58b1d96a7e69c63726e6287b6a258a342925676e9a40dac553aa0249c02056e8f34012fd246582da01'
+    h'72396a62443a532557b9aa47320897e1d54826483f028c0cd797b4ecd89dd1acc35dbb3229be31453a4485ac42c9b740b5a880fcdfc4e538c4b637180ad3850f'
   ] >>
 }

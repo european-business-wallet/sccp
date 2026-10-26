@@ -20,6 +20,7 @@
             "rds": "https://rds.example-provider.eu/scc-rds",
             "prev": null,
             "type": "create",
+            "status": "active",
             "signed_at": 1792224000,
             "identifiers": [
               {
@@ -50,11 +51,11 @@
               "default": "any"
             }
           } >>,
-          h'7605305952f36e9071fb542117a7249a6310833f099ef33898d0be32189358bdf7ec29bc4b0c3603538daaaa2bdb990e2d33aee3f9dd1c77b5b26c73899f460e'
+          h'c3e38828c11ffbc2769dd6a69e52e222d8940586d2b4b91312d7a98e3e1b64e8ae52b0932d565ab3e76c15c2921bc56229e155f1eaa597e98d6cd73a735d490b'
         ] >>,
         "submitted_at": 1792224000
       } >>,
-      h'b4eb1ab717b61a3bf99afd064a229eff8b57dbcc11a1ae16e6906356276dcc2482daf15d3d472287aae74f34779862bb6266e26d9a8039af54f81956070f5900'
+      h'11e4dc3bf6f2af0a2c5b34a816eedb816e60e12e257aae5ff2e3ea9f3f098070bf28b2d6d8d4231ea39c635f1ffb707dece814dd3d1cc2b833dc14d38a25b50f'
     ] >>,
     "received_at": 1792224010
   },
@@ -77,8 +78,9 @@
           {},
           << {
             "rds": "https://rds.example-provider.eu/scc-rds",
-            "prev": h'0bbc5889a51c7bc4463b260203b0fef00cac24bb783ce241a9e995bed7054948',
+            "prev": h'cadc492ae4ca95e88ac90648ca6d556991b834c16ec79bf8276d1324bdc908f7',
             "type": "update",
+            "status": "active",
             "signed_at": 1792306800,
             "identifiers": [
               {
@@ -113,11 +115,11 @@
               ]
             }
           } >>,
-          h'c4d2c4a400ab8ec02cdfc25ee4376b1a5673593fb8f7fa58b1d96a7e69c63726e6287b6a258a342925676e9a40dac553aa0249c02056e8f34012fd246582da01'
+          h'72396a62443a532557b9aa47320897e1d54826483f028c0cd797b4ecd89dd1acc35dbb3229be31453a4485ac42c9b740b5a880fcdfc4e538c4b637180ad3850f'
         ] >>,
         "submitted_at": 1792306800
       } >>,
-      h'e61e015507dc2ed1b3821c5fd94e740fdfea3488e610a0ad7bc8aea68e41c80cec376395f617db2c32faf2d2d1aa8c5d3fc4a0ffeaff2cdfb9227f43aa6aa60e'
+      h'd047f80c3c3f77d8557fbcefb58898d681004e79b6324d4b7c1df9373463256f2832014ad8993f1dd464e9461ecbeb17e077f81459221447135f0a1f89ac090a'
     ] >>,
     "received_at": 1792306810
   }

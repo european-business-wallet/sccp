@@ -90,7 +90,7 @@ Key Thumbprint of the credential key.
   << { 1: -8, 4: h'a1b2...c3' } >>,
   {},
   << {
-    1: "ebw:bo6frcnfdr54irr3eybahmh6",
+    1: "ebw:zloeskxezkk6rcwjazemu3kv",
     2: "Kq7vT2mXr9Lp",
     4: 1794902400,
     5: 1792310400,
@@ -262,7 +262,7 @@ status-list-token = #6.18([cose-protected, cose-unprotected,
                            cose-signature])
 
 status-list-claims = {
-  1 => ebw-url,                   ; iss: the EBW owner's EBW URL
+  1 => ebw-url / tstr,            ; iss: the EBW owner's EBW URL, or the EDD's base URL (doc 1 §5.3)
   2 => tstr,                  ; sub: the status list URI
   6 => time,                  ; iat
   4 => time,                  ; exp

@@ -46,6 +46,16 @@ impl EbwProvider {
     pub fn submit(&self, op: &Operation) -> Vec<u8> {
         Submission::seal(&self.sealer, op, now())
     }
+
+    /// Suspend, reinstate or retire an owner with a status operation
+    /// (01-discovery.md §3.1, §5.1), and submit it.
+    pub async fn set_status(&self, edd: &EddClient, owner: &str, status: crate::types::OwnerStatus) -> Result<()> {
+        let cur = edd.resolve(owner).await?;
+        let doc = RegistryDocument { status, signed_at: now(), ..cur.document.clone() };
+        let op = Operation::seal(OpBody::Status { prev: cur.operation.hash(), state: doc }, &self.sealer);
+        edd.update(owner, &self.submit(&op)).await?;
+        Ok(())
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -94,6 +104,8 @@ impl Owner {
         let mut acceptance_policies = policies;
         acceptance_policies.entry("default".into()).or_insert(AcceptancePolicy::Any);
         let state = RegistryDocument {
+            status: crate::types::OwnerStatus::Active,
+            successor: None,
             update_keys: update_keys.iter().map(|k| k.public()).collect(),
             credential_keys: vec![credential_key.public()],
             rds: rds.clone(),

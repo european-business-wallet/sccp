@@ -4,7 +4,7 @@
 
 operation = [cose-protected, cose-unprotected, payload: bstr .cbor op-body, cose-signature]
 
-op-body = create-op / update-op / close-op
+op-body = create-op / update-op / status-op
 
 op-hash = hash32                              ; SHA-256 of an encoded operation
 
@@ -20,9 +20,10 @@ update-op = {
   registry-document,
 }
 
-close-op = {
-  "type": "close",
+status-op = {                                 ; sealed by the EBW provider (§3.1)
+  "type": "status",
   "prev": op-hash,
+  registry-document,
 }
 
 registry-document = (
@@ -31,6 +32,8 @@ registry-document = (
   "rds": rds-url,
   "identifiers": [* identifier],
   "acceptance_policies": acceptance-policies,
+  "status": owner-status,
+  ? "successor": ebw-url,                     ; present if status is "merged"
   "signed_at": time,
 )
 
@@ -80,10 +83,11 @@ head-statement-body = {
   "owner": ebw-url,
   "head": op-hash,
   "seq": uint,
-  "status": owner-status,
-  ? "successor": ebw-url,
+  "status_list": {
+    "uri": tstr,
+    "idx": uint,
+  },
   "issued_at": time,
-  "expires_at": time,
 }
 
 owner-status = "active" / "suspended" / "retired" / "merged" / "closed"

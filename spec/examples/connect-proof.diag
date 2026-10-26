@@ -7,10 +7,10 @@
   << {
     "rds": "https://rds.example-provider.eu/scc-rds",
     "type": "connect-proof",
-    "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
+    "owner": "ebw:zloeskxezkk6rcwjazemu3kv",
     "subject": "Kq7vT2mXr9Lp",
     "challenge": h'2dd00bd77e0222ced882665481a9c1d9',
     "signed_at": 1792310450
   } >>,
-  h'7299a8ff35a1d12277fe10c7207ddc2013d423d3a63d4673c492d33676daa419b124aee5cf1c1d7819dacab82fe41f87a4f7f665e5a284ab5848dc702e3eff0e'
+  h'0a77178da65233482a8b393cab393308653d9d7473ead8c797247086b1e2f00b8117c369deef1b276f1c7c90efda42e759efab334fe9d2af6710ed904a4e7204'
 ]

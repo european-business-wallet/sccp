@@ -89,6 +89,7 @@ def owner(label, rds, identifiers, policies):
         "rds": rds,
         "identifiers": identifiers,
         "acceptance_policies": policies,
+        "status": "active",
         "signed_at": T0 - 86400,
     }
     op = sign1(ukeys[0], body)
@@ -112,16 +113,39 @@ update_op = sign1(A["ukeys"][1], upd_body)
 write("update-op", update_op, "operation")
 
 
-def head(owner_, op, seq, status="active", t=T0):
+# Owner A's EBW provider suspends A (01 §3.1): a status operation, sealed
+# by the provider rather than signed by an update key.
+status_op = sign1(ebw_a_key, dict(upd_body, type="status", prev=sha256(update_op), status="suspended",
+                                  signed_at=T0 - 600), {33: ebw_a_cert})
+write("status-op", status_op, "operation")
+
+EDD_URL = "https://edd.europa.eu"
+EDD_STATUS_LIST = EDD_URL + "/status-list"
+
+
+def head(owner_, op, seq, idx):
     return sign1(edd_key, {
         "type": "head-statement", "owner": owner_["owner"], "head": sha256(op), "seq": seq,
-        "status": status, "issued_at": t, "expires_at": t + 300,
+        "status_list": {"uri": EDD_STATUS_LIST, "idx": idx}, "issued_at": T0 - 3590,
     }, {33: edd_cert})
 
 
-head_a = head(A, update_op, 2)
-head_b = head(B, B["create"], 1)
+# Entries in the EDD status list: 0 is A's create operation (replaced by
+# A's update), 1 is A's update, 2 is B's create operation.
+head_a = head(A, update_op, 2, 1)
+head_b = head(B, B["create"], 1, 2)
 write("head-statement", head_a, "head-statement")
+
+
+def edd_status_list(t):
+    """The EDD's status list for head statements (01 §5.3), 1 bit per entry."""
+    claims = {1: EDD_URL, 2: EDD_STATUS_LIST, 6: t, 5: t, 4: t + 86400, 65534: 3600,
+              65533: {"bits": 1, "lst": zlib.compress(bytes([0b001]), 9)}}
+    cose = cbor2.loads(sign1(edd_key, claims, {16: "application/statuslist+cwt", 33: edd_cert}))
+    return dcbor(cbor2.CBORTag(18, cose))
+
+
+write("edd-status-list", edd_status_list(T0), "status-list-token")
 
 attest = sign1(edd_key, {
     "type": "identifier-attestation", "identifier": {"type": "vat", "value": "DE123456789"},
@@ -300,9 +324,11 @@ def evid(n):
 def message_evidence(n, code, issuer, t, mref=None, **extra):
     body = {"v": 1, "evidence_id": evid(n), "event": ETSI + EVENTS[code], "issuer": issuer,
             "event_time": t, "message": mref or message_ref, "mls": mls_ref,
-            # head statements fetched shortly before the event, so unexpired at it
-            "heads": [head(A, update_op, 2, t=t - 30), head(B, B["create"], 1, t=t - 30)],
+            "heads": [head_a, head_b],
             "sender_assurance": sender_assurance}
+    # The EDD status list, fetched shortly before the event, shows both
+    # head statements current.
+    extra["statuses"] = [edd_status_list(t - 30)] + extra.get("statuses", [])
     body.update(extra)
     return body
 
@@ -452,7 +478,7 @@ write("app-message-short-salt", dcbor({
 
 write("head-statement-bad-owner", sign1(edd_key, {
     "type": "head-statement", "owner": "ebw:TOO-SHORT", "head": sha256(b"x"), "seq": 1,
-    "status": "active", "issued_at": T0, "expires_at": T0 + 300,
+    "status_list": {"uri": EDD_STATUS_LIST, "idx": 0}, "issued_at": T0,
 }, {33: edd_cert}), "head-statement", valid=False)
 
 # ---- JSON-RPC examples (04-delivery.md) ----

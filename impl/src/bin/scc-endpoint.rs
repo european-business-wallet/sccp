@@ -173,6 +173,20 @@ enum OwnerCmd {
         #[arg(long)]
         subject: String,
     },
+    /// As the owner's EBW provider, suspend, reinstate or retire the
+    /// owner with a status operation (01-discovery.md §3.1).
+    ProviderStatus {
+        /// Directory of the EBW provider (made with `owner provider-init`).
+        #[arg(long)]
+        provider: PathBuf,
+        #[arg(long)]
+        edd: String,
+        #[arg(long)]
+        owner: String,
+        /// active, suspended or retired.
+        #[arg(long)]
+        status: String,
+    },
     /// Print the owner's EBW URL.
     Url {
         #[arg(long)]
@@ -231,6 +245,12 @@ async fn main() -> Result<()> {
                 o.revoke(&subject)?;
                 o.publish_status(86400, Some(60)).await?;
                 println!("revoked {subject}");
+            }
+            OwnerCmd::ProviderStatus { provider, edd, owner, status } => {
+                let edd = scc::edd::EddClient::new(&edd, trust(&cli.trust)?)?;
+                let status: scc::types::OwnerStatus = serde_json::from_value(serde_json::Value::String(status))?;
+                scc::owner::EbwProvider::load(&provider)?.set_status(&edd, &owner, status).await?;
+                println!("{owner}: status {}", status.as_str());
             }
             OwnerCmd::Url { dir } => println!("{}", Owner::load(&dir)?.cfg.owner),
             OwnerCmd::ProviderInit { dir, provider } => {

@@ -37,6 +37,8 @@ fn owner_a_state() -> (RegistryDocument, Vec<PrivateKey>, PrivateKey) {
         rds: "https://rds.example-provider.eu/scc-rds".into(),
         identifiers: vec![Identifier { id_type: "vat".into(), value: "DE123456789".into() }],
         acceptance_policies: pol,
+        status: scc::types::OwnerStatus::Active,
+        successor: None,
         signed_at: T0 - 86400,
     };
     (st, ukeys, cred)
@@ -57,7 +59,7 @@ fn update_op_verifies_and_reproduces() {
     let upd = Operation::parse(&ex("update-op.cbor")).unwrap();
     assert_eq!(upd.body.prev().unwrap(), create.hash().as_slice());
     assert_eq!(upd.verify_with(&st).unwrap(), 1);
-    let mut st2 = upd.body.document().unwrap().clone();
+    let mut st2 = upd.body.document().clone();
     st2.signed_at = T0 - 3600;
     let again = Operation::sign(OpBody::Update { prev: create.hash(), state: st2 }, &ukeys[1]);
     assert_eq!(again.raw, upd.raw);
@@ -80,7 +82,16 @@ fn head_statement_and_attestation_verify() {
     let trust = edd_trust();
     let h = HeadStatement::parse(&ex("head-statement.cbor")).unwrap();
     h.verify(&trust, T0 + 10).unwrap();
-    assert!(h.verify(&trust, T0 + 300).is_err(), "expired head statement accepted");
+    // The EDD status list shows it current (01-discovery.md §5.3).
+    let sl = StatusListToken::parse(&ex("edd-status-list.cbor")).unwrap();
+    h.check_current(&sl, &trust, T0 + 10).unwrap();
+    assert!(h.check_current(&sl, &trust, T0 + 2 * 86400).is_err(), "expired status list accepted");
+    // The status operation is sealed by A's EBW provider and changes only
+    // the status of the update operation's registry document.
+    let st_op = Operation::parse(&ex("status-op.cbor")).unwrap();
+    st_op.verify_seal(&trust, T0).unwrap();
+    let upd = Operation::parse(&ex("update-op.cbor")).unwrap();
+    registry::check_status_change(Some(upd.body.document()), &st_op.body).unwrap();
     registry::IdentifierAttestation::parse_and_verify(&ex("identifier-attestation.cbor"), &trust, T0).unwrap();
     let sr: registry::ResolutionResponse = cbor::from_slice(&ex("resolution-response.cbor")).unwrap();
     registry::ResolvedDocument::from_response(&manifest_owner("A"), &sr, &trust, T0 + 1).unwrap();

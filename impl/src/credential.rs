@@ -302,6 +302,35 @@ impl StatusListToken {
         StatusListToken::parse(&raw).expect("own token parses")
     }
 
+    /// Build the EDD's status list for head statements, sealed by the EDD
+    /// (01-discovery.md §5.3).
+    pub fn build_edd(sealer: &crate::registry::Sealer, iss: &str, uri: &str, statuses: &[u8], iat: u64, exp: u64, ttl: Option<u64>) -> StatusListToken {
+        let claims = StatusListClaims { iss: iss.into(), sub: uri.into(), iat, exp, nbf: Some(iat), ttl, bits: 1, lst: pack_statuses(statuses, 1) };
+        let raw = cose::sign1(
+            &sealer.key,
+            &cbor::encode(&claims.to_value()),
+            &ExtraHeaders { typ: Some(STATUSLIST_TYP.into()), x5chain: Some(sealer.chain.clone()), ..Default::default() },
+            true,
+        );
+        StatusListToken::parse(&raw).expect("own token parses")
+    }
+
+    /// Check the EDD's seal on a status list for head statements, and that
+    /// the token is valid at `t` (01-discovery.md §5.3).
+    pub fn verify_edd(&self, trust: &crate::certs::TrustStore, t: u64) -> Result<()> {
+        let key = trust.check_chain(&self.cose.x5chain(), crate::certs::TrustKind::Edd, t)?;
+        self.cose.verify(&key).map_err(|e| anyhow!("EDD status list signature: {e}"))?;
+        self.check_time(t)
+    }
+
+    fn check_time(&self, t: u64) -> Result<()> {
+        let nbf = self.claims.nbf.unwrap_or(self.claims.iat);
+        if t < nbf || t >= self.claims.exp || t < self.claims.iat {
+            bail!("status list token {} not valid at {}", self.claims.sub, crate::util::fmt_time(t));
+        }
+        Ok(())
+    }
+
     pub fn parse(raw: &[u8]) -> Result<Self> {
         let cose = Sign1::parse(raw)?;
         if !cose.tagged {
@@ -413,7 +442,7 @@ mod tests {
     #[test]
     fn status_list_roundtrip() {
         let k = PrivateKey::generate_ed25519();
-        let owner = "ebw:bo6frcnfdr54irr3eybahmh6";
+        let owner = "ebw:zloeskxezkk6rcwjazemu3kv";
         let t = StatusListToken::build(&k, owner, "https://x/1", &[0, 0, 0, 1, 0, 2, 0, 0], 100, 200, Some(10));
         assert_eq!(t.claims.bits, 2);
         assert_eq!(t.status(3).unwrap(), 1);

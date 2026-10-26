@@ -9,7 +9,6 @@ use axum::routing::{get, post};
 use axum::Router;
 use clap::{Parser, Subcommand};
 use scc::edd::{Edd, EddConfig, Problem};
-use scc::types::OwnerStatus;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -41,9 +40,14 @@ enum Cmd {
         tls_cert: String,
         #[arg(long)]
         tls_key: String,
-        /// Validity of head statements, in seconds.
-        #[arg(long, default_value_t = 300)]
-        head_validity: u64,
+        /// Validity of status list tokens for head statements (§5.3), in
+        /// seconds.
+        #[arg(long, default_value_t = 86400)]
+        status_list_validity: u64,
+        /// `ttl` of those tokens: how long a client may use one before
+        /// fetching it again, in seconds.
+        #[arg(long, default_value_t = 5)]
+        status_list_ttl: u64,
         /// Recovery window (§3.4), in seconds.
         #[arg(long, default_value_t = 604800)]
         recovery_window: u64,
@@ -69,17 +73,6 @@ enum Cmd {
         ebw: Vec<PathBuf>,
         #[arg(long)]
         out: PathBuf,
-    },
-    /// Demo administration: set an owner's lifecycle status.
-    SetStatus {
-        #[arg(long, default_value = "https://localhost:8440")]
-        edd: String,
-        #[arg(long)]
-        owner: String,
-        #[arg(long)]
-        status: String,
-        #[arg(long)]
-        successor: Option<String>,
     },
 }
 
@@ -129,14 +122,8 @@ async fn metadata(State(edd): State<St>) -> Response {
     axum::Json(edd.metadata()).into_response()
 }
 
-#[derive(serde::Deserialize)]
-struct StatusReq {
-    status: OwnerStatus,
-    successor: Option<String>,
-}
-
-async fn admin_status(State(edd): State<St>, Path(owner): Path<String>, axum::Json(r): axum::Json<StatusReq>) -> Response {
-    cbor(edd.set_status(&owner, r.status, r.successor), StatusCode::OK)
+async fn status_list(State(edd): State<St>) -> Response {
+    ([(header::CONTENT_TYPE, scc::credential::STATUSLIST_TYP)], edd.status_list()).into_response()
 }
 
 #[tokio::main]
@@ -161,17 +148,10 @@ async fn main() -> Result<()> {
             scc::util::write_json(&out, &ts)?;
             println!("trust store written to {}", out.display());
         }
-        Cmd::SetStatus { edd, owner, status, successor } => {
-            let status: OwnerStatus = serde_json::from_value(serde_json::Value::String(status))?;
-            let http = scc::net::http_client()?;
-            let body = serde_json::to_vec(&serde_json::json!({"status": status, "successor": successor}))?;
-            scc::net::post_bytes(&http, &format!("{edd}/admin/status/{owner}"), "application/json", body).await?;
-            println!("{owner}: status {}", status.as_str());
-        }
-        Cmd::Serve { dir, listen, base_url, tls_cert, tls_key, head_validity, recovery_window, trust } => {
+        Cmd::Serve { dir, listen, base_url, tls_cert, tls_key, status_list_validity, status_list_ttl, recovery_window, trust } => {
             let sealer = scc::certs::load_sealer(&dir, "seal")?;
             let edd = Arc::new(Edd::new(
-                EddConfig { base_url, recovery_window, head_validity, attestation_validity: 365 * 86400 },
+                EddConfig { base_url, recovery_window, status_list_validity, status_list_ttl, attestation_validity: 365 * 86400 },
                 sealer,
                 scc::certs::TrustStore::load(&trust)?,
             ));
@@ -179,7 +159,7 @@ async fn main() -> Result<()> {
                 .route("/.well-known/edd", get(metadata))
                 .route("/register", post(register))
                 .route("/lookup/{t}/{v}", get(lookup))
-                .route("/admin/status/{owner}", post(admin_status))
+                .route("/status-list", get(status_list))
                 .route("/{url}", get(registry_get).post(registry_post))
                 .route("/{url}/head", get(head))
                 .route("/{url}/log", get(log))

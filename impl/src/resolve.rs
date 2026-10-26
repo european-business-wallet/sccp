@@ -34,18 +34,30 @@ impl Resolver {
         })
     }
 
-    /// The current registry document and head statement. Cached until the head
-    /// statement expires.
+    /// The current registry document and head statement. Cached for as long
+    /// as the EDD status list shows the head statement current
+    /// (01-discovery.md §5.3).
     pub async fn resolve(&self, owner: &str) -> Result<ResolvedDocument> {
-        let t = now();
-        if let Some(s) = self.states.lock().unwrap().get(owner) {
-            if t + 5 < s.head.body.expires_at {
-                return Ok(s.clone());
+        let cached = self.states.lock().unwrap().get(owner).cloned();
+        if let Some(s) = cached {
+            if self.check_current(&s).await.is_ok() {
+                return Ok(s);
             }
         }
         let s = self.edd.resolve(owner).await?;
+        if self.check_current(&s).await.is_err() {
+            // The cached status list may predate this head statement.
+            self.forget_status(&s.head.body.status_list.uri);
+            self.check_current(&s).await?;
+        }
         self.states.lock().unwrap().insert(owner.into(), s.clone());
         Ok(s)
+    }
+
+    /// Check that the EDD status list shows `s`'s head statement current.
+    async fn check_current(&self, s: &ResolvedDocument) -> Result<()> {
+        let tok = self.status(&s.head.body.status_list.uri).await?;
+        s.head.check_current(&tok, &self.edd.trust, now())
     }
 
     /// A status list token that is valid now, fetched within its `ttl`.
@@ -71,8 +83,12 @@ impl Resolver {
         if tok.claims.sub != uri {
             bail!("status list token at {uri} names {}", tok.claims.sub);
         }
-        let st = self.resolve(&tok.claims.iss).await?;
-        tok.verify(&st.document, t)?;
+        if tok.claims.iss.starts_with("ebw:") {
+            let st = Box::pin(self.resolve(&tok.claims.iss)).await?;
+            tok.verify(&st.document, t)?;
+        } else {
+            tok.verify_edd(&self.edd.trust, t)?;
+        }
         self.statuses.lock().unwrap().insert(uri.into(), (tok.clone(), t));
         Ok(tok)
     }

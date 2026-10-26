@@ -194,7 +194,7 @@ to fix the session:
   "code": -31100,
   "message": "Membership mismatch",
   "data": {
-    "add": [{"owner": "ebw:r7jhgo5eukazsq5homclvxdc", "subject": "Mf8kD1yGn7Ta"}],
+    "add": [{"owner": "ebw:b6dfjgp65nghmp7glsnrbvq4", "subject": "Mf8kD1yGn7Ta"}],
     "remove": [3]
   }
 }

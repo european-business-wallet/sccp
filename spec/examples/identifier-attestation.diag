@@ -7,7 +7,7 @@
   {},
   << {
     "type": "identifier-attestation",
-    "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
+    "owner": "ebw:zloeskxezkk6rcwjazemu3kv",
     "expires_at": 1794902400,
     "identifier": {
       "type": "vat",
@@ -15,5 +15,5 @@
     },
     "verified_at": 1792224000
   } >>,
-  h'54fe7d964d687d83f0eea56835e6e77d8b96150559a842cf30c56a310f95d5194a904aab082124971611dc1590e449e50459aa8e98e22fa669745dc0b7c6930e'
+  h'51a35ded58bc99c83a7f309beb47dc3ab9ca5187f641a283c7f7888157b1b4b6cb33f430aa5d5e2468b61561168e6a5c6c45f7d0ddc9145be91fc2da83bf6b04'
 ]

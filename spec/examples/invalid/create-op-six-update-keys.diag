@@ -8,6 +8,7 @@
     "rds": "https://rds.example-provider.eu/scc-rds",
     "prev": null,
     "type": "create",
+    "status": "active",
     "signed_at": 1792224000,
     "identifiers": [
       {
@@ -58,5 +59,5 @@
       "default": "any"
     }
   } >>,
-  h'83610ce704cf62347aa5452dd580ad481f91c6cbf968567ca047e6777d8eaaa9cde187f710ccd87a51a22f378ae016764a022ee2725e65039639a46caae19c0f'
+  h'6a1faa0eff416aa3e000ad65407028a28b2b42e7671ee609d4585796514134465396a4ebe37ffd5c752af8face8cd87ebf3744b63d808676c4b01dd48a49000c'
 ]

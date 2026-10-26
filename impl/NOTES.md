@@ -83,6 +83,10 @@ These are stand-ins allowed by the brief. Each is marked in the code.
   `<origin of the RDS URL>/status/<EBW URL suffix>`. The owner uploads a new token with
   `POST`; the RDS accepts it because it is signed by the owner's
   credential key and is newer. Tokens carry `ttl` 60 s in the demo.
+- **The EDD status list** for head statements is served fresh on each
+  request, valid for one day, with `ttl` 5 s (`scc-edd serve
+  --status-list-validity`, `--status-list-ttl`), so status changes reach
+  RDSes within seconds in the demo.
 - **Eligibility of added endpoints (03 §6.2 check 4).** Each RDS checks
   the KeyPackages and eligibility of its own owners' endpoints (published
   here, unused, registered, credential valid, role held). For the other

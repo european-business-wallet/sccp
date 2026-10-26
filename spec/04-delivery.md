@@ -194,7 +194,7 @@ Example:
 
 ```json
 {"jsonrpc": "2.0", "id": "c1", "method": "scc.connect",
- "params": {"versions": ["scc/1"], "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
+ "params": {"versions": ["scc/1"], "owner": "ebw:zloeskxezkk6rcwjazemu3kv",
             "subject": "Kq7vT2mXr9Lp"}}
 
 {"jsonrpc": "2.0", "id": "c1",
@@ -285,7 +285,7 @@ the address is served by another RDS, its home RDS calls
 
 ```json
 {"jsonrpc": "2.0", "id": "k2", "method": "scc.keypackage.get",
- "params": {"address": {"owner": "ebw:r7jhgo5eukazsq5homclvxdc", "role": "invoices"},
+ "params": {"address": {"owner": "ebw:b6dfjgp65nghmp7glsnrbvq4", "role": "invoices"},
             "cipher_suite": 1}}
 
 {"jsonrpc": "2.0", "id": "k2",
@@ -339,8 +339,8 @@ The sender submits a message with `wmp.message.deliver`:
    "message": "AAEAAgAQXA6a...",
    "meta": {
      "message_id": "AZLxo7bWdsSRiMFmJqsa8g",
-     "from": {"owner": "ebw:bo6frcnfdr54irr3eybahmh6", "role": "purchasing"},
-     "to": {"owner": "ebw:r7jhgo5eukazsq5homclvxdc", "role": "invoices"},
+     "from": {"owner": "ebw:zloeskxezkk6rcwjazemu3kv", "role": "purchasing"},
+     "to": {"owner": "ebw:b6dfjgp65nghmp7glsnrbvq4", "role": "invoices"},
      "sent_at": 1792310460,
      "expires_at": 1793520060,
      "consignment": "consented"
@@ -364,7 +364,8 @@ The sending RDS checks, in order:
    `sent_at < expires_at <= sent_at + max_ttl`, using the smaller
    `max_ttl` of the two RDSes (else `-31108`).
 7. The receiving RDS supports the consignment mode (else `-31016`).
-8. Both owners have current `active` head statements (else `-31109`).
+8. For both owners, the RDS holds a current head statement (doc 1 §5.4),
+   and the registry document has status `active` (else `-31109`).
 9. `message_id` is new. If it was already accepted with the same
    `MLSMessage`, the RDS returns the earlier result. If with a different
    one, it rejects with `-31107`.
@@ -777,7 +778,7 @@ since registered or been revoked. The answering RDS chooses the period.
 
 ```json
 {"jsonrpc": "2.0", "id": "f1", "method": "scc.rds.subjects",
- "params": {"address": {"owner": "ebw:r7jhgo5eukazsq5homclvxdc", "role": "invoices"},
+ "params": {"address": {"owner": "ebw:b6dfjgp65nghmp7glsnrbvq4", "role": "invoices"},
             "cipher_suite": 1}}
 
 {"jsonrpc": "2.0", "id": "f1",

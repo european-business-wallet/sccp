@@ -243,6 +243,22 @@ sleep 7
 sync a1 a2
 for e in b1 b3 b4; do "$EP" configure --dir "$WORK/ep/$e" --false-report none; done
 
+bold "Owner status: B's EBW provider suspends B with a status operation (doc 1 §3.1)"
+"$EP" owner provider-status --provider "$WORK/ebw-b" --edd "$EDD" --owner "$B" --status suspended
+echo "waiting for the RDSes to refetch the EDD status list (doc 1 §5.3)..."
+sleep 6
+"$EP" send --dir "$WORK/ep/a1" --from-role purchasing --to "$B#invoices" --body "Order while suspended" \
+  --id-out "$WORK/suspended-id" 2>&1 | tee "$WORK/suspended.out"
+grep -q "A.2 (-31109" "$WORK/suspended.out" || { echo "UNEXPECTED: message to a suspended owner not rejected"; exit 1; }
+step "The provider reinstates B; messages flow again"
+"$EP" owner provider-status --provider "$WORK/ebw-b" --edd "$EDD" --owner "$B" --status active
+sleep 6
+M14=$(send a1 purchasing "$B#invoices" "Order 4716, after reinstatement")
+sleep 1
+sync b1 b3 b4
+sleep 1
+sync a1
+
 bold "Endpoint records"
 for e in a1 a2 b1 b2 b3 b4; do echo "[$e]"; "$EP" list --dir "$WORK/ep/$e" | sed 's/^/  /'; done
 

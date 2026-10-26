@@ -199,12 +199,29 @@ fn verify_inner(inputs: &Inputs, r: &mut Report) -> Result<()> {
         if let Err(e) = crate::schema::validate("evidence-artefact", &art.raw) {
             problems.push(format!("{e:#}"));
         }
+        // Each head statement verifies, and an embedded EDD status list
+        // shows it current at the event (doc 1 §5.3, step 6).
         for h in &body.heads {
-            match HeadStatement::parse(h).and_then(|hs| hs.verify(&inputs.trust, body.event_time).map(|_| hs)) {
-                Ok(hs) if hs.body.status != crate::types::OwnerStatus::Active && !matches!(event, Event::A2 | Event::B2 | Event::D2) => {
-                    problems.push(format!("head statement for {} shows {}", hs.body.owner, hs.body.status.as_str()))
+            let checked = HeadStatement::parse(h).and_then(|hs| {
+                hs.verify(&inputs.trust, body.event_time)?;
+                let tok = body
+                    .statuses
+                    .iter()
+                    .flatten()
+                    .filter_map(|s| StatusListToken::parse(s).ok())
+                    .find(|s| s.claims.sub == hs.body.status_list.uri)
+                    .ok_or_else(|| anyhow!("no embedded status list {}", hs.body.status_list.uri))?;
+                hs.check_current(&tok, &inputs.trust, body.event_time)?;
+                Ok(hs)
+            });
+            match checked {
+                Ok(hs) => {
+                    if let Ok(doc) = state_for_head(inputs, &hs) {
+                        if doc.status != crate::types::OwnerStatus::Active && !matches!(event, Event::A2 | Event::B2 | Event::D2) {
+                            problems.push(format!("registry document of {} shows {}", hs.body.owner, doc.status.as_str()))
+                        }
+                    }
                 }
-                Ok(_) => {}
                 Err(e) => problems.push(format!("head statement: {e:#}")),
             }
         }

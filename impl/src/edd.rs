@@ -3,11 +3,12 @@
 
 use crate::cbor;
 use crate::certs::TrustStore;
+use crate::credential::{StatusListToken, STATUS_INVALID, STATUS_VALID};
 use crate::registry::{
-    url_from_create, HeadStatement, HeadStatementBody, IdentifierAttestationBody, LogEntry, OpBody, RegistrationRequest,
-    RegistrationResponse, ResolutionResponse, ResolvedDocument, Sealer, Submission,
+    check_status_change, url_from_create, HeadStatement, HeadStatementBody, IdentifierAttestationBody, LogEntry, OpBody,
+    RegistrationRequest, RegistrationResponse, ResolutionResponse, ResolvedDocument, Sealer, StatusListRef, Submission,
 };
-use crate::types::{OwnerStatus, Identifier};
+use crate::types::Identifier;
 use crate::util::now;
 use anyhow::{anyhow, Result};
 use serde_bytes::ByteBuf;
@@ -54,7 +55,11 @@ pub struct EddConfig {
     /// Public base URL, e.g. https://localhost:8440
     pub base_url: String,
     pub recovery_window: u64,
-    pub head_validity: u64,
+    /// Validity of status list tokens (§5.3), in seconds.
+    pub status_list_validity: u64,
+    /// `ttl` of status list tokens: how long a client may use one before
+    /// fetching it again, in seconds.
+    pub status_list_ttl: u64,
     pub attestation_validity: u64,
 }
 
@@ -65,15 +70,20 @@ struct Entry {
     sub: Submission,
     received_at: u64,
     overridden: bool,
-    /// Index of the signing key in the update keys it was checked against.
+    /// Index of the signing key in the update keys it was checked against
+    /// (0 for a status operation, which cannot be overridden: §3.4).
     signer_index: usize,
+    /// The head statement issued when this operation became the head.
+    head: Vec<u8>,
+    /// Its entry in the status list.
+    head_idx: usize,
+    /// The owner's current EBW provider after this operation (§3.1).
+    provider: String,
 }
 
 #[derive(Clone, Debug)]
 struct RegistryRecord {
     entries: Vec<Entry>,
-    status: OwnerStatus,
-    successor: Option<String>,
 }
 
 impl RegistryRecord {
@@ -85,8 +95,8 @@ impl RegistryRecord {
         self.entries.iter().filter(|e| !e.overridden).count() as u64
     }
 
-    fn closed(&self) -> bool {
-        matches!(self.head().sub.op.body, OpBody::Close { .. })
+    fn ended(&self) -> bool {
+        self.head().sub.op.body.document().ended()
     }
 }
 
@@ -101,6 +111,8 @@ struct Attestation {
 struct EddState {
     owners: HashMap<String, RegistryRecord>,
     attestations: HashMap<(String, String), Attestation>,
+    /// The status list for head statements (§5.3).
+    status_list: Vec<u8>,
 }
 
 /// The EDD.
@@ -127,22 +139,29 @@ impl Edd {
         Ok(sub)
     }
 
-    fn head_statement(&self, owner: &str, rec: &RegistryRecord) -> Vec<u8> {
-        let t = now();
-        let status = if rec.closed() { OwnerStatus::Closed } else { rec.status };
-        HeadStatement::issue(
+    /// The URI of the status list for head statements (§5.3).
+    pub fn status_list_uri(&self) -> String {
+        format!("{}/status-list", self.cfg.base_url)
+    }
+
+    /// Issue the head statement for an operation that becomes the head of
+    /// `owner`'s log after `seq` live operations, with a new entry in the
+    /// status list (§5.2).
+    fn issue_head(&self, st: &mut EddState, owner: &str, op_hash: Vec<u8>, seq: u64) -> (Vec<u8>, usize) {
+        let idx = st.status_list.len();
+        st.status_list.push(STATUS_VALID);
+        let head = HeadStatement::issue(
             &self.sealer,
             &HeadStatementBody {
                 st_type: "head-statement".into(),
                 owner: owner.into(),
-                head: rec.head().sub.op.hash(),
-                seq: rec.seq(),
-                status,
-                successor: if status == OwnerStatus::Merged { rec.successor.clone() } else { None },
-                issued_at: t,
-                expires_at: t + self.cfg.head_validity,
+                head: op_hash,
+                seq,
+                status_list: StatusListRef { uri: self.status_list_uri(), idx: idx as u64 },
+                issued_at: now(),
             },
-        )
+        );
+        (head, idx)
     }
 
     fn attest(&self, st: &mut EddState, owner: &str, id: &Identifier) -> PResult<()> {
@@ -197,6 +216,7 @@ impl Edd {
             return Err(Problem::new(400, "malformed-operation", "registration needs a create operation"));
         };
         let idx = op.verify_with(state).map_err(|e| Problem::new(403, "unauthorized-key", e.to_string()))?;
+        check_status_change(None, &op.body).map_err(|e| Problem::new(422, "invalid-status-change", e.to_string()))?;
         let owner = url_from_create(&op.raw);
         let mut st = self.state.lock().unwrap();
         if st.owners.contains_key(&owner) {
@@ -205,18 +225,24 @@ impl Edd {
         for id in &state.identifiers {
             self.attest(&mut st, &owner, id)?;
         }
+        let (head, head_idx) = self.issue_head(&mut st, &owner, op.hash(), 1);
         let rec = RegistryRecord {
-            entries: vec![Entry { sub: sub.clone(), received_at: now(), overridden: false, signer_index: idx }],
-            status: OwnerStatus::Active,
-            successor: None,
+            entries: vec![Entry {
+                sub: sub.clone(),
+                received_at: now(),
+                overridden: false,
+                signer_index: idx,
+                head: head.clone(),
+                head_idx,
+                provider: sub.provider(),
+            }],
         };
-        let head = self.head_statement(&owner, &rec);
         st.owners.insert(owner.clone(), rec);
         tracing::info!("registered {owner}");
         Ok(cbor::to_vec(&RegistrationResponse { owner, head: ByteBuf::from(head) }).unwrap())
     }
 
-    /// `POST /{url}` (§6.5): an update or close operation in a
+    /// `POST /{url}` (§6.5): an update or status operation in a
     /// submission, with the recovery rule of §3.4.
     pub fn update(&self, owner: &str, body: &[u8]) -> PResult<Vec<u8>> {
         let sub = self.submission(body)?;
@@ -227,15 +253,31 @@ impl Edd {
         };
         let mut st = self.state.lock().unwrap();
         let rec = st.owners.get(owner).ok_or_else(|| Problem::not_found(owner))?.clone();
-        if rec.closed() {
-            return Err(Problem::new(410, "closed", format!("{owner} is closed")));
+        if rec.ended() {
+            let status = rec.head().sub.op.body.document().status;
+            return Err(Problem::new(410, "ended", format!("{owner} is {}", status.as_str())));
         }
         let head = rec.head();
         let mut rec2 = rec.clone();
         let signer_index;
-        if head.sub.op.hash() == prev {
-            let pstate = head.sub.op.body.document().unwrap();
-            signer_index = op.verify_with(pstate).map_err(|e| Problem::new(403, "unauthorized-key", e.to_string()))?;
+        let mut provider = sub.provider();
+        let pstate;
+        if let OpBody::Status { .. } = &op.body {
+            // Sealed by the owner's current EBW provider (§3.1); never a
+            // recovery.
+            if head.sub.op.hash() != prev {
+                return Err(Problem::new(409, "stale-prev", "a status operation must follow the head"));
+            }
+            let sealer = op.verify_seal(&self.trust, now()).map_err(|e| Problem::new(403, "invalid-seal", format!("{e:#}")))?;
+            if sealer != head.provider {
+                return Err(Problem::new(403, "unauthorized-provider", format!("{sealer} is not the owner's current EBW provider")));
+            }
+            provider = head.provider.clone();
+            pstate = head.sub.op.body.document().clone();
+            signer_index = 0;
+        } else if head.sub.op.hash() == prev {
+            pstate = head.sub.op.body.document().clone();
+            signer_index = op.verify_with(&pstate).map_err(|e| Problem::new(403, "unauthorized-key", e.to_string()))?;
         } else {
             // Recovery (§3.4).
             let pos = rec
@@ -243,13 +285,8 @@ impl Edd {
                 .iter()
                 .position(|e| !e.overridden && e.sub.op.hash() == prev)
                 .ok_or_else(|| Problem::new(409, "stale-prev", "prev names no live operation"))?;
-            let pstate = rec.entries[pos]
-                .sub
-                .op
-                .body
-                .document()
-                .ok_or_else(|| Problem::new(409, "stale-prev", "prev is a close operation"))?;
-            let i = op.verify_with(pstate).map_err(|e| Problem::new(403, "unauthorized-key", e.to_string()))?;
+            pstate = rec.entries[pos].sub.op.body.document().clone();
+            let i = op.verify_with(&pstate).map_err(|e| Problem::new(403, "unauthorized-key", e.to_string()))?;
             let later: Vec<&Entry> = rec.entries[pos + 1..].iter().filter(|e| !e.overridden).collect();
             if later.iter().any(|e| e.signer_index <= i) {
                 return Err(Problem::new(409, "stale-prev", "a later operation was signed by a key of equal or higher priority"));
@@ -263,14 +300,13 @@ impl Edd {
             }
             signer_index = i;
         }
-        if let Some(s) = op.body.document() {
-            self.check_identifiers(&st, owner, &s.identifiers)?;
-        }
-        if matches!(op.body, OpBody::Close { .. }) {
-            rec2.status = OwnerStatus::Closed;
-        }
-        rec2.entries.push(Entry { sub: sub.clone(), received_at: now(), overridden: false, signer_index });
-        let head = self.head_statement(owner, &rec2);
+        check_status_change(Some(&pstate), &op.body).map_err(|e| Problem::new(422, "invalid-status-change", e.to_string()))?;
+        self.check_identifiers(&st, owner, &op.body.document().identifiers)?;
+        // The replaced head statement is no longer current (§5.3).
+        st.status_list[rec.head().head_idx] = STATUS_INVALID;
+        let seq = rec2.seq() + 1;
+        let (head, head_idx) = self.issue_head(&mut st, owner, op.hash(), seq);
+        rec2.entries.push(Entry { sub: sub.clone(), received_at: now(), overridden: false, signer_index, head: head.clone(), head_idx, provider });
         st.owners.insert(owner.into(), rec2);
         Ok(head)
     }
@@ -280,15 +316,31 @@ impl Edd {
     pub fn resolve(&self, owner: &str) -> PResult<Vec<u8>> {
         let st = self.state.lock().unwrap();
         let rec = st.owners.get(owner).ok_or_else(|| Problem::not_found(owner))?;
-        let head = self.head_statement(owner, rec);
-        Ok(cbor::to_vec(&ResolutionResponse { operation: ByteBuf::from(rec.head().sub.op.raw.clone()), head: ByteBuf::from(head) }).unwrap())
+        let head = rec.head();
+        Ok(cbor::to_vec(&ResolutionResponse { operation: ByteBuf::from(head.sub.op.raw.clone()), head: ByteBuf::from(head.head.clone()) }).unwrap())
     }
 
     /// `GET /{url}/head`.
     pub fn head(&self, owner: &str) -> PResult<Vec<u8>> {
         let st = self.state.lock().unwrap();
         let rec = st.owners.get(owner).ok_or_else(|| Problem::not_found(owner))?;
-        Ok(self.head_statement(owner, rec))
+        Ok(rec.head().head.clone())
+    }
+
+    /// `GET /status-list` (§5.3): a fresh status list token.
+    pub fn status_list(&self) -> Vec<u8> {
+        let st = self.state.lock().unwrap();
+        let t = now();
+        StatusListToken::build_edd(
+            &self.sealer,
+            &self.cfg.base_url,
+            &self.status_list_uri(),
+            &st.status_list,
+            t - 5,
+            t + self.cfg.status_list_validity,
+            Some(self.cfg.status_list_ttl),
+        )
+        .raw
     }
 
     /// `GET /{url}/log`.
@@ -339,18 +391,6 @@ impl Edd {
             "identifier_types": crate::types::IDENTIFIER_TYPES,
             "recovery_window": self.cfg.recovery_window,
         })
-    }
-
-    /// Demo administration (not part of the specification): set an
-    /// owner's lifecycle status, as the EDD would on a court order or a
-    /// register update.
-    pub fn set_status(&self, owner: &str, status: OwnerStatus, successor: Option<String>) -> PResult<Vec<u8>> {
-        let mut st = self.state.lock().unwrap();
-        let rec = st.owners.get_mut(owner).ok_or_else(|| Problem::not_found(owner))?;
-        rec.status = status;
-        rec.successor = successor;
-        let rec = rec.clone();
-        Ok(self.head_statement(owner, &rec))
     }
 }
 

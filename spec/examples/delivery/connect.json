@@ -9,7 +9,7 @@
         "versions": [
           "scc/1"
         ],
-        "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
+        "owner": "ebw:zloeskxezkk6rcwjazemu3kv",
         "subject": "Kq7vT2mXr9Lp"
       }
     },
@@ -27,8 +27,8 @@
       "id": "c2",
       "method": "scc.authenticate",
       "params": {
-        "credential": "hFgmogEnBFggCwtiuqQlQsE0dHD9L48m3nN7eO71HXDf15LqOx6baRKgWNypAXgcZWJ3OmJvNmZyY25mZHI1NGlycjNleWJhaG1oNgJsS3E3dlQybVhyOUxwBBpq-rgABRpq0ysABhpq0ysACKEBowEBIAYhWCDRuQ4zzgZTB-asGW3g4CaWfUvh_I0w-RqYU5ZYuclAaxn__6Frc3RhdHVzX2xpc3SiY2lkeAdjdXJpeC1odHRwczovL3N0YXR1cy5leGFtcGxlLXByb3ZpZGVyLmV1L3JjbmZkcjU0LzFlcm9sZXOCZ2RlZmF1bHRqcHVyY2hhc2luZ2Zob2xkZXJmaC00MWM5WEAy5vj65JC1IclIUgaK_znjjPZaxpGAsjhulggK7AR3XdksW03mnABBxzs9VWeAzGvNyzCibIm7OZDXDbrvNKYL",
-        "signature": "hFgmogEnBFggZs5RxzDEylWq_Xxo83v87_BrcAEmnYNa3hgAxnUh6PegWKSmY3Jkc3gnaHR0cHM6Ly9yZHMuZXhhbXBsZS1wcm92aWRlci5ldS9zY2MtcmRzZHR5cGVtY29ubmVjdC1wcm9vZmVvd25lcngcZWJ3OmJvNmZyY25mZHI1NGlycjNleWJhaG1oNmdzdWJqZWN0bEtxN3ZUMm1YcjlMcGljaGFsbGVuZ2VQLdAL134CIs7YgmZUganB2WlzaWduZWRfYXQaatR8slhAcpmo_zWh0SJ3_hDHIH3cIBPUI9OmPUZzxJLTNnbapBmxJK7lzxwdeBnayrgv5B-HpPf2ZeWihKtYSNxwLj7_Dg"
+        "credential": "hFgmogEnBFggCwtiuqQlQsE0dHD9L48m3nN7eO71HXDf15LqOx6baRKgWNypAXgcZWJ3Onpsb2Vza3hlemtrNnJjd2phemVtdTNrdgJsS3E3dlQybVhyOUxwBBpq-rgABRpq0ysABhpq0ysACKEBowEBIAYhWCDRuQ4zzgZTB-asGW3g4CaWfUvh_I0w-RqYU5ZYuclAaxn__6Frc3RhdHVzX2xpc3SiY2lkeAdjdXJpeC1odHRwczovL3N0YXR1cy5leGFtcGxlLXByb3ZpZGVyLmV1L3NreGV6a2s2LzFlcm9sZXOCZ2RlZmF1bHRqcHVyY2hhc2luZ2Zob2xkZXJmaC00MWM5WECOKpsC5kMA_qJgujPzGhCL7PZt1qlwtaTA1O63okbgAaSAe0KiOV_pjhT60KchcDSBh7uADNI90ujawGWMQGEN",
+        "signature": "hFgmogEnBFggZs5RxzDEylWq_Xxo83v87_BrcAEmnYNa3hgAxnUh6PegWKSmY3Jkc3gnaHR0cHM6Ly9yZHMuZXhhbXBsZS1wcm92aWRlci5ldS9zY2MtcmRzZHR5cGVtY29ubmVjdC1wcm9vZmVvd25lcngcZWJ3Onpsb2Vza3hlemtrNnJjd2phemVtdTNrdmdzdWJqZWN0bEtxN3ZUMm1YcjlMcGljaGFsbGVuZ2VQLdAL134CIs7YgmZUganB2WlzaWduZWRfYXQaatR8slhACncXjaZSM0gqizk8qzkzCGU9nXRz6tjHlyRwhrHi8AuBF8Np3u8bJ28cfJDv2kLnWe-rM0_p0q9nEO2QSk5yBA"
       }
     },
     {

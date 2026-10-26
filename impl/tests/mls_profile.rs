@@ -32,6 +32,8 @@ fn owner() -> Owner {
         rds: "https://rds.test/scc-rds".into(),
         identifiers: vec![],
         acceptance_policies: pol,
+        status: scc::types::OwnerStatus::Active,
+        successor: None,
         signed_at: 0,
     };
     let op = Operation::sign(OpBody::Create(state.clone()), &ukeys);

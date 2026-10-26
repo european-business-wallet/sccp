@@ -9,11 +9,11 @@
     << {
       "v": 1,
       "mls": {
-        "group_context": h'00010001107dbd06d023712b32c0964dcc971212a100000000000000062008d2b19f9c704ab24142a9666df50ae30864a76faa5d9e34a8e285c29895be49205c8434696385e25c931f66fb6996136c4f6cee21e011f82e83b5fc633036c9d6405ef0ec404e1c6562773a626f366672636e66647235346972723365796261686d68360a70757263686173696e671c6562773a72376a68676f3565756b617a737135686f6d636c7678646308696e766f6963657300030902f0ec00040003f0eb',
+        "group_context": h'00010001107dbd06d023712b32c0964dcc971212a100000000000000062008d2b19f9c704ab24142a9666df50ae30864a76faa5d9e34a8e285c29895be49205c8434696385e25c931f66fb6996136c4f6cee21e011f82e83b5fc633036c9d6405ef0ec404e1c6562773a7a6c6f65736b78657a6b6b367263776a617a656d75336b760a70757263686173696e671c6562773a623664666a677036356e67686d7037676c736e726276713408696e766f6963657300030902f0ec00040003f0eb',
         "epoch_authenticator": h'7289b456d1584744aad7dcb035754e69f321e3afb186426c3d2c91439f45edce'
       },
       "prev": [
-        h'7fd57c76ca0777c53edb6b6a5c568d5e3cc08641f3deb17490d3dadf0e1c0937'
+        h'7032d112eb85fae4daaab0aeb583bad7cd772ece0b7e4d0c94bbc4b6f8de36e6'
       ],
       "event": "http://uri.etsi.org/19522/Event/NotificationForAcceptance",
       "heads": [
@@ -26,14 +26,16 @@
           {},
           << {
             "seq": 2,
-            "head": h'2aaa13369fc7fabee6f59a42c2a9d504866a91be944a5dd4da5200a399cc5060',
+            "head": h'b72181b5594fee7bb5905a4b62caf7413b40572eb9d2b9ec0e30fd76b2cc62f4',
             "type": "head-statement",
-            "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
-            "status": "active",
-            "issued_at": 1792310433,
-            "expires_at": 1792310733
+            "owner": "ebw:zloeskxezkk6rcwjazemu3kv",
+            "issued_at": 1792306810,
+            "status_list": {
+              "idx": 1,
+              "uri": "https://edd.europa.eu/status-list"
+            }
           } >>,
-          h'464a2cf5ed9afe957660ffdc69da4d9297af67b878ac142ff2808e3045f83dfc143bf6ec2c559ff2c4e81f55403ae1f0faee7a42dd604487efce1b0082b3cc02'
+          h'474ea81f52708e8d304f0c5b5f38ffb5bcb4266df1905183320bb2dfeba99fb9b3463ed8ab3ff7455c6d666a73d634185afe3741169c983b1d29721111a97f0c'
         ] >>,
         << [
           << {
@@ -44,14 +46,16 @@
           {},
           << {
             "seq": 1,
-            "head": h'8fd2733ba4a2819943a77304badc629a1329e6c50976c3de9c28e9ada7f6fefb',
+            "head": h'0f865499feeb4c763fe65c9b10d61c4e65f4a55308d8367d243934e2af6ab09d',
             "type": "head-statement",
-            "owner": "ebw:r7jhgo5eukazsq5homclvxdc",
-            "status": "active",
-            "issued_at": 1792310433,
-            "expires_at": 1792310733
+            "owner": "ebw:b6dfjgp65nghmp7glsnrbvq4",
+            "issued_at": 1792306810,
+            "status_list": {
+              "idx": 2,
+              "uri": "https://edd.europa.eu/status-list"
+            }
           } >>,
-          h'18129f58267b219a624f4539a416ee9e69c3eaa53207d5767e227d2bc5cbaff2ad826a2940457e9dccd183f5a4dcc6f1246a77b82aa15d8705373ced3d77b10f'
+          h'46c43aa511d75dbf9956b8553d0226544669f9b978dee4a0c92203ffc76b3f3a7ee3eb7f36659b45443c6f37fd6784575eed1110e4a9c5a64af7b912da1d1709'
         ] >>
       ],
       "issuer": {
@@ -64,11 +68,11 @@
       "message": {
         "to": {
           "role": "invoices",
-          "owner": "ebw:r7jhgo5eukazsq5homclvxdc"
+          "owner": "ebw:b6dfjgp65nghmp7glsnrbvq4"
         },
         "from": {
           "role": "purchasing",
-          "owner": "ebw:bo6frcnfdr54irr3eybahmh6"
+          "owner": "ebw:zloeskxezkk6rcwjazemu3kv"
         },
         "sent_at": 1792310460,
         "expires_at": 1793520060,
@@ -76,8 +80,32 @@
         "session_id": h'7dbd06d023712b32c0964dcc971212a1',
         "consignment": "consented",
         "envelope_hash": h'cb16e5b7d31b6774db03d912a33fd4a8c8231f65e09afd33470a73349810493e',
-        "plaintext_hash": h'de77ca919e35d89cb74821dedc1b750fb8253459fd29067484cfc55051297e65'
+        "plaintext_hash": h'9e3a688fe5b84c115221e6a146f31a4884c917f98eaa0baba25aa1a893956ec6'
       },
+      "statuses": [
+        << 18([
+          << {
+            1: -8,
+            4: h'775e334bb601d0ae3f7200b77e10c2b9c2958cb0a86052e778b3bb7791b6ef43',
+            16: "application/statuslist+cwt",
+            33: h'308201123081c5a003020102020101300506032b65703033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59301e170d3236303130313030303030305a170d3238303130313030303030305a3033311d301b06035504030c146564642e6575726f70612e6575202864656d6f2931123010060355040a0c0944454d4f204f4e4c59302a300506032b657003210087efec3277a1f76a54c2911291dc416976e151b0dec8df7bc7835bf0bce56ef7300506032b657003410037ff76e154b86015ef7541b1eabcb41a85e483c26582b1eab601738550d1eda88f48b80898bd59b9bf3a3fd69413b15a1e337a090988b8eb54eba5e36f40ff05'
+          } >>,
+          {},
+          << {
+            1: "https://edd.europa.eu",
+            2: "https://edd.europa.eu/status-list",
+            4: 1792396833,
+            5: 1792310433,
+            6: 1792310433,
+            65533: {
+              "lst": h'78da63040000020002',
+              "bits": 1
+            },
+            65534: 3600
+          } >>,
+          h'874782ac9fc636e66ef95293ed910c9df7de245499e8e90f60c35d1c5581d1cf678192fecf472c584fbf749c34936c1e41445b117b02d3a08f0602219069f20f'
+        ]) >>
+      ],
       "event_time": 1792310463,
       "evidence_id": h'0917abc77b772515950de9d2eb81b780',
       "eligible_holders": 2,
@@ -93,7 +121,7 @@
         }
       }
     } >>,
-    h'1caa2a92871e6069f34456d18b28fe104f9cc190813f6d2dd2e03825921ad74119cccee9ad6ef716804a125e53c3c52b8960b76eafc2163dc4e8d87d694c300b'
+    h'189f0d4fa72d4d049f1f2b56ac25111014250b104ada8dae32880b329b9807ea7314f869505a7c96844b5e7a7200c430e66c882f784609fcd93d0f1edcef8b08'
   ] >>,
-  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3a45f5a1bec9c289025b1c4f4459924a661c82794f133bc2107a9ebc72247e294d'
+  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3afb97c2233c508217925affc17f328fa69e288ee7279303b450d5ce008f19f5a3'
 ]

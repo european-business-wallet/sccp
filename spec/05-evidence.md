@@ -71,8 +71,9 @@ A verifier:
 4. Verifies the timestamp and checks that its imprint is SHA-256 of the
    COSE_Sign1.
 5. Validates the body against the CDDL.
-6. Verifies each embedded head statement (doc 1 §5.2) and checks that it
-   was unexpired at `event_time`.
+6. Verifies each embedded head statement (doc 1 §5.2) and checks that an
+   embedded EDD status list token (doc 1 §5.3), current at `event_time`,
+   shows it VALID.
 7. Verifies each embedded endpoint statement (§4, §5, §6), including
    its credential (doc 2 §3). For the credential's status it uses the
    embedded status list token, checking that the token's signature,
@@ -168,12 +169,14 @@ handover = {
 - `mls.epoch_authenticator` is the value the sender gave at submission
   (doc 4 §7.1).
 - `heads` holds the head statements of both owners that the issuer relied
-  on (doc 1 §5.2). For A.2 and B.2 caused by an owner's status, it holds
-  the head statement showing that status.
-- `statuses` holds the status list tokens (doc 2 §5.3) that the issuer
-  checked for the credentials of every endpoint the evidence names: the
-  endpoint in `endpoint`, and the endpoints whose decisions or reports it
-  embeds. Each token must have been current at `event_time`.
+  on (doc 1 §5.4). For A.2 and B.2 caused by an owner's status, it holds
+  the head statement of the registry document showing that status.
+- `statuses` holds the status list tokens that the issuer checked: the
+  EDD's tokens for the head statements in `heads` (doc 1 §5.3), and the
+  owners' tokens (doc 2 §5.3) for the credentials of every endpoint the
+  evidence names: the endpoint in `endpoint`, and the endpoints whose
+  decisions or reports it embeds. Each token must have been current at
+  `event_time`.
 - `sender_assurance` describes how the sender was identified (its
   registration with the EDD) and authenticated (the connection proof of
   its endpoint, doc 4 §4.1). It is copied from A.1 into later evidence.
@@ -283,7 +286,7 @@ etsi-reason-code = tstr .regexp "R[A-F]([0-9]{2}|XX)"
 | `sender-not-active` | A.2, B.2 | Sender suspended, retired, merged or closed | RA05, RB06 |
 | `recipient-not-active` | A.2, B.2 | Recipient suspended | RA05, RB06 |
 | `recipient-retired` | A.2, B.2, D.2 | Recipient retired or closed | RA05, RB21, RD21 |
-| `recipient-merged` | A.2, B.2, D.2 | Recipient merged; see successor in head statement | RA05, RB21, RD21 |
+| `recipient-merged` | A.2, B.2, D.2 | Recipient merged; see successor in registry document | RA05, RB21, RD21 |
 | `unknown-address` | A.2, B.2 | No such EBW URL, or no eligible endpoint for the role | RA05, RB21 |
 | `no-keypackage` | A.2, B.2 | An eligible endpoint has no KeyPackage (doc 3 §5.1) | RA05, RB06 |
 | `membership-mismatch` | B.2 | Session not correctly formed at the receiving RDS | RB06 |

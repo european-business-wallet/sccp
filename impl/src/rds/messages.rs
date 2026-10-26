@@ -66,15 +66,15 @@ fn evidenced(code: i64, message: &str, art: &Artefact, more: serde_json::Value) 
 impl Rds {
     // ---- Evidence issuance ----
 
-    /// Head statements of both owners (doc 1 §5.2). Fails if either is not
-    /// active, unless `allow_inactive`.
+    /// Current head statements of both owners (doc 1 §5.4), and the first
+    /// owner whose registry document is not active, if any.
     pub async fn heads(&self, m: &Meta) -> RpcResult<(Vec<Vec<u8>>, Option<(String, OwnerStatus)>)> {
         let mut heads = Vec::new();
         let mut inactive = None;
         for owner in [&m.from.owner, &m.to.owner] {
             let st = self.resolver.resolve(owner).await.map_err(RpcError::from)?;
-            if st.head.body.status != OwnerStatus::Active && inactive.is_none() {
-                inactive = Some((owner.clone(), st.head.body.status));
+            if st.document.status != OwnerStatus::Active && inactive.is_none() {
+                inactive = Some((owner.clone(), st.document.status));
             }
             if !heads.contains(&st.head.raw) {
                 heads.push(st.head.raw.clone());
@@ -90,6 +90,16 @@ impl Rds {
             Some(h) => h,
             None => self.heads(&meta).await?.0,
         };
+        // The EDD status lists showing the head statements current (doc 1 §5.3).
+        let mut statuses = Vec::new();
+        for h in &heads {
+            let uri = crate::registry::HeadStatement::parse(h).map_err(RpcError::from)?.body.status_list.uri;
+            let tok = self.resolver.status(&uri).await.map_err(RpcError::from)?;
+            if !statuses.contains(&tok.raw) {
+                statuses.push(tok.raw);
+            }
+        }
+        statuses.extend(x.statuses);
         let m = st.messages.get(mid).unwrap();
         let mls = st.sessions.get(&m.session_id).and_then(|s| s.contexts.get(m.epoch as usize)).map(|gc| MlsRef {
             group_context: gc.clone(),
@@ -113,7 +123,7 @@ impl Rds {
             mls,
             reason: x.reason,
             heads: heads.into_iter().map(ByteBuf::from).collect(),
-            statuses: if x.statuses.is_empty() { None } else { Some(x.statuses.into_iter().map(ByteBuf::from).collect()) },
+            statuses: if statuses.is_empty() { None } else { Some(statuses.into_iter().map(ByteBuf::from).collect()) },
             sender_assurance: m.sender_assurance.clone(),
             recipient_assurance: x.recipient_assurance,
             peer: x.peer,

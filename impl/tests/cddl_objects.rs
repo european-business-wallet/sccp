@@ -9,12 +9,12 @@ use scc::registry::{HeadStatement, HeadStatementBody, Sealer};
 use scc::evidence::*;
 use scc::mls::AppMessage;
 use scc::schema::validate;
-use scc::types::{Address, Consignment, OwnerStatus, EndpointRef};
+use scc::types::{Address, Consignment, EndpointRef};
 use scc::util::{now, random_bytes};
 use serde_bytes::ByteBuf;
 
-const A: &str = "ebw:bo6frcnfdr54irr3eybahmh6";
-const B: &str = "ebw:r7jhgo5eukazsq5homclvxdc";
+const A: &str = "ebw:zloeskxezkk6rcwjazemu3kv";
+const B: &str = "ebw:b6dfjgp65nghmp7glsnrbvq4";
 
 fn sealer(name: &str) -> Sealer {
     let key = PrivateKey::generate_ed25519();
@@ -178,10 +178,8 @@ fn produced_objects_match_cddl() {
             owner: B.into(),
             head: vec![7; 32],
             seq: 1,
-            status: OwnerStatus::Active,
-            successor: None,
+            status_list: scc::registry::StatusListRef { uri: "https://edd.test/status-list".into(), idx: 0 },
             issued_at: t,
-            expires_at: t + 300,
         },
     );
     validate("head-statement", &head).unwrap();

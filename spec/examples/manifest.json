@@ -1,8 +1,8 @@
 {
   "generated_by": "tools/gen_examples.py",
   "owners": {
-    "A": "ebw:bo6frcnfdr54irr3eybahmh6",
-    "B": "ebw:r7jhgo5eukazsq5homclvxdc"
+    "A": "ebw:zloeskxezkk6rcwjazemu3kv",
+    "B": "ebw:b6dfjgp65nghmp7glsnrbvq4"
   },
   "examples": [
     {
@@ -16,8 +16,18 @@
       "valid": true
     },
     {
+      "file": "status-op.cbor",
+      "rule": "operation",
+      "valid": true
+    },
+    {
       "file": "head-statement.cbor",
       "rule": "head-statement",
+      "valid": true
+    },
+    {
+      "file": "edd-status-list.cbor",
+      "rule": "status-list-token",
       "valid": true
     },
     {

@@ -154,7 +154,7 @@ capitals.
 
 | Identifier | Form | Example |
 |---|---|---|
-| EBW URL | `ebw:` + 24 base32 characters | `ebw:bo6frcnfdr54irr3eybahmh6` |
+| EBW URL | `ebw:` + 24 base32 characters | `ebw:zloeskxezkk6rcwjazemu3kv` |
 | Role | 1 to 32 characters from `a-z`, `0-9`, `-` | `invoices` |
 | Subject ID | Opaque, 1 to 64 characters from `A-Z`, `a-z`, `0-9`, `_`, `-` | `Kq7vT2mXr9Lp` |
 | Message ID | 16 random bytes | `h'0192f1a3...'` |

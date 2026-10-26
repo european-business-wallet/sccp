@@ -5,7 +5,8 @@ use scc::certs::{self, TrustStore};
 use scc::cose::PrivateKey;
 use scc::registry::{self, HeadStatement, OpBody, Operation, RegistryDocument, Sealer, Submission};
 use scc::edd::{Edd, EddConfig};
-use scc::types::{AcceptancePolicy, Identifier};
+use scc::credential::{StatusListToken, STATUS_INVALID, STATUS_VALID};
+use scc::types::{AcceptancePolicy, Identifier, OwnerStatus};
 use std::collections::BTreeMap;
 
 /// A test EBW provider's sealer.
@@ -27,7 +28,8 @@ fn edd(p: &Sealer) -> (Edd, TrustStore) {
     let cfg = EddConfig {
         base_url: "https://edd.test".into(),
         recovery_window: 3600,
-        head_validity: 300,
+        status_list_validity: 300,
+        status_list_ttl: 5,
         attestation_validity: 86400,
     };
     (Edd::new(cfg, Sealer { key, chain: vec![cert] }, trust.clone()), trust)
@@ -43,6 +45,8 @@ fn state(ukeys: &[PrivateKey], vat: &str) -> RegistryDocument {
         rds: "https://rds.test/scc-rds".into(),
         identifiers: vec![Identifier { id_type: "vat".into(), value: vat.into() }],
         acceptance_policies: pol,
+        status: scc::types::OwnerStatus::Active,
+        successor: None,
         signed_at: 1,
     }
 }
@@ -105,12 +109,50 @@ fn register_update_recover() {
     assert!(log[1].overridden);
     let audited = registry::audit_log(&owner, &log, &trust).unwrap();
     assert_eq!(audited.len(), 3);
-    // Close.
-    let d = Operation::sign(OpBody::Close { prev: r.hash() }, &ukeys[0]);
-    let h = HeadStatement::parse(&edd.update(&owner, &sub(&p, &d)).unwrap()).unwrap();
-    assert_eq!(h.body.status, scc::types::OwnerStatus::Closed);
-    let u_after = Operation::sign(OpBody::Update { prev: d.hash(), state: state(&ukeys, "DE1") }, &ukeys[0]);
+    let r_doc = r.body.document().clone();
+    let with_status = |s: OwnerStatus| RegistryDocument { status: s, ..r_doc.clone() };
+
+    // The EBW provider suspends the owner with a status operation (§3.1).
+    let s1 = Operation::seal(OpBody::Status { prev: r.hash(), state: with_status(OwnerStatus::Suspended) }, &p);
+    let h_r = HeadStatement::parse(&edd.head(&owner).unwrap()).unwrap();
+    let h_s1 = HeadStatement::parse(&edd.update(&owner, &sub(&p, &s1)).unwrap()).unwrap();
+    // The status list now shows the old head statement replaced (§5.3).
+    let sl = StatusListToken::parse(&edd.status_list()).unwrap();
+    sl.verify_edd(&trust, scc::util::now()).unwrap();
+    assert_eq!(sl.status(h_r.body.status_list.idx).unwrap(), STATUS_INVALID);
+    assert_eq!(sl.status(h_s1.body.status_list.idx).unwrap(), STATUS_VALID);
+    h_s1.check_current(&sl, &trust, scc::util::now()).unwrap();
+    assert!(h_r.check_current(&sl, &trust, scc::util::now()).is_err());
+    // A status operation may not change anything but the status...
+    let mut other_doc = with_status(OwnerStatus::Active);
+    other_doc.rds = "https://elsewhere.test/scc-rds".into();
+    let s_bad = Operation::seal(OpBody::Status { prev: s1.hash(), state: other_doc }, &p);
+    assert_eq!(edd.update(&owner, &sub(&p, &s_bad)).unwrap_err().ptype, "invalid-status-change");
+    // ...nor set a status reserved to the owner.
+    let s_merge = Operation::seal(
+        OpBody::Status { prev: s1.hash(), state: RegistryDocument { successor: Some(owner.clone()), ..with_status(OwnerStatus::Merged) } },
+        &p,
+    );
+    assert_eq!(edd.update(&owner, &sub(&p, &s_merge)).unwrap_err().ptype, "invalid-status-change");
+    // An update operation cannot lift the suspension, nor can a status
+    // operation be signed with an update key.
+    let u_lift = Operation::sign(OpBody::Update { prev: s1.hash(), state: with_status(OwnerStatus::Active) }, &ukeys[0]);
+    assert_eq!(edd.update(&owner, &sub(&p, &u_lift)).unwrap_err().ptype, "invalid-status-change");
+    let s_key = Operation::sign(OpBody::Status { prev: s1.hash(), state: with_status(OwnerStatus::Active) }, &ukeys[0]);
+    assert_eq!(edd.update(&owner, &sub(&p, &s_key)).unwrap_err().status, 403);
+    // A status operation cannot be overridden by recovery.
+    let u_rec = Operation::sign(OpBody::Update { prev: r.hash(), state: with_status(OwnerStatus::Active) }, &ukeys[0]);
+    assert_eq!(edd.update(&owner, &sub(&p, &u_rec)).unwrap_err().status, 409);
+    // The provider reinstates the owner, who then closes the EBW URL.
+    let s2 = Operation::seal(OpBody::Status { prev: s1.hash(), state: with_status(OwnerStatus::Active) }, &p);
+    edd.update(&owner, &sub(&p, &s2)).unwrap();
+    let d = Operation::sign(OpBody::Update { prev: s2.hash(), state: with_status(OwnerStatus::Closed) }, &ukeys[0]);
+    edd.update(&owner, &sub(&p, &d)).unwrap();
+    let u_after = Operation::sign(OpBody::Update { prev: d.hash(), state: with_status(OwnerStatus::Closed) }, &ukeys[0]);
     assert_eq!(edd.update(&owner, &sub(&p, &u_after)).unwrap_err().status, 410);
+    // The whole log audits.
+    let log: Vec<registry::LogEntry> = cbor::from_slice(&edd.log(&owner, None).unwrap()).unwrap();
+    assert_eq!(registry::audit_log(&owner, &log, &trust).unwrap().len(), 6);
     // Lookup and resolution.
     assert!(edd.lookup("vat", "DE1").is_ok());
     let resp: registry::ResolutionResponse = cbor::from_slice(&edd.resolve(&owner).unwrap()).unwrap();

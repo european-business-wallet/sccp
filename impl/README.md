@@ -76,7 +76,10 @@ The script builds the binaries and, in `target/demo/`:
 12. sends a message that the recipients falsely report as `invalid-epoch`
     (a demo switch): a group-state dispute. Then sends one that they take
     but never report on, giving E.2 `not-acknowledged`;
-13. exports verification bundles (evidence package, session log, the
+13. has B's EBW provider suspend B with a status operation: the next
+    message to B is rejected with A.2 (`-31109`, owner not active). The
+    provider then reinstates B, and the next message is delivered;
+14. exports verification bundles (evidence package, session log, the
     endpoint's private data with its retained MLS state, EBW URL logs) and
     runs `scc-verifier` against the plaintexts: every delivered message
     verifies **OK**, the expired one **INCOMPLETE**; for the disputed
@@ -87,9 +90,9 @@ The script builds the binaries and, in `target/demo/`:
     group-state dispute, the recipient's bundle verifies **OK** (from its
     agreed anchor, the verifier replays the next Commit and decrypts the
     message); the unreported message verifies **INCOMPLETE**;
-14. validates every evidence artefact received by one endpoint with the
+15. validates every evidence artefact received by one endpoint with the
     `cddl` tool, if installed;
-15. negative cases: a tampered plaintext, a package with one flipped bit,
+16. negative cases: a tampered plaintext, a package with one flipped bit,
     and evidence paired with another message's ciphertext all **FAIL**.
 
 Servers are stopped when the script exits. Set `KEEP=1` to keep them
@@ -142,7 +145,9 @@ asks for), the received evidence artefacts, and the plaintext body.
 
 - **Discovery (doc 1):** EBW URLs, operations and registry documents,
   submissions sealed by the EBW provider, registration, updates with
-  recovery, head statements, identifier attestations, resolution, log
+  recovery, status operations sealed by the EBW provider (`owner
+  provider-status`), head statements and the EDD status list, identifier
+  attestations, resolution, log
   auditing (`scc-edd`, `src/registry.rs`, `src/edd.rs`, `src/owner.rs`).
 - **Credentials (doc 2):** endpoint credentials (CWT), credential requests,
   status list tokens (OAuth Token Status List, CWT, ZLIB), the
