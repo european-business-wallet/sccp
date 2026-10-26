@@ -20,7 +20,7 @@ type St = Arc<Rds>;
 
 pub fn router(rds: Arc<Rds>) -> Router {
     Router::new()
-        .route("/.well-known/scc-rds", get(metadata))
+        .route(rds.metadata_path(), get(metadata))
         .route("/scc", get(ws_upgrade))
         .route("/scc/federation", post(federation))
         .route("/status/{id}", get(status_get).post(status_put))
@@ -43,7 +43,7 @@ async fn metadata(State(rds): State<St>) -> Response {
 }
 
 async fn federation(State(rds): State<St>, headers: HeaderMap, axum::Json(m): axum::Json<Message>) -> Response {
-    let caller = headers.get(rpc::PROVIDER_HEADER).and_then(|v| v.to_str().ok()).unwrap_or("").to_string();
+    let caller = headers.get(rpc::RDS_HEADER).and_then(|v| v.to_str().ok()).unwrap_or("").to_string();
     let r = match (&m.method, caller.is_empty()) {
         (_, true) => Err(RpcError::unauthorized("unidentified peer")),
         (Some(method), false) => rds.handle_federation(&caller, method, m.params.clone().unwrap_or_default()).await,
@@ -118,7 +118,7 @@ async fn serve_ws(rds: St, socket: WebSocket) {
 }
 
 async fn status_get(State(rds): State<St>, Path(id): Path<String>) -> Response {
-    let uri = format!("{}/status/{id}", rds.cfg.base_url);
+    let uri = format!("{}/status/{id}", rds.origin());
     match rds.status_store.read().unwrap().get(&uri) {
         Some(t) => ([(header::CONTENT_TYPE, STATUSLIST_TYP)], t.clone()).into_response(),
         None => StatusCode::NOT_FOUND.into_response(),
@@ -129,14 +129,14 @@ async fn status_get(State(rds): State<St>, Path(id): Path<String>) -> Response {
 /// signed by the owner's credential key, so no other authentication is
 /// needed.
 async fn status_put(State(rds): State<St>, Path(id): Path<String>, body: Bytes) -> Response {
-    let uri = format!("{}/status/{id}", rds.cfg.base_url);
+    let uri = format!("{}/status/{id}", rds.origin());
     let r: anyhow::Result<()> = async {
         let tok = StatusListToken::parse(&body)?;
         if tok.claims.sub != uri {
             anyhow::bail!("token names {}, not {uri}", tok.claims.sub);
         }
         let st = rds.resolver.resolve(&tok.claims.iss).await?;
-        if st.document.rds.provider != rds.cfg.provider {
+        if st.document.rds != rds.cfg.url {
             anyhow::bail!("{} is not served here", tok.claims.iss);
         }
         tok.verify(&st.document, crate::util::now())?;

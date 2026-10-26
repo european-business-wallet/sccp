@@ -61,7 +61,7 @@ impl Rds {
                 let art = Artefact::parse(&p.evidence).map_err(RpcError::params)?;
                 art.verify_seal(&self.trust).map_err(RpcError::params)?;
                 match &art.body {
-                    EvidenceBody::CommitFailure(c) if c.session_id == p.session_id && c.issuer.provider == caller => {}
+                    EvidenceBody::CommitFailure(c) if c.session_id == p.session_id && c.issuer.rds == caller => {}
                     _ => return Err(RpcError::params("not commit failure evidence from the caller")),
                 }
                 let mut st = self.st.lock().await;

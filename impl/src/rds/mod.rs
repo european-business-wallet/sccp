@@ -28,12 +28,10 @@ use tokio::sync::mpsc;
 /// Static configuration of an RDS.
 #[derive(Clone, Debug)]
 pub struct RdsConfig {
-    /// Provider ID (doc 4 §3).
-    pub provider: String,
+    /// The RDS URL: where its metadata is served, and its identity (doc 4 §3).
+    pub url: String,
     /// Legal name of the provider.
     pub name: String,
-    /// Base URL (`rds.url` in registry documents).
-    pub base_url: String,
     pub policies: Vec<String>,
     pub identity_policy: String,
     pub max_ttl: u64,
@@ -111,7 +109,7 @@ pub struct ReservationRec {
 /// A peer RDS.
 #[derive(Clone, Debug)]
 pub struct PeerRef {
-    pub provider: String,
+    pub url: String,
     pub federation: String,
     pub metadata: RdsMetadata,
 }
@@ -247,26 +245,40 @@ impl Rds {
         }))
     }
 
+    /// Scheme and authority of the RDS URL, under which this RDS serves its
+    /// other resources.
+    pub fn origin(&self) -> &str {
+        origin(&self.cfg.url)
+    }
+
+    /// The path of the RDS URL, where the metadata is served.
+    pub fn metadata_path(&self) -> &str {
+        match &self.cfg.url[self.origin().len()..] {
+            "" => "/",
+            p => p,
+        }
+    }
+
     pub fn client_url(&self) -> String {
-        format!("{}/scc", self.cfg.base_url.replacen("https://", "wss://", 1))
+        format!("{}/scc", self.origin().replacen("https://", "wss://", 1))
     }
 
     pub fn federation_url(&self) -> String {
-        format!("{}/scc/federation", self.cfg.base_url)
+        format!("{}/scc/federation", self.origin())
     }
 
-    /// The URI at which this RDS hosts a status list for an EBW URL.
-    pub fn status_uri(base_url: &str, owner: &str) -> String {
-        format!("{}/status/{}", base_url.trim_end_matches('/'), owner.strip_prefix("ebw:").unwrap_or(owner))
+    /// The URI at which the RDS with URL `rds_url` hosts a status list for
+    /// an EBW URL.
+    pub fn status_uri(rds_url: &str, owner: &str) -> String {
+        format!("{}/status/{}", origin(rds_url), owner.strip_prefix("ebw:").unwrap_or(owner))
     }
 
     pub fn metadata(&self) -> RdsMetadata {
         use crate::delivery::*;
         RdsMetadata {
-            provider: self.cfg.provider.clone(),
             governing_body: GoverningBody {
                 name: self.cfg.name.clone(),
-                identifier: format!("urn:ebw:demo:{}", self.cfg.provider),
+                identifier: format!("urn:ebw:demo:{}", self.cfg.name),
             },
             trust_domains: vec!["eu-qualified".into()],
             versions: vec![VERSION.into()],
@@ -293,7 +305,7 @@ impl Rds {
 
     pub fn issuer(&self) -> crate::evidence::Issuer {
         crate::evidence::Issuer {
-            provider: self.cfg.provider.clone(),
+            rds: self.cfg.url.clone(),
             name: self.cfg.name.clone(),
             policies: self.cfg.policies.clone(),
         }
@@ -304,64 +316,60 @@ impl Rds {
     /// Whether this RDS is the home RDS of `owner`.
     pub async fn serves(&self, owner: &str) -> RpcResult<bool> {
         let st = self.resolver.resolve(owner).await.map_err(|e| RpcError::new(rpc::E_UNKNOWN_ADDRESS, format!("{e:#}")))?;
-        Ok(st.document.rds.provider == self.cfg.provider)
+        Ok(st.document.rds == self.cfg.url)
     }
 
     /// The home RDS of `owner`, or None if it is this RDS.
     pub async fn peer_for_owner(&self, owner: &str) -> RpcResult<Option<PeerRef>> {
         let st = self.resolver.resolve(owner).await.map_err(|e| RpcError::new(rpc::E_UNKNOWN_ADDRESS, format!("{e:#}")))?;
-        if st.document.rds.provider == self.cfg.provider {
+        if st.document.rds == self.cfg.url {
             return Ok(None);
         }
-        self.peer_by_url(&st.document.rds.provider, &st.document.rds.url).await.map(Some)
+        self.peer_by_url(&st.document.rds).await.map(Some)
     }
 
-    async fn peer_by_url(&self, provider: &str, url: &str) -> RpcResult<PeerRef> {
-        if let Some(p) = self.peers.lock().unwrap().get(provider) {
+    async fn peer_by_url(&self, url: &str) -> RpcResult<PeerRef> {
+        if let Some(p) = self.peers.lock().unwrap().get(url) {
             return Ok(p.clone());
         }
-        let mu = format!("{}/.well-known/scc-rds", url.trim_end_matches('/'));
         let md: RdsMetadata = async {
-            let r = self.http.get(&mu).send().await?;
+            let r = self.http.get(url).send().await?;
             anyhow::Ok(r.error_for_status()?.json().await?)
         }
         .await
-        .map_err(|e| RpcError::internal(format!("RDS metadata {mu}: {e:#}")))?;
-        if md.provider != provider {
-            return Err(RpcError::internal(format!("RDS at {url} is {}, not {provider}", md.provider)));
-        }
-        let p = PeerRef { provider: provider.into(), federation: md.endpoints.federation.clone(), metadata: md };
-        self.peers.lock().unwrap().insert(provider.into(), p.clone());
+        .map_err(|e| RpcError::internal(format!("RDS metadata {url}: {e:#}")))?;
+        let p = PeerRef { url: url.into(), federation: md.endpoints.federation.clone(), metadata: md };
+        self.peers.lock().unwrap().insert(url.into(), p.clone());
         Ok(p)
     }
 
-    /// The peer with the given provider ID (known from an earlier lookup).
-    pub fn peer(&self, provider: &str) -> RpcResult<PeerRef> {
+    /// The peer with the given RDS URL (known from an earlier lookup).
+    pub fn peer(&self, url: &str) -> RpcResult<PeerRef> {
         self.peers
             .lock()
             .unwrap()
-            .get(provider)
+            .get(url)
             .cloned()
-            .ok_or_else(|| RpcError::internal(format!("unknown peer {provider}")))
+            .ok_or_else(|| RpcError::internal(format!("unknown peer {url}")))
     }
 
-    pub async fn call_peer(&self, provider: &str, method: &str, params: serde_json::Value) -> RpcResult {
-        let p = self.peer(provider)?;
-        if self.partitioned.lock().unwrap().contains(&p.provider) {
-            return Err(RpcError::new(rpc::E_PEER_UNREACHABLE, format!("{method} to {}: unreachable (demo partition)", p.provider)));
+    pub async fn call_peer(&self, url: &str, method: &str, params: serde_json::Value) -> RpcResult {
+        let p = self.peer(url)?;
+        if self.partitioned.lock().unwrap().contains(&p.url) {
+            return Err(RpcError::new(rpc::E_PEER_UNREACHABLE, format!("{method} to {}: unreachable (demo partition)", p.url)));
         }
-        tracing::debug!("-> {} {method}", p.provider);
-        rpc::federation_call(&self.http, &p.federation, &self.cfg.provider, method, params).await
+        tracing::debug!("-> {} {method}", p.url);
+        rpc::federation_call(&self.http, &p.federation, &self.cfg.url, method, params).await
     }
 
     /// Check that a federation caller is the home RDS of `owner` (§4.3).
     pub async fn check_caller_serves(&self, caller: &str, owner: &str) -> RpcResult<()> {
         let st = self.resolver.resolve(owner).await.map_err(RpcError::from)?;
-        if st.document.rds.provider != caller {
+        if st.document.rds != caller {
             return Err(RpcError::new(rpc::E_WRONG_RDS, format!("{caller} is not the home RDS of {owner}")));
         }
         // Learn its federation endpoint for later calls.
-        self.peer_by_url(&st.document.rds.provider, &st.document.rds.url).await?;
+        self.peer_by_url(&st.document.rds).await?;
         Ok(())
     }
 
@@ -422,7 +430,7 @@ impl Rds {
                 }
                 let v = self
                     .call_peer(
-                        &p.provider,
+                        &p.url,
                         "scc.rds.subjects",
                         rpc::to_value(&crate::delivery::SubjectsParams { address: addr.clone(), cipher_suite: cs }),
                     )
@@ -481,5 +489,14 @@ impl Rds {
         if let Some(tx) = self.conns.lock().unwrap().get(k) {
             let _ = tx.send(rpc::Message::notification(method, params).to_text());
         }
+    }
+}
+
+/// Scheme and authority of a URL (`https://host[:port]`).
+pub fn origin(url: &str) -> &str {
+    let rest = url.find("://").map(|i| i + 3).unwrap_or(0);
+    match url[rest..].find('/') {
+        Some(i) => &url[..rest + i],
+        None => url,
     }
 }

@@ -384,7 +384,7 @@ pub struct ConnectProofBody {
     #[serde(rename = "type")]
     pub st_type: String,
     pub challenge: ByteBuf,
-    pub provider: String,
+    pub rds: String,
     pub owner: String,
     pub subject: String,
     pub signed_at: u64,
@@ -413,7 +413,7 @@ mod tests {
     #[test]
     fn status_list_roundtrip() {
         let k = PrivateKey::generate_ed25519();
-        let owner = "ebw:ytf2ob7mxuljkyweuwq4jpr3";
+        let owner = "ebw:bo6frcnfdr54irr3eybahmh6";
         let t = StatusListToken::build(&k, owner, "https://x/1", &[0, 0, 0, 1, 0, 2, 0, 0], 100, 200, Some(10));
         assert_eq!(t.claims.bits, 2);
         assert_eq!(t.status(3).unwrap(), 1);

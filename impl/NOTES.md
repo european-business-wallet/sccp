@@ -63,8 +63,7 @@ These are stand-ins allowed by the brief. Each is marked in the code.
 | EDD identity proofing and identifier attestation (01 §4, §6.2) | Any `proof` is accepted; the identifiers in the create operation are attested. |
 | EBW provider (01 §3.6) | The owner tool holds its provider's seal key (`owner provider-init`) and seals its own submissions. The EDD accepts any provider whose certificate is in the trust store. |
 | Network partitions (03 §5, 04 §7.1) | Simulated with a demo switch (`scc-rds partition`): the RDS treats a peer as unreachable for its own outgoing federation calls. A real unreachable peer (connection error or unparseable response) is handled the same way. |
-| TLS 1.3 with mutual authentication between RDSes (04 §4.3) | Server-authenticated TLS with a demo CA (`SCC_TLS_CA`). The calling RDS names itself in an `x-scc-provider` header, which is not authenticated. Each federation handler still checks that the caller is the home RDS of the EBW URL it acts for (04 §4.3 check 2), using the registry document. All servers use one `localhost` certificate, so the provider ID is a configured name, not the DNS name in the certificate. |
-| Provider IDs equal to TLS DNS names (04 §3) | `rds-a.demo`, `rds-b.demo`; all on `localhost` ports. |
+| TLS 1.3 with mutual authentication between RDSes (04 §4.3) | Server-authenticated TLS with a demo CA (`SCC_TLS_CA`). The calling RDS gives its RDS URL in an `x-scc-rds` header, which is not authenticated. Each federation handler still checks that the caller is the home RDS of the EBW URL it acts for (04 §4.3 check 2), using the registry document. All servers use one `localhost` certificate, so RDSes differ only by port. |
 
 ## Simplifications
 
@@ -81,7 +80,7 @@ These are stand-ins allowed by the brief. Each is marked in the code.
   keys may be Ed25519 or P-256 (P-256 is exercised for signed statements
   in the tests), but the CLI creates Ed25519 keys.
 - **Status lists** are hosted by the owner's home RDS at
-  `<rds.url>/status/<EBW URL suffix>`. The owner uploads a new token with
+  `<origin of the RDS URL>/status/<EBW URL suffix>`. The owner uploads a new token with
   `POST`; the RDS accepts it because it is signed by the owner's
   credential key and is newer. Tokens carry `ttl` 60 s in the demo.
 - **Eligibility of added endpoints (03 §6.2 check 4).** Each RDS checks

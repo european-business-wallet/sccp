@@ -21,25 +21,23 @@ enum Cmd {
     Init {
         #[arg(long)]
         dir: PathBuf,
-        /// Provider ID (used in the certificate subjects).
+        /// Name used in the certificate subjects.
         #[arg(long)]
-        provider: String,
+        name: String,
     },
     /// Run the RDS.
     Serve {
         #[arg(long)]
         dir: PathBuf,
-        /// Provider ID (doc 4 §3).
-        #[arg(long)]
-        provider: String,
         /// Legal name of the provider.
         #[arg(long)]
         name: String,
         #[arg(long, default_value = "127.0.0.1:8441")]
         listen: String,
-        /// Public base URL (the `rds.url` in owners' registry documents).
+        /// The RDS URL: where the metadata is served, and the `rds` in
+        /// owners' registry documents.
         #[arg(long)]
-        base_url: String,
+        url: String,
         #[arg(long)]
         edd: String,
         /// Trusted certificates (stand-in for the EU Trusted Lists).
@@ -64,10 +62,10 @@ enum Cmd {
     /// DEMO ONLY: make a running RDS treat a peer as unreachable (or, with
     /// --heal, reachable again), to simulate a network partition.
     Partition {
-        /// Base URL of the RDS.
+        /// URL of the RDS.
         #[arg(long)]
         rds: String,
-        /// Provider ID of the peer.
+        /// URL of the peer RDS.
         #[arg(long)]
         peer: String,
         #[arg(long)]
@@ -80,21 +78,20 @@ async fn main() -> Result<()> {
     scc::util::init_logging();
     scc::net::init_crypto();
     match Cli::parse().cmd {
-        Cmd::Init { dir, provider } => {
-            let org = format!("{provider} (DEMO ONLY)");
-            scc::certs::init_sealer(&dir, "seal", &format!("{provider} evidence seal"), &org)?;
-            scc::certs::init_sealer(&dir, "tsa", &format!("{provider} timestamping"), &org)?;
+        Cmd::Init { dir, name } => {
+            let org = format!("{name} (DEMO ONLY)");
+            scc::certs::init_sealer(&dir, "seal", &format!("{name} evidence seal"), &org)?;
+            scc::certs::init_sealer(&dir, "tsa", &format!("{name} timestamping"), &org)?;
             println!("RDS seal and TSA keys written to {}", dir.display());
         }
-        Cmd::Serve { dir, provider, name, listen, base_url, edd, trust, tls_cert, tls_key, max_ttl, max_clock_skew, reservation_ttl, subjects_ttl, basic_only } => {
+        Cmd::Serve { dir, name, listen, url, edd, trust, tls_cert, tls_key, max_ttl, max_clock_skew, reservation_ttl, subjects_ttl, basic_only } => {
             let sealer = EvidenceSealer { seal: scc::certs::load_sealer(&dir, "seal")?, tsa: scc::certs::load_sealer(&dir, "tsa")? };
             let trust = scc::certs::TrustStore::load(&trust)?;
             let cfg = RdsConfig {
-                policies: vec![format!("{}/policy/erds-demo", base_url.trim_end_matches('/'))],
+                policies: vec![format!("{}/policy/erds-demo", scc::rds::origin(&url))],
                 identity_policy: "urn:ebw:edd:identification".into(),
-                provider,
                 name,
-                base_url: base_url.trim_end_matches('/').to_string(),
+                url,
                 max_ttl,
                 max_clock_skew,
                 session_idle_limit: 365 * 86400,
@@ -107,13 +104,13 @@ async fn main() -> Result<()> {
             server::spawn_timers(rds.clone());
             let app = server::router(rds.clone());
             let tls = scc::net::server_tls(&tls_cert, &tls_key).await?;
-            tracing::info!("RDS {} listening on {listen}", rds.cfg.provider);
+            tracing::info!("RDS {} listening on {listen}", rds.cfg.url);
             axum_server::bind_rustls(listen.parse::<std::net::SocketAddr>()?, tls).serve(app.into_make_service()).await?;
         }
         Cmd::Partition { rds, peer, heal } => {
             let http = scc::net::http_client()?;
             let body = serde_json::to_vec(&serde_json::json!({"peer": peer, "unreachable": !heal}))?;
-            scc::net::post_bytes(&http, &format!("{}/admin/partition", rds.trim_end_matches('/')), "application/json", body).await?;
+            scc::net::post_bytes(&http, &format!("{}/admin/partition", scc::rds::origin(&rds)), "application/json", body).await?;
             println!("{}: {peer} is {}", rds, if heal { "reachable" } else { "unreachable" });
         }
     }

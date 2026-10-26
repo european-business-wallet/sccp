@@ -74,7 +74,11 @@ ebw_a_key = ed25519_key("demo/ebw-a/seal")
 ebw_a_cert = demo_cert(ebw_a_key, "wallet.example-provider.eu (demo)")
 
 
-def owner(label, provider, url, identifiers, policies):
+RDS_A = "https://rds.example-provider.eu/scc-rds"
+RDS_B = "https://rds.other-provider.eu/scc-rds"
+
+
+def owner(label, rds, identifiers, policies):
     ukeys = [ed25519_key(f"demo/{label}/update/{i}") for i in range(2)]
     cred = ed25519_key(f"demo/{label}/credential/0")
     body = {
@@ -82,7 +86,7 @@ def owner(label, provider, url, identifiers, policies):
         "prev": None,
         "update_keys": [cose_key(k) for k in ukeys],
         "credential_keys": [cose_key(cred)],
-        "rds": {"provider": provider, "url": url},
+        "rds": rds,
         "identifiers": identifiers,
         "acceptance_policies": policies,
         "signed_at": T0 - 86400,
@@ -91,10 +95,10 @@ def owner(label, provider, url, identifiers, policies):
     return {"ukeys": ukeys, "cred": cred, "body": body, "create": op, "owner": url_from_create(op)}
 
 
-A = owner("owner-a", "rds.example-provider.eu", "https://rds.example-provider.eu",
+A = owner("owner-a", RDS_A,
           [{"type": "vat", "value": "DE123456789"}],
           {"default": "any"})
-B = owner("owner-b", "rds.other-provider.eu", "https://rds.other-provider.eu",
+B = owner("owner-b", RDS_B,
           [{"type": "euid", "value": "FRRCS.552100554"}, {"type": "lei", "value": "969500XXDEMO00000001"}],
           {"default": "any", "invoices": ["quorum", 2]})
 
@@ -130,8 +134,7 @@ write("identifier-attestation", attest, "identifier-attestation")
 def submission(op, t):
     """An operation sealed by owner A's EBW provider (01 §3.6)."""
     return sign1(ebw_a_key, {
-        "type": "submission", "operation": op, "provider": "wallet.example-provider.eu",
-        "submitted_at": t,
+        "type": "submission", "operation": op, "submitted_at": t,
     }, {33: ebw_a_cert})
 
 
@@ -198,7 +201,7 @@ write("credential-request", sign1(ep_a_key, {
 
 write("connect-proof", sign1(ep_a_key, {
     "type": "connect-proof", "challenge": sha256(b"challenge")[:16],
-    "provider": "rds.example-provider.eu", "owner": A["owner"],
+    "rds": RDS_A, "owner": A["owner"],
     "subject": "Kq7vT2mXr9Lp", "signed_at": T0 + 50,
 }), "connect-proof")
 
@@ -266,8 +269,8 @@ def message_ref_for(mid, mode, ph, eh):
 message_ref = message_ref_for(message_id, "consented", plaintext_hash, envelope_hash)
 mls_ref = {"group_context": gc6, "epoch_authenticator": epoch_auth}
 policy = ["https://rds.example-provider.eu/policy/erds-2026"]
-issuer_a = {"provider": "rds.example-provider.eu", "name": "Example Provider SE", "policies": policy}
-issuer_b = {"provider": "rds.other-provider.eu", "name": "Other Provider SAS",
+issuer_a = {"rds": RDS_A, "name": "Example Provider SE", "policies": policy}
+issuer_b = {"rds": RDS_B, "name": "Other Provider SAS",
             "policies": ["https://rds.other-provider.eu/policy/erds"]}
 LOA_HIGH = "http://eidas.europa.eu/LoA/high"
 SCC_AUTH = "urn:ebw:scc:auth:endpoint-credential"
@@ -311,7 +314,7 @@ write("status-list-token", status_b, "status-list-token")
 a1 = artefact(rds_a_key, rds_a_cert, message_evidence(
     1, "A.1", issuer_a, sent_at + 1, endpoint=ep_ref_a, statuses=[status_a]))
 b1 = artefact(rds_b_key, rds_b_cert, message_evidence(
-    2, "B.1", issuer_b, sent_at + 2, prev=[seal_hash(a1)], peer="rds.example-provider.eu"))
+    2, "B.1", issuer_b, sent_at + 2, prev=[seal_hash(a1)], peer=RDS_A))
 c1 = artefact(rds_b_key, rds_b_cert, message_evidence(
     3, "C.1", issuer_b, sent_at + 3, prev=[seal_hash(b1)], eligible_holders=2))
 c6 = artefact(rds_b_key, rds_b_cert, message_evidence(
@@ -500,7 +503,7 @@ rpc("connect", "endpoint-to-rds",
     res("c1", {"version": "scc/1", "challenge": b64u(challenge), "expires_at": T0 + 120}),
     req("c2", "scc.authenticate", {"credential": b64u(cred_a), "signature": b64u(
         sign1(ep_a_key, {"type": "connect-proof", "challenge": challenge,
-                         "provider": "rds.example-provider.eu", "owner": A["owner"],
+                         "rds": RDS_A, "owner": A["owner"],
                          "subject": ep_a, "signed_at": T0 + 50}))}),
     res("c2", {"registered": True, "queue_head": 417}),
     req("c3", "wmp.message.fetch", {"after": 412}),
@@ -612,7 +615,6 @@ def write_json(name, obj, schema):
 
 
 write_json("rds-metadata", {
-    "provider": "rds.example-provider.eu",
     "governing_body": {"name": "Example Provider SE", "identifier": "urn:ebw:euid:DEHRB.HRB999999"},
     "trust_domains": ["eu-qualified"], "versions": ["scc/1"],
     "endpoints": {"client": "wss://rds.example-provider.eu/scc",

@@ -9,7 +9,7 @@
         "versions": [
           "scc/1"
         ],
-        "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
+        "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
         "subject": "Kq7vT2mXr9Lp"
       }
     },
@@ -27,8 +27,8 @@
       "id": "c2",
       "method": "scc.authenticate",
       "params": {
-        "credential": "hFgmogEnBFggCwtiuqQlQsE0dHD9L48m3nN7eO71HXDf15LqOx6baRKgWNypAXgcZWJ3Onl0ZjJvYjdteHVsamt5d2V1d3E0anByMwJsS3E3dlQybVhyOUxwBBpq-rgABRpq0ysABhpq0ysACKEBowEBIAYhWCDRuQ4zzgZTB-asGW3g4CaWfUvh_I0w-RqYU5ZYuclAaxn__6Frc3RhdHVzX2xpc3SiY2lkeAdjdXJpeC1odHRwczovL3N0YXR1cy5leGFtcGxlLXByb3ZpZGVyLmV1L29iN214dWxqLzFlcm9sZXOCZ2RlZmF1bHRqcHVyY2hhc2luZ2Zob2xkZXJmaC00MWM5WEDqoGP1Got8EyXKyCSc9tCBTkdX1HdcB-SQiYJ4tH9SCdVKG1ZakNTg1KuCWDDiRrMvEzeynrdGN-2NhsJMeVgM",
-        "signature": "hFgmogEnBFggZs5RxzDEylWq_Xxo83v87_BrcAEmnYNa3hgAxnUh6PegWJimZHR5cGVtY29ubmVjdC1wcm9vZmVvd25lcngcZWJ3Onl0ZjJvYjdteHVsamt5d2V1d3E0anByM2dzdWJqZWN0bEtxN3ZUMm1YcjlMcGhwcm92aWRlcndyZHMuZXhhbXBsZS1wcm92aWRlci5ldWljaGFsbGVuZ2VQLdAL134CIs7YgmZUganB2WlzaWduZWRfYXQaatR8slhASmkOoWv758SG5_4im1Q55mScfLPyDOY4b3H5Zzuj9X0jqIMvTVooFPAR07CHnN1CrkFHWFbbZ5_kOD6zAXO-Dg"
+        "credential": "hFgmogEnBFggCwtiuqQlQsE0dHD9L48m3nN7eO71HXDf15LqOx6baRKgWNypAXgcZWJ3OmJvNmZyY25mZHI1NGlycjNleWJhaG1oNgJsS3E3dlQybVhyOUxwBBpq-rgABRpq0ysABhpq0ysACKEBowEBIAYhWCDRuQ4zzgZTB-asGW3g4CaWfUvh_I0w-RqYU5ZYuclAaxn__6Frc3RhdHVzX2xpc3SiY2lkeAdjdXJpeC1odHRwczovL3N0YXR1cy5leGFtcGxlLXByb3ZpZGVyLmV1L3JjbmZkcjU0LzFlcm9sZXOCZ2RlZmF1bHRqcHVyY2hhc2luZ2Zob2xkZXJmaC00MWM5WEAy5vj65JC1IclIUgaK_znjjPZaxpGAsjhulggK7AR3XdksW03mnABBxzs9VWeAzGvNyzCibIm7OZDXDbrvNKYL",
+        "signature": "hFgmogEnBFggZs5RxzDEylWq_Xxo83v87_BrcAEmnYNa3hgAxnUh6PegWKSmY3Jkc3gnaHR0cHM6Ly9yZHMuZXhhbXBsZS1wcm92aWRlci5ldS9zY2MtcmRzZHR5cGVtY29ubmVjdC1wcm9vZmVvd25lcngcZWJ3OmJvNmZyY25mZHI1NGlycjNleWJhaG1oNmdzdWJqZWN0bEtxN3ZUMm1YcjlMcGljaGFsbGVuZ2VQLdAL134CIs7YgmZUganB2WlzaWduZWRfYXQaatR8slhAcpmo_zWh0SJ3_hDHIH3cIBPUI9OmPUZzxJLTNnbapBmxJK7lzxwdeBnayrgv5B-HpPf2ZeWihKtYSNxwLj7_Dg"
       }
     },
     {

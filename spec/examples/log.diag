@@ -10,7 +10,6 @@
       {},
       << {
         "type": "submission",
-        "provider": "wallet.example-provider.eu",
         "operation": << [
           << {
             1: -8,
@@ -18,10 +17,7 @@
           } >>,
           {},
           << {
-            "rds": {
-              "url": "https://rds.example-provider.eu",
-              "provider": "rds.example-provider.eu"
-            },
+            "rds": "https://rds.example-provider.eu/scc-rds",
             "prev": null,
             "type": "create",
             "signed_at": 1792224000,
@@ -54,11 +50,11 @@
               "default": "any"
             }
           } >>,
-          h'f5f3f3aea6c7b6b5f922b06642e7b55913489beb3b6e57a4b0e06871b5610c687de410c54bfc70165ce33adcf767cb52b4b1daae893927c68df33b1f9e39d709'
+          h'7605305952f36e9071fb542117a7249a6310833f099ef33898d0be32189358bdf7ec29bc4b0c3603538daaaa2bdb990e2d33aee3f9dd1c77b5b26c73899f460e'
         ] >>,
         "submitted_at": 1792224000
       } >>,
-      h'3b8fb72f38665e1179e3dfc1c22594bd6ecdba32d8e2ce6edc412302b38e495ce05c41e95dcfe6b9abbea772918f380f061a9b60f9640b6b0761b6c93b55e402'
+      h'b4eb1ab717b61a3bf99afd064a229eff8b57dbcc11a1ae16e6906356276dcc2482daf15d3d472287aae74f34779862bb6266e26d9a8039af54f81956070f5900'
     ] >>,
     "received_at": 1792224010
   },
@@ -73,7 +69,6 @@
       {},
       << {
         "type": "submission",
-        "provider": "wallet.example-provider.eu",
         "operation": << [
           << {
             1: -8,
@@ -81,11 +76,8 @@
           } >>,
           {},
           << {
-            "rds": {
-              "url": "https://rds.example-provider.eu",
-              "provider": "rds.example-provider.eu"
-            },
-            "prev": h'c4cba707ecbd169562c4a5a1c4be3b8d95abf73e944137c1ed77a6b02440a278',
+            "rds": "https://rds.example-provider.eu/scc-rds",
+            "prev": h'0bbc5889a51c7bc4463b260203b0fef00cac24bb783ce241a9e995bed7054948',
             "type": "update",
             "signed_at": 1792306800,
             "identifiers": [
@@ -121,11 +113,11 @@
               ]
             }
           } >>,
-          h'6e62e2e1a751cfd0dbc8e53eddbec319d62b1a80839afb02d921e9aad4161e0570409bd4ab8f74a7074806099c469f4533ae97b6e087a3c0cfa4a7dfafdf260a'
+          h'c4d2c4a400ab8ec02cdfc25ee4376b1a5673593fb8f7fa58b1d96a7e69c63726e6287b6a258a342925676e9a40dac553aa0249c02056e8f34012fd246582da01'
         ] >>,
         "submitted_at": 1792306800
       } >>,
-      h'4d98678c050d88a6ea39f14d9ce5f5b554990881eeac23d8b6416461f4e1cc503e7fad0b1b29278d62bdfd8997e6aff059940822cc0605b4f92fdf0eb9a85407'
+      h'e61e015507dc2ed1b3821c5fd94e740fdfea3488e610a0ad7bc8aea68e41c80cec376395f617db2c32faf2d2d1aa8c5d3fc4a0ffeaff2cdfb9227f43aa6aa60e'
     ] >>,
     "received_at": 1792306810
   }

@@ -20,8 +20,8 @@ The two EBW owners in the examples are:
 
 | Owner | EBW URL | RDS | Policies |
 |---|---|---|---|
-| A (sender) | `ebw:ytf2ob7mxuljkyweuwq4jpr3` | `rds.example-provider.eu` | `default: any` |
-| B (recipient) | `ebw:hp7dsh3axazs4spf7xytom23` | `rds.other-provider.eu` | `default: any`, `invoices: quorum 2` |
+| A (sender) | `ebw:bo6frcnfdr54irr3eybahmh6` | `rds.example-provider.eu` | `default: any` |
+| B (recipient) | `ebw:r7jhgo5eukazsq5homclvxdc` | `rds.other-provider.eu` | `default: any`, `invoices: quorum 2` |
 
 Endpoint A/`Kq7vT2mXr9Lp` (role `purchasing`) sends an invoice in
 `consented` mode to B's `invoices` role. B's endpoints `Bx4nW8sYt2Qe` and

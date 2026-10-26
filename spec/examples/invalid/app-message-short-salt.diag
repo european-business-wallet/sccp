@@ -1,12 +1,12 @@
 {
   "to": {
     "role": "invoices",
-    "owner": "ebw:hp7dsh3axazs4spf7xytom23"
+    "owner": "ebw:r7jhgo5eukazsq5homclvxdc"
   },
   "body": h'6869',
   "from": {
     "role": "purchasing",
-    "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3"
+    "owner": "ebw:bo6frcnfdr54irr3eybahmh6"
   },
   "salt": h'73686f7274',
   "sent_at": 1792310460,

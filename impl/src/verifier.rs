@@ -190,7 +190,7 @@ fn verify_inner(inputs: &Inputs, r: &mut Report) -> Result<()> {
         let art = Artefact::from_parts(seal, ts)?;
         let body = art.message().cloned().ok_or_else(|| anyhow!("item {i} is not message evidence"))?;
         let event = body.event()?;
-        let name = format!("{} {} by {}", event.code(), event.name(), body.issuer.provider);
+        let name = format!("{} {} by {}", event.code(), event.name(), body.issuer.rds);
         let mut problems = Vec::new();
         match art.verify_seal(&inputs.trust) {
             Ok(_) => {}
@@ -794,8 +794,8 @@ fn continue_from<C: MlsConfig>(r: &mut Report, ip: &SccIdentityProvider, mut g: 
 
 fn issuer_of(a: &Artefact) -> String {
     match &a.body {
-        EvidenceBody::Message(m) => m.issuer.provider.clone(),
-        EvidenceBody::CommitFailure(c) => c.issuer.provider.clone(),
+        EvidenceBody::Message(m) => m.issuer.rds.clone(),
+        EvidenceBody::CommitFailure(c) => c.issuer.rds.clone(),
         EvidenceBody::Package(_) => a.cose.x5chain().first().map(|c| crate::certs::cert_subject(c)).unwrap_or_default(),
     }
 }

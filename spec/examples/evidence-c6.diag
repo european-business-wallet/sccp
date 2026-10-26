@@ -9,11 +9,11 @@
     << {
       "v": 1,
       "mls": {
-        "group_context": h'00010001107dbd06d023712b32c0964dcc971212a100000000000000062008d2b19f9c704ab24142a9666df50ae30864a76faa5d9e34a8e285c29895be49205c8434696385e25c931f66fb6996136c4f6cee21e011f82e83b5fc633036c9d6405ef0ec404e1c6562773a797466326f62376d78756c6a6b797765757771346a7072330a70757263686173696e671c6562773a687037647368336178617a7334737066377879746f6d323308696e766f6963657300030902f0ec00040003f0eb',
+        "group_context": h'00010001107dbd06d023712b32c0964dcc971212a100000000000000062008d2b19f9c704ab24142a9666df50ae30864a76faa5d9e34a8e285c29895be49205c8434696385e25c931f66fb6996136c4f6cee21e011f82e83b5fc633036c9d6405ef0ec404e1c6562773a626f366672636e66647235346972723365796261686d68360a70757263686173696e671c6562773a72376a68676f3565756b617a737135686f6d636c7678646308696e766f6963657300030902f0ec00040003f0eb',
         "epoch_authenticator": h'7289b456d1584744aad7dcb035754e69f321e3afb186426c3d2c91439f45edce'
       },
       "prev": [
-        h'ccc11a4c20a3f60ccfa120d00fc3e24387ec8983b3581c8740476c230a34af1f'
+        h'45f5a1bec9c289025b1c4f4459924a661c82794f133bc2107a9ebc72247e294d'
       ],
       "event": "http://uri.etsi.org/19522/Event/NotificationDelivered",
       "heads": [
@@ -26,14 +26,14 @@
           {},
           << {
             "seq": 2,
-            "head": h'048e6b41b24c7098e54a5cb675d8aa3f378e6958e02727c5c4b7b117bdfaeaec',
+            "head": h'2aaa13369fc7fabee6f59a42c2a9d504866a91be944a5dd4da5200a399cc5060',
             "type": "head-statement",
-            "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
+            "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
             "status": "active",
             "issued_at": 1792310550,
             "expires_at": 1792310850
           } >>,
-          h'3dbac6e835f25f8a4dcc2cb9b366dd82dd276b703ffda9e7fb7d05669a385935da1f287e4ec29d474491f1f5a33489bfbb74f53b31109604a9b630676ba34b05'
+          h'62cf8beaae3f0c2b3b1c597f10ff58c57fa1cacea0f9bb39b2639fe8395135e577f74a70bdebcc0dbe7aa209bf588cc5ff2cd1de381c3522caf0286f2ea7e70f'
         ] >>,
         << [
           << {
@@ -44,31 +44,31 @@
           {},
           << {
             "seq": 1,
-            "head": h'3bfe391f60b8332e49e5fdf137335b4a61c3849b76adf4c1bb499e4d9b4da5e5',
+            "head": h'8fd2733ba4a2819943a77304badc629a1329e6c50976c3de9c28e9ada7f6fefb',
             "type": "head-statement",
-            "owner": "ebw:hp7dsh3axazs4spf7xytom23",
+            "owner": "ebw:r7jhgo5eukazsq5homclvxdc",
             "status": "active",
             "issued_at": 1792310550,
             "expires_at": 1792310850
           } >>,
-          h'bc26c052705f3716a0290d234175acb12e37779576e9f462e7e44cc644fa0ad682b62cb8006020e6062a5498eda8463dfb60b3650907be811c59ac0a8c14460f'
+          h'124380e983388898bf24fce585ba08a91d22a92a5568f37a2fa4963b8a4f59fb113e60a3e3d08903fef2e08f1e3adab15a239bcf4569c2a72cd4b22691711e01'
         ] >>
       ],
       "issuer": {
+        "rds": "https://rds.other-provider.eu/scc-rds",
         "name": "Other Provider SAS",
         "policies": [
           "https://rds.other-provider.eu/policy/erds"
-        ],
-        "provider": "rds.other-provider.eu"
+        ]
       },
       "message": {
         "to": {
           "role": "invoices",
-          "owner": "ebw:hp7dsh3axazs4spf7xytom23"
+          "owner": "ebw:r7jhgo5eukazsq5homclvxdc"
         },
         "from": {
           "role": "purchasing",
-          "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3"
+          "owner": "ebw:bo6frcnfdr54irr3eybahmh6"
         },
         "sent_at": 1792310460,
         "expires_at": 1793520060,
@@ -76,10 +76,10 @@
         "session_id": h'7dbd06d023712b32c0964dcc971212a1',
         "consignment": "consented",
         "envelope_hash": h'cb16e5b7d31b6774db03d912a33fd4a8c8231f65e09afd33470a73349810493e',
-        "plaintext_hash": h'1ea09eebf9e90bef20be31d792f55598d77ed478a2d7ef404eef23ff3315c033'
+        "plaintext_hash": h'de77ca919e35d89cb74821dedc1b750fb8253459fd29067484cfc55051297e65'
       },
       "endpoint": {
-        "owner": "ebw:hp7dsh3axazs4spf7xytom23",
+        "owner": "ebw:r7jhgo5eukazsq5homclvxdc",
         "subject": "Bx4nW8sYt2Qe"
       },
       "statuses": [
@@ -91,8 +91,8 @@
           } >>,
           {},
           << {
-            1: "ebw:hp7dsh3axazs4spf7xytom23",
-            2: "https://status.other-provider.eu/sh3axazs/1",
+            1: "ebw:r7jhgo5eukazsq5homclvxdc",
+            2: "https://status.other-provider.eu/go5eukaz/1",
             4: 1792396260,
             5: 1792309860,
             6: 1792309860,
@@ -102,7 +102,7 @@
             },
             65534: 3600
           } >>,
-          h'e48fc752829fc26d026bc2903b959ec828537566e215b7203a261b16223a87f213b78438357e6d2e8431be20cbbe7422ed38a12c1db9dfe506c936abdac07d04'
+          h'f805bf2848748fa142d2258ddb4cb4c93cffd974854c3fd334736bd9b14b636161532c4c3f819e891afea8655cab72452bbdf632878d64bc9aa359b938668e06'
         ]) >>
       ],
       "event_time": 1792310580,
@@ -119,7 +119,7 @@
         }
       }
     } >>,
-    h'd324710608c0b989bf6785e54821742e693e18eb113883b173d35680843b43bfa5456800c58083ea8fc1e72251b5367c5970093974ca0bb5cf37d989e7b7940e'
+    h'f43da6f4c5cc7dbd7d89fb7d43d64c5b02acf69332a032734ca9f4adc5fd1af328245b6bbbcbaa012f82deefe82cf51af546b4166beaf03d0314961677063301'
   ] >>,
-  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3a36391b1c3111339d34b89d9ae2ee66b1d9356519501dc478a47f67db826d1577'
+  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3a3342d4cb19c62568bfe95096db22e5e5aa981279c92dfe088726af909082a784'
 ]

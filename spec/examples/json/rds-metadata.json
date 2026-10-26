@@ -1,5 +1,4 @@
 {
-  "provider": "rds.example-provider.eu",
   "governing_body": {
     "name": "Example Provider SE",
     "identifier": "urn:ebw:euid:DEHRB.HRB999999"

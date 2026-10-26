@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 use scc::certs::TrustStore;
 use scc::endpoint::Endpoint;
 use scc::owner::Owner;
-use scc::types::{AcceptancePolicy, Address, Consignment, Identifier, RdsRef};
+use scc::types::{AcceptancePolicy, Address, Consignment, Identifier};
 use scc::util::{b64u, b64u_dec};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
@@ -130,8 +130,7 @@ enum OwnerCmd {
         /// operations (made with `owner provider-init`).
         #[arg(long)]
         provider: PathBuf,
-        #[arg(long)]
-        rds_provider: String,
+        /// URL of the home RDS (its metadata).
         #[arg(long)]
         rds_url: String,
         /// Existing identifiers (type:value), e.g. vat:DE123456789.
@@ -185,7 +184,7 @@ enum OwnerCmd {
     ProviderInit {
         #[arg(long)]
         dir: PathBuf,
-        /// Provider ID.
+        /// Name of the EBW provider (used in its certificate subject).
         #[arg(long)]
         provider: String,
     },
@@ -205,7 +204,7 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.cmd {
         Cmd::Owner { cmd } => match cmd {
-            OwnerCmd::Init { dir, edd, provider, rds_provider, rds_url, identifier, policy } => {
+            OwnerCmd::Init { dir, edd, provider, rds_url, identifier, policy } => {
                 let edd = scc::edd::EddClient::new(&edd, trust(&cli.trust)?)?;
                 let ids = identifier.iter().map(|i| Identifier::parse(i)).collect::<Result<Vec<_>>>()?;
                 let mut pols = BTreeMap::new();
@@ -213,7 +212,7 @@ async fn main() -> Result<()> {
                     let (r, v) = p.split_once('=').context("policy must be role=policy")?;
                     pols.insert(r.to_string(), AcceptancePolicy::parse(v)?);
                 }
-                let o = Owner::init(&dir, &edd, &provider, RdsRef { provider: rds_provider, url: rds_url }, ids, pols).await?;
+                let o = Owner::init(&dir, &edd, &provider, rds_url, ids, pols).await?;
                 println!("{}", o.cfg.owner);
             }
             OwnerCmd::Issue { dir, request, out, roles, holder, validity } => {
@@ -252,7 +251,7 @@ async fn main() -> Result<()> {
             let c = e.connect().await?;
             let pool = e.publish_key_packages(&c, 0).await?;
             let me = e.me()?;
-            println!("registered {}/{} at {} (KeyPackages: {:?})", me.owner, me.subject, c.provider, pool.available);
+            println!("registered {}/{} at {} (KeyPackages: {:?})", me.owner, me.subject, c.rds, pool.available);
         }
         Cmd::Send { dir, from_role, to, body, body_file, content_type, subject, consignment, ttl, id_out } => {
             let mut e = Endpoint::open(&dir, trust(&cli.trust)?)?;

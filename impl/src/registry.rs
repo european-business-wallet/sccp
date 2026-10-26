@@ -3,7 +3,7 @@
 use crate::cbor;
 use crate::certs::{TrustKind, TrustStore};
 use crate::cose::{self, CoseKey, ExtraHeaders, PrivateKey, Sign1};
-use crate::types::{check_ebw_url, AcceptancePolicy, OwnerStatus, Identifier, RdsRef};
+use crate::types::{check_ebw_url, AcceptancePolicy, OwnerStatus, Identifier};
 use crate::util::{base32_lower, sha256};
 use anyhow::{anyhow, bail, Result};
 use serde::{Deserialize, Serialize};
@@ -15,7 +15,8 @@ use std::collections::BTreeMap;
 pub struct RegistryDocument {
     pub update_keys: Vec<CoseKey>,
     pub credential_keys: Vec<CoseKey>,
-    pub rds: RdsRef,
+    /// The home RDS's URL (§3.2).
+    pub rds: String,
     pub identifiers: Vec<Identifier>,
     pub acceptance_policies: BTreeMap<String, AcceptancePolicy>,
     pub signed_at: u64,
@@ -38,8 +39,8 @@ impl RegistryDocument {
         if !(1..=5).contains(&self.credential_keys.len()) {
             bail!("credential_keys must have 1 to 5 keys");
         }
-        if !self.rds.url.starts_with("https://") || self.rds.url.len() <= 8 {
-            bail!("rds.url must be an https URL");
+        if !self.rds.starts_with("https://") || self.rds.len() <= 8 {
+            bail!("rds must be an https URL");
         }
         if !self.acceptance_policies.contains_key("default") {
             bail!("acceptance_policies must have a default entry");
@@ -65,7 +66,7 @@ struct OpBodyWire {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     credential_keys: Option<Vec<CoseKey>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    rds: Option<RdsRef>,
+    rds: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     identifiers: Option<Vec<Identifier>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -214,7 +215,6 @@ pub struct SubmissionBody {
     #[serde(rename = "type")]
     pub st_type: String,
     pub operation: ByteBuf,
-    pub provider: String,
     pub submitted_at: u64,
 }
 
@@ -229,12 +229,11 @@ pub struct Submission {
 }
 
 impl Submission {
-    pub fn seal(sealer: &Sealer, provider: &str, op: &Operation, t: u64) -> Vec<u8> {
+    pub fn seal(sealer: &Sealer, op: &Operation, t: u64) -> Vec<u8> {
         sealer.seal(
             &cbor::to_vec(&SubmissionBody {
                 st_type: "submission".into(),
                 operation: ByteBuf::from(op.raw.clone()),
-                provider: provider.into(),
                 submitted_at: t,
             })
             .unwrap(),

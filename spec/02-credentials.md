@@ -90,7 +90,7 @@ Key Thumbprint of the credential key.
   << { 1: -8, 4: h'a1b2...c3' } >>,
   {},
   << {
-    1: "ebw:ytf2ob7mxuljkyweuwq4jpr3",
+    1: "ebw:bo6frcnfdr54irr3eybahmh6",
     2: "Kq7vT2mXr9Lp",
     4: 1794902400,
     5: 1792310400,

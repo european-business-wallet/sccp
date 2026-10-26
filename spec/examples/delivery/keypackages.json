@@ -28,7 +28,7 @@
       "method": "scc.keypackage.get",
       "params": {
         "address": {
-          "owner": "ebw:hp7dsh3axazs4spf7xytom23",
+          "owner": "ebw:r7jhgo5eukazsq5homclvxdc",
           "role": "invoices"
         },
         "cipher_suite": 1

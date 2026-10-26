@@ -5,10 +5,7 @@
   } >>,
   {},
   << {
-    "rds": {
-      "url": "https://rds.example-provider.eu",
-      "provider": "rds.example-provider.eu"
-    },
+    "rds": "https://rds.example-provider.eu/scc-rds",
     "prev": null,
     "type": "create",
     "signed_at": 1792224000,
@@ -61,5 +58,5 @@
       "default": "any"
     }
   } >>,
-  h'85b90fc921d58edf1d10cb05e385d1354b704e1c6932559a580d699c8a7f2f7fd6376c6df8213938ffa72f7e3535f69683f8abcadf9f9dbd097469dc63f62a0e'
+  h'83610ce704cf62347aa5452dd580ad481f91c6cbf968567ca047e6777d8eaaa9cde187f710ccd87a51a22f378ae016764a022ee2725e65039639a46caae19c0f'
 ]

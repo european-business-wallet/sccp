@@ -213,15 +213,15 @@ impl WsClient {
 
 // ---- HTTPS client (RDS to RDS, §4.3) ----
 
-/// Header naming the calling RDS. Stub for mutual TLS (impl/NOTES.md).
-pub const PROVIDER_HEADER: &str = "x-scc-provider";
+/// Header giving the calling RDS's URL. Stub for mutual TLS (impl/NOTES.md).
+pub const RDS_HEADER: &str = "x-scc-rds";
 
 /// Send one JSON-RPC request to a peer RDS.
 pub async fn federation_call(http: &reqwest::Client, url: &str, me: &str, method: &str, params: Value) -> RpcResult {
     let id = format!("f-{}", crate::util::b64u(&crate::util::random_bytes(8)));
     let r = http
         .post(url)
-        .header(PROVIDER_HEADER, me)
+        .header(RDS_HEADER, me)
         .json(&Message::request(&id, method, params))
         .send()
         .await

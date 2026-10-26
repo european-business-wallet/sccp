@@ -12,7 +12,7 @@ use scc::registry::{url_from_create, RegistryDocument, OpBody, Operation};
 use scc::delivery::{LogEntry, SessionLog};
 use scc::dispute::{self, Join, Processed, Replay};
 use scc::mls::{self, SccIdentityProvider, TrustContext};
-use scc::types::{AcceptancePolicy, Address, RdsRef};
+use scc::types::{AcceptancePolicy, Address};
 use std::collections::BTreeMap;
 
 struct Owner {
@@ -29,7 +29,7 @@ fn owner() -> Owner {
     let state = RegistryDocument {
         update_keys: vec![ukeys.public()],
         credential_keys: vec![cred_key.public()],
-        rds: RdsRef { provider: "rds.test".into(), url: "https://rds.test".into() },
+        rds: "https://rds.test/scc-rds".into(),
         identifiers: vec![],
         acceptance_policies: pol,
         signed_at: 0,

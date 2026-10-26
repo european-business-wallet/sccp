@@ -10,11 +10,11 @@
       "v": 1,
       "event": "urn:ebw:scc:event:CommitFailure",
       "issuer": {
+        "rds": "https://rds.other-provider.eu/scc-rds",
         "name": "Other Provider SAS",
         "policies": [
           "https://rds.other-provider.eu/policy/erds"
-        ],
-        "provider": "rds.other-provider.eu"
+        ]
       },
       "report": << [
         << {
@@ -27,7 +27,7 @@
             } >>,
             {},
             << {
-              1: "ebw:hp7dsh3axazs4spf7xytom23",
+              1: "ebw:r7jhgo5eukazsq5homclvxdc",
               2: "Hc3pZ6uVj5Rd",
               4: 1794816000,
               5: 1792224000,
@@ -42,7 +42,7 @@
               65535: {
                 "status_list": {
                   "idx": 1,
-                  "uri": "https://status.other-provider.eu/sh3axazs/1"
+                  "uri": "https://status.other-provider.eu/go5eukaz/1"
                 }
               },
               "roles": [
@@ -50,14 +50,14 @@
               ],
               "holder": "h-5f31"
             } >>,
-            h'2d50e45a1a2700c855c21c26f9e4d62a1e0c2688e0a42b6f1a271d3a9fe71baa0fcb96baa44fde2360644b5eb7ab9408717906f44c4805caf10ac7bb10a75601'
+            h'e23cb2a7c513ee614c99e6eeaef0d92972fc189fed56c2b8945ccb7f6f898c2e9e1c1dc804de12719c7e2b24bb28144243743ac5b8eef2141c71c31abb28ec04'
           ] >>
         } >>,
         {},
         << {
           "type": "commit-failure-report",
           "epoch": 7,
-          "owner": "ebw:hp7dsh3axazs4spf7xytom23",
+          "owner": "ebw:r7jhgo5eukazsq5homclvxdc",
           "failure": "confirmation-tag",
           "subject": "Hc3pZ6uVj5Rd",
           "commit_ref": h'3f2d2867ce70298367029865151b1db4fdcd5d67208372eee9d5c604a2275bc2',
@@ -68,15 +68,15 @@
           },
           "reported_at": 1792312460
         } >>,
-        h'c25ded174d42e82a5efe7178a2f2e865048002aefe45fc7cb940938ab0a0901d39f6a7b62d10e920705ee57c628e862e6b666c6bc2c72cf51bcdf1e0fa89b70b'
+        h'4397a600a875e53c21e5bb06102564128a0a1602f969208319523f84b85a4e797eaa5a6d520391e6020680a4b11175aaa168ab328db04396cf0d947d8d5d1e0e'
       ] >>,
       "commit_ref": h'3f2d2867ce70298367029865151b1db4fdcd5d67208372eee9d5c604a2275bc2',
       "event_time": 1792312461,
       "session_id": h'7dbd06d023712b32c0964dcc971212a1',
       "evidence_id": h'a557a3c7a0e67f37ae1b2782891d71b9',
-      "group_context": h'00010001107dbd06d023712b32c0964dcc971212a1000000000000000720f23c9de80c8a777d0bcf15c73e828e33fa853718b201952a438f46cba72f4bf22045295b31ce6281f192a8c901418412b9e15b72634fda07b441f7a76c0901029b405ef0ec404e1c6562773a797466326f62376d78756c6a6b797765757771346a7072330a70757263686173696e671c6562773a687037647368336178617a7334737066377879746f6d323308696e766f6963657300030902f0ec00040003f0eb'
+      "group_context": h'00010001107dbd06d023712b32c0964dcc971212a1000000000000000720f23c9de80c8a777d0bcf15c73e828e33fa853718b201952a438f46cba72f4bf22045295b31ce6281f192a8c901418412b9e15b72634fda07b441f7a76c0901029b405ef0ec404e1c6562773a626f366672636e66647235346972723365796261686d68360a70757263686173696e671c6562773a72376a68676f3565756b617a737135686f6d636c7678646308696e766f6963657300030902f0ec00040003f0eb'
     } >>,
-    h'4c3cc76bb065d472dac346576045e11e1c022941a33f4ee137df796d31cb7f00eaa1d4cde58a7c66dd5ed70d9bbef34b9e5c371502f6de7e26f985cc210e6e0e'
+    h'7e783f798b6d851bed156be5db2cc9ec66649bf5ff4c481ce1080fa9d83b0d5a463739063b68a146a5dd7e436881e07c0d77280ceac83660462dedb29876990c'
   ] >>,
-  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3ac0b6c000cc53f90c3c506e41658fc16adae07453fb8933f823fde2607ea8f3bd'
+  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3ab78af7073cd0d07b2c5d7b4ce04154b4a22a94df24848cee7abf719e5ff00374'
 ]

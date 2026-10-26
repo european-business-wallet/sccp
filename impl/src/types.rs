@@ -157,14 +157,6 @@ impl Identifier {
     }
 }
 
-/// The owner's home RDS (01-discovery.md §3.2).
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct RdsRef {
-    pub provider: String,
-    pub url: String,
-}
-
 /// Owner lifecycle status (01-discovery.md §5.1).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

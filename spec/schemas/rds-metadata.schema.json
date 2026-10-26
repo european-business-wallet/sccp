@@ -4,7 +4,6 @@
   "title": "SCC RDS metadata (spec/04-delivery.md \u00a73)",
   "type": "object",
   "required": [
-    "provider",
     "governing_body",
     "trust_domains",
     "versions",
@@ -22,10 +21,6 @@
   ],
   "additionalProperties": false,
   "properties": {
-    "provider": {
-      "type": "string",
-      "pattern": "^[a-z0-9.-]+$"
-    },
     "governing_body": {
       "type": "object",
       "required": [

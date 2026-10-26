@@ -72,15 +72,14 @@ the evidence in `evidence`.
 
 ## 3. RDS metadata
 
-Each RDS publishes a JSON document at `<url>/.well-known/scc-rds`, where
-`<url>` is the `rds.url` in its owners' registry documents. It
+Each RDS publishes a JSON document at its **RDS URL**, the `rds` URL in
+its owners' registry documents. The RDS URL identifies the RDS. It
 corresponds to the capability lookup of the EN 319 522 Common Service
 Interface. It is modelled on WMP's `/.well-known/wmp-configuration` and
 its `erds` object.
 
 ```json
 {
-  "provider": "rds.example-provider.eu",
   "governing_body": {"name": "Example Provider SE", "identifier": "urn:ebw:euid:DEHRB.HRB999999"},
   "trust_domains": ["eu-qualified"],
   "versions": ["scc/1"],
@@ -110,7 +109,6 @@ its `erds` object.
 
 | Field | Meaning |
 |---|---|
-| `provider` | Provider ID: the DNS name in the RDS's TLS certificate. Equals `rds.provider` in registry documents. |
 | `governing_body` | The legal person operating the RDS: name and identifier. |
 | `trust_domains` | Trust domains the RDS belongs to. `eu-qualified` means it is a qualified ERDS on the EU Trusted Lists. |
 | `versions` | Supported protocol versions. |
@@ -172,7 +170,7 @@ sequenceDiagram
 connect-proof-body = {
   "type": "connect-proof",
   "challenge": bstr,      ; from scc.connect
-  "provider": tstr,       ; this RDS's provider ID
+  "rds": tstr,            ; this RDS's URL
   "owner": ebw-url,
   "subject": subject-id,
   "signed_at": time,
@@ -186,8 +184,8 @@ The RDS checks that:
 2. the credential is valid (doc 2 §3), with `iss` = `owner` and
    `sub` = `subject`;
 3. the signature verifies under the credential's `cnf` key;
-4. the registry document for the EBW URL names this RDS (`rds.provider`
-   = this provider).
+4. the registry document for the EBW URL names this RDS (`rds` = this
+   RDS's URL).
 
 Until authentication succeeds, the RDS MUST reject every other request
 with `-31002`. A connection serves one endpoint.
@@ -196,7 +194,7 @@ Example:
 
 ```json
 {"jsonrpc": "2.0", "id": "c1", "method": "scc.connect",
- "params": {"versions": ["scc/1"], "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
+ "params": {"versions": ["scc/1"], "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
             "subject": "Kq7vT2mXr9Lp"}}
 
 {"jsonrpc": "2.0", "id": "c1",
@@ -240,8 +238,8 @@ application/json`. The response is in the HTTP response body.
 
 Both sides MUST use TLS 1.3 with mutual authentication. Each side MUST:
 
-1. check that the peer's certificate is valid, names the peer's provider
-   ID, and is qualified (on an EU Trusted List);
+1. check that the peer's certificate is valid, is for the host of the
+   peer's RDS URL, and is qualified (on an EU Trusted List);
 2. check that the peer is the home RDS of the EBW URL on whose behalf it
    acts. For example, RDS A may relay a message only from an EBW URL whose
    state names RDS A.
@@ -287,7 +285,7 @@ the address is served by another RDS, its home RDS calls
 
 ```json
 {"jsonrpc": "2.0", "id": "k2", "method": "scc.keypackage.get",
- "params": {"address": {"owner": "ebw:hp7dsh3axazs4spf7xytom23", "role": "invoices"},
+ "params": {"address": {"owner": "ebw:r7jhgo5eukazsq5homclvxdc", "role": "invoices"},
             "cipher_suite": 1}}
 
 {"jsonrpc": "2.0", "id": "k2",
@@ -341,8 +339,8 @@ The sender submits a message with `wmp.message.deliver`:
    "message": "AAEAAgAQXA6a...",
    "meta": {
      "message_id": "AZLxo7bWdsSRiMFmJqsa8g",
-     "from": {"owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3", "role": "purchasing"},
-     "to": {"owner": "ebw:hp7dsh3axazs4spf7xytom23", "role": "invoices"},
+     "from": {"owner": "ebw:bo6frcnfdr54irr3eybahmh6", "role": "purchasing"},
+     "to": {"owner": "ebw:r7jhgo5eukazsq5homclvxdc", "role": "invoices"},
      "sent_at": 1792310460,
      "expires_at": 1793520060,
      "consignment": "consented"
@@ -779,7 +777,7 @@ since registered or been revoked. The answering RDS chooses the period.
 
 ```json
 {"jsonrpc": "2.0", "id": "f1", "method": "scc.rds.subjects",
- "params": {"address": {"owner": "ebw:hp7dsh3axazs4spf7xytom23", "role": "invoices"},
+ "params": {"address": {"owner": "ebw:r7jhgo5eukazsq5homclvxdc", "role": "invoices"},
             "cipher_suite": 1}}
 
 {"jsonrpc": "2.0", "id": "f1",

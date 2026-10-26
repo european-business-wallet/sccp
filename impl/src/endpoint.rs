@@ -168,7 +168,8 @@ pub struct Endpoint {
 /// An authenticated connection to the home RDS.
 pub struct Conn {
     pub ws: WsClient,
-    pub provider: String,
+    /// The RDS URL.
+    pub rds: String,
 }
 
 fn rpc_err(e: RpcError) -> anyhow::Error {
@@ -368,7 +369,7 @@ impl Endpoint {
     pub async fn connect(&self) -> Result<Conn> {
         let http = crate::net::http_client()?;
         let md: RdsMetadata = http
-            .get(format!("{}/.well-known/scc-rds", self.cfg.rds_url))
+            .get(&self.cfg.rds_url)
             .send()
             .await?
             .error_for_status()?
@@ -386,7 +387,7 @@ impl Endpoint {
         let proof = ConnectProofBody {
             st_type: "connect-proof".into(),
             challenge: ByteBuf::from(r.challenge),
-            provider: md.provider.clone(),
+            rds: self.cfg.rds_url.clone(),
             owner: me.owner,
             subject: me.subject,
             signed_at: now(),
@@ -395,7 +396,7 @@ impl Endpoint {
         ws.call("scc.authenticate", to_value(&AuthenticateParams { credential: self.credential()?.raw, signature: proof }))
             .await
             .map_err(rpc_err)?;
-        Ok(Conn { ws, provider: md.provider })
+        Ok(Conn { ws, rds: self.cfg.rds_url.clone() })
     }
 
     /// Publish KeyPackages up to the target pool size (§6.1).

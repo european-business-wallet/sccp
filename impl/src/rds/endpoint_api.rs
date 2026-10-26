@@ -93,7 +93,7 @@ impl Rds {
                     Some(peer) => {
                         let v = self
                             .call_peer(
-                                &peer.provider,
+                                &peer.url,
                                 "scc.rds.keypackage.reserve",
                                 to_value(&ReserveParams { address: p.address, cipher_suite: p.cipher_suite, subjects: p.subjects, requester }),
                             )
@@ -161,11 +161,11 @@ impl Rds {
         }
         self.credential_status_ok(&cred).await.map_err(|e| RpcError::new(rpc::E_INVALID_CREDENTIAL, format!("{e:#}")))?;
         let proof = ConnectProofBody::parse_and_verify(&p.signature, &cred.claims.cnf).map_err(|e| RpcError::unauthorized(format!("connect proof: {e:#}")))?;
-        if proof.challenge.as_slice() != challenge || proof.provider != self.cfg.provider || proof.owner != owner || proof.subject != sub {
+        if proof.challenge.as_slice() != challenge || proof.rds != self.cfg.url || proof.owner != owner || proof.subject != sub {
             return Err(RpcError::unauthorized("connect proof does not match"));
         }
         if !self.serves(&owner).await? {
-            return Err(RpcError::new(rpc::E_WRONG_RDS, format!("{owner} is not served by {}", self.cfg.provider)));
+            return Err(RpcError::new(rpc::E_WRONG_RDS, format!("{owner} is not served by {}", self.cfg.url)));
         }
         let k = ep_key(&owner, &sub);
         let mut st = self.st.lock().await;
@@ -298,9 +298,9 @@ impl Rds {
             }
         }
         if let Some(peer) = &peer {
-            self.call_peer(&peer.provider, "scc.rds.session.create", to_value(&RdsSessionCreateParams { session_id: p.session_id.clone(), group_info: p.group_info.clone() }))
+            self.call_peer(&peer.url, "scc.rds.session.create", to_value(&RdsSessionCreateParams { session_id: p.session_id.clone(), group_info: p.group_info.clone() }))
                 .await?;
-            s.peer = Some(peer.provider.clone());
+            s.peer = Some(peer.url.clone());
         }
         {
             let mut st = self.st.lock().await;

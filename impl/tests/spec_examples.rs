@@ -10,7 +10,7 @@ use scc::cose::{PrivateKey, Sign1};
 use scc::credential::{Credential, EndpointClaims, StatusListToken};
 use scc::registry::{self, RegistryDocument, HeadStatement, OpBody, Operation};
 use scc::evidence::{self, Artefact, ConsentDecision, DecryptionReport, EvidenceBody};
-use scc::types::{AcceptancePolicy, Identifier, RdsRef};
+use scc::types::{AcceptancePolicy, Identifier};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
@@ -34,7 +34,7 @@ fn owner_a_state() -> (RegistryDocument, Vec<PrivateKey>, PrivateKey) {
     let st = RegistryDocument {
         update_keys: ukeys.iter().map(|k| k.public()).collect(),
         credential_keys: vec![cred.public()],
-        rds: RdsRef { provider: "rds.example-provider.eu".into(), url: "https://rds.example-provider.eu".into() },
+        rds: "https://rds.example-provider.eu/scc-rds".into(),
         identifiers: vec![Identifier { id_type: "vat".into(), value: "DE123456789".into() }],
         acceptance_policies: pol,
         signed_at: T0 - 86400,

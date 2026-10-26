@@ -13,8 +13,8 @@ use scc::types::{Address, Consignment, OwnerStatus, EndpointRef};
 use scc::util::{now, random_bytes};
 use serde_bytes::ByteBuf;
 
-const A: &str = "ebw:ytf2ob7mxuljkyweuwq4jpr3";
-const B: &str = "ebw:hp7dsh3axazs4spf7xytom23";
+const A: &str = "ebw:bo6frcnfdr54irr3eybahmh6";
+const B: &str = "ebw:r7jhgo5eukazsq5homclvxdc";
 
 fn sealer(name: &str) -> Sealer {
     let key = PrivateKey::generate_ed25519();
@@ -59,7 +59,7 @@ fn produced_objects_match_cddl() {
     let proof = ConnectProofBody {
         st_type: "connect-proof".into(),
         challenge: ByteBuf::from(random_bytes(16)),
-        provider: "rds.test".into(),
+        rds: "https://rds.test/scc-rds".into(),
         owner: B.into(),
         subject: "Bx4nW8sYt2Qe".into(),
         signed_at: t,
@@ -191,7 +191,7 @@ fn produced_objects_match_cddl() {
         v: 1,
         evidence_id: random_bytes(16),
         event: Event::E1.uri(),
-        issuer: Issuer { provider: "rds.test".into(), name: "RDS".into(), policies: vec!["https://rds.test/policy".into()] },
+        issuer: Issuer { rds: "https://rds.test/scc-rds".into(), name: "RDS".into(), policies: vec!["https://rds.test/policy".into()] },
         event_time: t,
         message: MessageRef {
             message_id: mid.clone(),

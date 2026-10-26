@@ -5,7 +5,7 @@
 ## 1. Introduction
 
 Each EBW owner has a digital address: an **EBW URL**, such as
-`ebw:ytf2ob7mxuljkyweuwq4jpr3`. The part after `ebw:` is derived from a
+`ebw:bo6frcnfdr54irr3eybahmh6`. The part after `ebw:` is derived from a
 hash of the operation that created it. The European Digital Directory
 (EDD) stores, for each EBW URL, a log of signed operations. The latest
 valid operation sets the URL's **registry document**, which holds:
@@ -96,7 +96,7 @@ close-op = {
 registry-document = (
   "update_keys": [1*5 COSE_Key],
   "credential_keys": [1*5 COSE_Key],
-  "rds": rds-ref,
+  "rds": rds-url,
   "identifiers": [* identifier],
   "acceptance_policies": acceptance-policies,
   "signed_at": time,
@@ -134,14 +134,11 @@ Index 0 has the highest priority. Priority matters only for recovery
 **`credential_keys`** — keys that may sign endpoint credentials. They
 SHOULD NOT also be update keys.
 
-**`rds`** — the owner's home RDS:
+**`rds`** — the owner's home RDS, identified by the URL of its metadata
+(doc 4 §3):
 
 ```cddl
-rds-ref = {
-  "provider": tstr,   ; provider ID, as in the RDS metadata (doc 4 §3)
-  "url": tstr .regexp "https://.+",  ; base URL of the RDS; metadata
-                                     ; is at <url>/.well-known/scc-rds
-}
+rds-url = tstr .regexp "https://.+"
 ```
 
 **`identifiers`** — existing identifiers the owner claims. The EDD MUST
@@ -199,7 +196,7 @@ The EDD MUST accept an operation only if all of these hold:
 4. The EBW URL is not closed.
 5. Every identifier in the new registry document is attested for this
    EBW URL (§4).
-6. The `rds.url` is an `https` URL.
+6. `rds` is an `https` URL.
 
 A create operation is accepted only through registration (§6.2).
 
@@ -249,7 +246,6 @@ behalf. It seals the operation in a **submission**, a COSE_Sign1:
 submission-body = {
   "type": "submission",
   "operation": bstr .cbor operation,
-  "provider": tstr,           ; provider ID of the EBW provider
   "submitted_at": time,
 }
 ```
@@ -368,7 +364,7 @@ Errors use Concise Problem Details (RFC 9290,
 | EDD metadata | `GET /.well-known/edd` | EDD keys and limits (JSON) |
 
 `{url}` is the whole EBW URL, for example
-`GET /ebw:ytf2ob7mxuljkyweuwq4jpr3`. All reads are public. Signed objects
+`GET /ebw:bo6frcnfdr54irr3eybahmh6`. All reads are public. Signed objects
 state their own validity, and MUST NOT be relied on outside it. For other
 responses, clients follow the HTTP caching headers the EDD sends.
 
@@ -517,8 +513,7 @@ A create operation, in CBOR diagnostic notation (payload shown decoded):
       { 1: 1, -1: 6, -2: h'3d40...660c' }
     ],
     "credential_keys": [ { 1: 1, -1: 6, -2: h'fc51...d025' } ],
-    "rds": { "provider": "example-provider.eu",
-             "url": "https://rds.example-provider.eu" },
+    "rds": "https://rds.example-provider.eu/scc-rds",
     "identifiers": [ { "type": "vat", "value": "DE123456789" } ],
     "acceptance_policies": { "default": "any",
                              "contracts": ["quorum", 2] },

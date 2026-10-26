@@ -28,16 +28,13 @@ close-op = {
 registry-document = (
   "update_keys": [1*5 COSE_Key],
   "credential_keys": [1*5 COSE_Key],
-  "rds": rds-ref,
+  "rds": rds-url,
   "identifiers": [* identifier],
   "acceptance_policies": acceptance-policies,
   "signed_at": time,
 )
 
-rds-ref = {
-  "provider": tstr,
-  "url": tstr .regexp "https://.+",
-}
+rds-url = tstr .regexp "https://.+"            ; URL of the RDS metadata
 
 identifier = {
   "type": identifier-type,
@@ -61,7 +58,6 @@ submission = [cose-protected, cose-unprotected, payload: bstr .cbor submission-b
 submission-body = {
   "type": "submission",
   "operation": bstr .cbor operation,
-  "provider": tstr,                           ; provider ID of the EBW provider
   "submitted_at": time,
 }
 

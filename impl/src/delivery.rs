@@ -412,7 +412,6 @@ pub struct EvidenceInfo {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RdsMetadata {
-    pub provider: String,
     pub governing_body: GoverningBody,
     pub trust_domains: Vec<String>,
     pub versions: Vec<String>,

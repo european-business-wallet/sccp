@@ -9,7 +9,7 @@
     << {
       "v": 1,
       "mls": {
-        "group_context": h'00010001107dbd06d023712b32c0964dcc971212a100000000000000062008d2b19f9c704ab24142a9666df50ae30864a76faa5d9e34a8e285c29895be49205c8434696385e25c931f66fb6996136c4f6cee21e011f82e83b5fc633036c9d6405ef0ec404e1c6562773a797466326f62376d78756c6a6b797765757771346a7072330a70757263686173696e671c6562773a687037647368336178617a7334737066377879746f6d323308696e766f6963657300030902f0ec00040003f0eb',
+        "group_context": h'00010001107dbd06d023712b32c0964dcc971212a100000000000000062008d2b19f9c704ab24142a9666df50ae30864a76faa5d9e34a8e285c29895be49205c8434696385e25c931f66fb6996136c4f6cee21e011f82e83b5fc633036c9d6405ef0ec404e1c6562773a626f366672636e66647235346972723365796261686d68360a70757263686173696e671c6562773a72376a68676f3565756b617a737135686f6d636c7678646308696e766f6963657300030902f0ec00040003f0eb',
         "epoch_authenticator": h'7289b456d1584744aad7dcb035754e69f321e3afb186426c3d2c91439f45edce'
       },
       "event": "http://uri.etsi.org/19522/Event/SubmissionRejection",
@@ -23,14 +23,14 @@
           {},
           << {
             "seq": 2,
-            "head": h'048e6b41b24c7098e54a5cb675d8aa3f378e6958e02727c5c4b7b117bdfaeaec',
+            "head": h'2aaa13369fc7fabee6f59a42c2a9d504866a91be944a5dd4da5200a399cc5060',
             "type": "head-statement",
-            "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
+            "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
             "status": "active",
             "issued_at": 1792310432,
             "expires_at": 1792310732
           } >>,
-          h'a5e053632d9f987ec80a12d667d95725912fd431cbc2929477069e5d1d68dcdae010c60b179ad4041fe6fc99cba12bc829bf1ad62ee6393757d7c11e428f820b'
+          h'26a7a7ea296bbacb6e38a2e04480f8370fc0c6a5ba0d40412929b9b65b5ee39c686365386d547d7f2553ce3e89d88e05407e14e09328c26f9ea08148aff3610c'
         ] >>,
         << [
           << {
@@ -41,22 +41,22 @@
           {},
           << {
             "seq": 1,
-            "head": h'3bfe391f60b8332e49e5fdf137335b4a61c3849b76adf4c1bb499e4d9b4da5e5',
+            "head": h'8fd2733ba4a2819943a77304badc629a1329e6c50976c3de9c28e9ada7f6fefb',
             "type": "head-statement",
-            "owner": "ebw:hp7dsh3axazs4spf7xytom23",
+            "owner": "ebw:r7jhgo5eukazsq5homclvxdc",
             "status": "active",
             "issued_at": 1792310432,
             "expires_at": 1792310732
           } >>,
-          h'90e0dbe76b87169b77c2cd0cb03c82093c82fec7e100f5e512c4184b503186e5eba0776bae8d0f19ec1f0c83f8a4134053b1c672343cad5b1a27d015a3758700'
+          h'96349272f2668a2a3571c2ca0bcffcf88f346fc0f5db2d1e76b102be47480cff508dc80e10daca10f246c10b3b16439b5302a5824cf5ddd5c8cd620122c1aa04'
         ] >>
       ],
       "issuer": {
+        "rds": "https://rds.example-provider.eu/scc-rds",
         "name": "Example Provider SE",
         "policies": [
           "https://rds.example-provider.eu/policy/erds-2026"
-        ],
-        "provider": "rds.example-provider.eu"
+        ]
       },
       "reason": {
         "scc": "no-keypackage",
@@ -66,11 +66,11 @@
       "message": {
         "to": {
           "role": "invoices",
-          "owner": "ebw:hp7dsh3axazs4spf7xytom23"
+          "owner": "ebw:r7jhgo5eukazsq5homclvxdc"
         },
         "from": {
           "role": "purchasing",
-          "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3"
+          "owner": "ebw:bo6frcnfdr54irr3eybahmh6"
         },
         "sent_at": 1792310460,
         "expires_at": 1793520060,
@@ -81,7 +81,7 @@
         "plaintext_hash": h'1340bf91d47d51d91f291645c591daac00ca88d0c19561c512e5007cc4a53d3b'
       },
       "endpoint": {
-        "owner": "ebw:ytf2ob7mxuljkyweuwq4jpr3",
+        "owner": "ebw:bo6frcnfdr54irr3eybahmh6",
         "subject": "Kq7vT2mXr9Lp"
       },
       "statuses": [
@@ -93,8 +93,8 @@
           } >>,
           {},
           << {
-            1: "ebw:ytf2ob7mxuljkyweuwq4jpr3",
-            2: "https://status.example-provider.eu/ob7mxulj/1",
+            1: "ebw:bo6frcnfdr54irr3eybahmh6",
+            2: "https://status.example-provider.eu/rcnfdr54/1",
             4: 1792396260,
             5: 1792309860,
             6: 1792309860,
@@ -104,7 +104,7 @@
             },
             65534: 3600
           } >>,
-          h'49a3a75cbc935624c792390a851cf86093bcaf8caa93f702f0a1a0c8ae5d235cce666f6356d76ebc25da3676746f60601be6e3178f92340e456c87287f7c170f'
+          h'085a0006e8f4f22904f7bc3c8819c61bff0b589b32a59fc3eb83a95f469080defcd59c9986bd20c8168ba4c56e65e31a6a5f5cd8224b92fcb505609c449d7904'
         ]) >>
       ],
       "event_time": 1792310462,
@@ -121,7 +121,7 @@
         }
       }
     } >>,
-    h'3112473a77f49f2eb804d4b0f1c49da4ee6dbc1cc6d1458f82a4f5486adec8ed988f17e31ac74d979497dff91746ce5326cc8e4a68d2833d0e73652c9aaf530d'
+    h'b3f884c5ec61c955fa1dab5f7c5a7de134a2d310649eb4a0b040ac6aad737f1913cbf40e35b287c228b250372efd50cf08de9622b2608e097af9c2b1bc1b6706'
   ] >>,
-  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3a595c96bb7b6e80c4afa0008954aa06cd0cd5432858f0c51353c116dd5ea55cc0'
+  h'44454d4f2d504c414345484f4c4445522d524643333136312d544f4b454e3a13deee9d08b210021f31cb858892e5a8718472562406b691e6f9f3f399667871'
 ]

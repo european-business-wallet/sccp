@@ -17,8 +17,8 @@ EDD_PORT="${EDD_PORT:-18440}"
 RDSA_PORT="${RDSA_PORT:-18441}"
 RDSB_PORT="${RDSB_PORT:-18442}"
 EDD="https://localhost:$EDD_PORT"
-RDSA="https://localhost:$RDSA_PORT"
-RDSB="https://localhost:$RDSB_PORT"
+RDSA="https://localhost:$RDSA_PORT/scc-rds"
+RDSB="https://localhost:$RDSB_PORT/scc-rds"
 
 bold() { printf '\n\033[1m== %s\033[0m\n' "$*"; }
 step() { printf '\033[36m-- %s\033[0m\n' "$*"; }
@@ -40,8 +40,8 @@ rm -rf "$WORK"; mkdir -p "$WORK"/{edd,rds-a,rds-b,ebw-a,ebw-b,pki,logs,owners,ep
 bold "PKI (demo stand-ins: self-signed seals, local TSA, configured trust anchors)"
 "$EDD_BIN" pki-tls --out "$WORK/pki" >/dev/null
 "$EDD_BIN" init --dir "$WORK/edd" >/dev/null
-"$RDS_BIN" init --dir "$WORK/rds-a" --provider rds-a.demo >/dev/null
-"$RDS_BIN" init --dir "$WORK/rds-b" --provider rds-b.demo >/dev/null
+"$RDS_BIN" init --dir "$WORK/rds-a" --name "RDS A" >/dev/null
+"$RDS_BIN" init --dir "$WORK/rds-b" --name "RDS B" >/dev/null
 "$EP" owner provider-init --dir "$WORK/ebw-a" --provider ebw-a.demo >/dev/null
 "$EP" owner provider-init --dir "$WORK/ebw-b" --provider ebw-b.demo >/dev/null
 "$EDD_BIN" pki-trust --out "$WORK/pki/trust.json" \
@@ -57,33 +57,33 @@ echo "trust store: $SCC_TRUST"
 bold "Starting the EDD and two RDSes"
 "$EDD_BIN" serve --dir "$WORK/edd" --listen "127.0.0.1:$EDD_PORT" --base-url "$EDD" "${TLS[@]}" \
   >"$WORK/logs/edd.log" 2>&1 & PIDS+=($!)
-"$RDS_BIN" serve --dir "$WORK/rds-a" --provider rds-a.demo --name "RDS A Provider SE (demo)" \
-  --listen "127.0.0.1:$RDSA_PORT" --base-url "$RDSA" --edd "$EDD" --trust "$SCC_TRUST" "${TLS[@]}" --subjects-ttl 2 \
+"$RDS_BIN" serve --dir "$WORK/rds-a" --name "RDS A Provider SE (demo)" \
+  --listen "127.0.0.1:$RDSA_PORT" --url "$RDSA" --edd "$EDD" --trust "$SCC_TRUST" "${TLS[@]}" --subjects-ttl 2 \
   >"$WORK/logs/rds-a.log" 2>&1 & PIDS+=($!)
-"$RDS_BIN" serve --dir "$WORK/rds-b" --provider rds-b.demo --name "RDS B Provider AB (demo)" \
-  --listen "127.0.0.1:$RDSB_PORT" --base-url "$RDSB" --edd "$EDD" --trust "$SCC_TRUST" "${TLS[@]}" --subjects-ttl 2 \
+"$RDS_BIN" serve --dir "$WORK/rds-b" --name "RDS B Provider AB (demo)" \
+  --listen "127.0.0.1:$RDSB_PORT" --url "$RDSB" --edd "$EDD" --trust "$SCC_TRUST" "${TLS[@]}" --subjects-ttl 2 \
   >"$WORK/logs/rds-b.log" 2>&1 & PIDS+=($!)
-for url in "$EDD/.well-known/edd" "$RDSA/.well-known/scc-rds" "$RDSB/.well-known/scc-rds"; do
+for url in "$EDD/.well-known/edd" "$RDSA" "$RDSB"; do
   for _ in $(seq 1 50); do curl -sf --cacert "$SCC_TLS_CA" "$url" >/dev/null && break; sleep 0.2; done
   curl -sf --cacert "$SCC_TLS_CA" "$url" >/dev/null || { echo "$url did not start"; exit 1; }
 done
-echo "EDD $EDD, RDS A $RDSA (rds-a.demo), RDS B $RDSB (rds-b.demo)"
+echo "EDD $EDD, RDS A $RDSA, RDS B $RDSB"
 PY=python3; [ -x ../.venv/bin/python ] && PY=../.venv/bin/python
 if "$PY" -c "import jsonschema" 2>/dev/null; then
   for r in "$RDSA" "$RDSB"; do
-    curl -sf --cacert "$SCC_TLS_CA" "$r/.well-known/scc-rds" >"$WORK/metadata.json"
+    curl -sf --cacert "$SCC_TLS_CA" "$r" >"$WORK/metadata.json"
     "$PY" -c "import json,jsonschema,sys; jsonschema.validate(json.load(open(sys.argv[1])), json.load(open(sys.argv[2])))" \
       "$WORK/metadata.json" ../spec/schemas/rds-metadata.schema.json && echo "RDS metadata at $r matches rds-metadata.schema.json"
   done
 fi
 
 bold "Registering two EBW owners with the EDD (each through its EBW provider, which seals the submission)"
-A=$("$EP" owner init --dir "$WORK/owners/a" --edd "$EDD" --provider "$WORK/ebw-a" --rds-provider rds-a.demo --rds-url "$RDSA" \
+A=$("$EP" owner init --dir "$WORK/owners/a" --edd "$EDD" --provider "$WORK/ebw-a" --rds-url "$RDSA" \
     --identifier vat:DE123456789 --policy invoices=any)
-B=$("$EP" owner init --dir "$WORK/owners/b" --edd "$EDD" --provider "$WORK/ebw-b" --rds-provider rds-b.demo --rds-url "$RDSB" \
+B=$("$EP" owner init --dir "$WORK/owners/b" --edd "$EDD" --provider "$WORK/ebw-b" --rds-url "$RDSB" \
     --identifier vat:SE556677889901 --policy invoices=quorum:2)
-echo "owner A: $A  (home RDS rds-a.demo)"
-echo "owner B: $B  (home RDS rds-b.demo)"
+echo "owner A: $A  (home RDS $RDSA)"
+echo "owner B: $B  (home RDS $RDSB)"
 
 # new_endpoint OWNER NAME RDSURL ROLES HOLDER
 new_endpoint() {
@@ -168,7 +168,7 @@ sync a2
 
 bold "Revocation: owner B revokes b2's credential and publishes a new status list"
 B2SUB=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['subject'])" "$WORK/ep/b2/endpoint.json")
-"$EP" owner revoke --dir "$WORK/owners/b" --subject "$B2SUB"
+"$EP" owner revoke --dir "$WORK/owners/b" --subject="$B2SUB"
 sleep 3
 step "the next send gets -31100 with b2's leaf in 'remove'; a1 commits a Remove and resends"
 M7=$(RUST_LOG=info send a1 purchasing "$B#invoices" "Final reminder for PO 4711" 2> >(grep -E "membership" >&2 || true))
@@ -193,20 +193,20 @@ sync a1 a2
 
 bold "Message 9: RDS B unreachable at submission (store and forward, doc 3 §5)"
 step "RDS A loses contact with RDS B (a demo switch simulating a network partition)"
-"$RDS_BIN" partition --rds "$RDSA" --peer rds-b.demo
+"$RDS_BIN" partition --rds "$RDSA" --peer "$RDSB"
 sleep 3   # let RDS A's cached scc.rds.subjects answer expire
 step "a1 sends: RDS A checks A's side only, issues A.1, and holds the message for relay"
 M9=$(send a1 purchasing "$B#invoices" "Shipping notice for PO 4712")
 "$EP" list --dir "$WORK/ep/a1" | grep -F "$M9" | sed 's/^/  /' || true
 step "contact returns; RDS A relays, and RDS B checks B's side: B.1, then delivery"
-"$RDS_BIN" partition --rds "$RDSA" --peer rds-b.demo --heal
+"$RDS_BIN" partition --rds "$RDSA" --peer "$RDSB" --heal
 sleep 6
 sync b1 b3
 sleep 1
 sync a1 a2
 
 bold "Message 10: B's membership changes while RDS B is unreachable"
-"$RDS_BIN" partition --rds "$RDSA" --peer rds-b.demo
+"$RDS_BIN" partition --rds "$RDSA" --peer "$RDSB"
 sleep 3
 M10=$(send a1 purchasing "$B#invoices" "Shipping notice for PO 4713")
 step "meanwhile owner B enrols b4; RDS A cannot see it"
@@ -214,7 +214,7 @@ new_endpoint b b4 "$RDSB" default,invoices h-b4
 "$EP" owner publish-status --dir "$WORK/owners/b"
 "$EP" register --dir "$WORK/ep/b4" --credential "$WORK/ep/b4/credential.cbor"
 step "contact returns; RDS B finds b4 missing from the session: B.2 membership-mismatch"
-"$RDS_BIN" partition --rds "$RDSA" --peer rds-b.demo --heal
+"$RDS_BIN" partition --rds "$RDSA" --peer "$RDSB" --heal
 sleep 6
 sync a1
 step "the sender sends again as a new message: -31100, a1 commits an Add for b4, and the message is delivered"

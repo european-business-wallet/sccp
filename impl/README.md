@@ -42,8 +42,8 @@ The script builds the binaries and, in `target/demo/`:
 
 1. creates the demo PKI (TLS CA, EDD, RDS and EBW provider seal
    certificates, TSA certificates, trust store);
-2. starts the EDD and two RDSes from different providers (`rds-a.demo`,
-   `rds-b.demo`) on localhost over TLS, and checks their metadata against
+2. starts the EDD and two RDSes from different providers on localhost
+   ports over TLS, and checks their metadata against
    `rds-metadata.schema.json` (if Python `jsonschema` is available);
 3. registers two owners with the EDD, each through its EBW provider,
    which seals the submission (A served by RDS A, B by RDS B, with an
@@ -110,9 +110,9 @@ Owner and endpoint lifecycle:
 ```sh
 scc-endpoint owner provider-init --dir ebw --provider ebw-a.demo   # add its seal-cert.der to the trust store
 scc-endpoint owner init --dir own --edd https://localhost:18440 --provider ebw \
-    --rds-provider rds-a.demo --rds-url https://localhost:18441 --policy invoices=any
+    --rds-url https://localhost:18441/scc-rds --policy invoices=any
 scc-endpoint init --dir ep1 --owner "$(scc-endpoint owner url --dir own)" \
-    --rds https://localhost:18441 --edd https://localhost:18440 --roles default,invoices
+    --rds https://localhost:18441/scc-rds --edd https://localhost:18440 --roles default,invoices
 scc-endpoint owner issue --dir own --request ep1/credential-request.cbor --out ep1/credential.cbor --holder h1
 scc-endpoint owner publish-status --dir own
 scc-endpoint register --dir ep1 --credential ep1/credential.cbor

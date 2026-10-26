@@ -631,7 +631,7 @@ impl Rds {
         let a1 = Artefact::parse(&raw_a1).map_err(RpcError::params)?;
         a1.verify_seal(&self.trust).map_err(|e| RpcError::params(format!("A.1: {e}")))?;
         let b = a1.message().ok_or_else(|| RpcError::params("A.1 is not message evidence"))?.clone();
-        if b.event().ok() != Some(Event::A1) || b.issuer.provider != caller {
+        if b.event().ok() != Some(Event::A1) || b.issuer.rds != caller {
             return Err(RpcError::params("submission evidence is not A.1 from the caller"));
         }
         let expect = MessageRef {

@@ -98,7 +98,7 @@ message-evidence = {
   ? "statuses": [+ bstr .cbor status-list-token],   ; status lists relied on
   "sender_assurance": assurance,
   ? "recipient_assurance": assurance,
-  ? "peer": tstr,                 ; provider ID of the other RDS (B events)
+  ? "peer": tstr,                 ; RDS URL of the other RDS (B events)
   ? "prev": [+ hash32],           ; evidence this follows (§3.7)
   ? "endpoint": endpoint-ref,     ; see the event table
   ? "handovers": [+ handover],    ; E.1, E.2
@@ -108,8 +108,8 @@ message-evidence = {
 }
 
 issuer = {
-  "provider": tstr,               ; provider ID
-  "name": tstr,                   ; legal name of the provider
+  "rds": tstr,                    ; RDS URL
+  "name": tstr,                   ; legal name of the RDS provider
   "policies": [+ tstr],           ; evidence policy identifiers (URIs)
 }
 
@@ -679,7 +679,7 @@ Evidence components (EN 319 522-2 clause 8, Table 13):
 | G05 Event time | Always | `event_time` |
 | G06 Transaction log information | Optional | Not used; kept per RDS policy |
 | R01 Evidence issuer policy identifier | Always (1 or more) | `issuer.policies` |
-| R02 Evidence issuer details | Always | `issuer.name`, `issuer.provider` and the seal certificate |
+| R02 Evidence issuer details | Always | `issuer.name`, `issuer.rds` and the seal certificate |
 | R03 Signature by issuing ERDS | Always | The COSE_Sign1 seal and its timestamp (§2) |
 | I01, I05 Identity attributes | Optional | Not used; the EBW URL and its attested identifiers (doc 1 §4) identify the owners |
 | I02 Sender's identifier | Always | `message.from.owner` |

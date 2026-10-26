@@ -6,7 +6,7 @@ use crate::cose::PrivateKey;
 use crate::credential::{Credential, CredentialRequestBody, EndpointClaims, StatusListToken, STATUS_INVALID, STATUS_VALID};
 use crate::registry::{OpBody, Operation, RegistryDocument, Sealer, Submission};
 use crate::edd::EddClient;
-use crate::types::{AcceptancePolicy, Identifier, RdsRef};
+use crate::types::{AcceptancePolicy, Identifier};
 use crate::util::{now, read_json, write_json};
 use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
@@ -44,7 +44,7 @@ impl EbwProvider {
 
     /// Seal an operation for submission.
     pub fn submit(&self, op: &Operation) -> Vec<u8> {
-        Submission::seal(&self.sealer, &self.provider, op, now())
+        Submission::seal(&self.sealer, op, now())
     }
 }
 
@@ -56,7 +56,7 @@ pub struct OwnerConfig {
     pub provider: PathBuf,
     pub update_keys: Vec<PrivateKey>,
     pub credential_key: PrivateKey,
-    pub rds: RdsRef,
+    pub rds: String,
     pub status_uri: String,
     pub issued: Vec<IssuedCredential>,
 }
@@ -82,7 +82,7 @@ impl Owner {
         dir: &Path,
         edd: &EddClient,
         provider: &Path,
-        rds: RdsRef,
+        rds: String,
         identifiers: Vec<Identifier>,
         policies: BTreeMap<String, AcceptancePolicy>,
     ) -> Result<Self> {
@@ -104,7 +104,7 @@ impl Owner {
         let op = Operation::sign(OpBody::Create(state), &update_keys[0]);
         let sub = EbwProvider::load(provider)?.submit(&op);
         let r = edd.register(&sub, b"demo identity proof").await?;
-        let status_uri = crate::rds::Rds::status_uri(&rds.url, &r.owner);
+        let status_uri = crate::rds::Rds::status_uri(&rds, &r.owner);
         let o = Owner {
             dir: dir.into(),
             cfg: OwnerConfig { owner: r.owner, edd: edd.base.clone(), provider: provider.into(), update_keys, credential_key, rds, status_uri, issued: vec![] },

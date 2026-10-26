@@ -30,7 +30,7 @@ message-evidence = {
   ? "statuses": [+ bstr .cbor status-list-token],   ; status lists relied on
   "sender_assurance": assurance,
   ? "recipient_assurance": assurance,
-  ? "peer": tstr,                 ; provider ID of the other RDS (B events)
+  ? "peer": tstr,                 ; RDS URL of the other RDS (B events)
   ? "prev": [+ hash32],           ; evidence this follows (§3.7)
   ? "endpoint": endpoint-ref,     ; see the event table
   ? "handovers": [+ handover],    ; E.1, E.2
@@ -40,8 +40,8 @@ message-evidence = {
 }
 
 issuer = {
-  "provider": tstr,               ; provider ID
-  "name": tstr,                   ; legal name of the provider
+  "rds": tstr,                    ; RDS URL
+  "name": tstr,                   ; legal name of the RDS provider
   "policies": [+ tstr],           ; evidence policy identifiers (URIs)
 }
 

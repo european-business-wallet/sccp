@@ -5,7 +5,7 @@ use scc::certs::{self, TrustStore};
 use scc::cose::PrivateKey;
 use scc::registry::{self, HeadStatement, OpBody, Operation, RegistryDocument, Sealer, Submission};
 use scc::edd::{Edd, EddConfig};
-use scc::types::{AcceptancePolicy, Identifier, RdsRef};
+use scc::types::{AcceptancePolicy, Identifier};
 use std::collections::BTreeMap;
 
 /// A test EBW provider's sealer.
@@ -17,7 +17,7 @@ fn provider() -> Sealer {
 
 /// Seal an operation for submission (01-discovery.md §3.6).
 fn sub(p: &Sealer, op: &Operation) -> Vec<u8> {
-    Submission::seal(p, "ebw.test", op, scc::util::now())
+    Submission::seal(p, op, scc::util::now())
 }
 
 fn edd(p: &Sealer) -> (Edd, TrustStore) {
@@ -40,7 +40,7 @@ fn state(ukeys: &[PrivateKey], vat: &str) -> RegistryDocument {
     RegistryDocument {
         update_keys: ukeys.iter().map(|k| k.public()).collect(),
         credential_keys: vec![PrivateKey::generate_ed25519().public()],
-        rds: RdsRef { provider: "rds.test".into(), url: "https://rds.test".into() },
+        rds: "https://rds.test/scc-rds".into(),
         identifiers: vec![Identifier { id_type: "vat".into(), value: vat.into() }],
         acceptance_policies: pol,
         signed_at: 1,
