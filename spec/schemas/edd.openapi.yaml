@@ -7,7 +7,8 @@ info:
 
     CBOR bodies are described by CDDL rules in discovery.cddl. Each such
     body names its rule in `x-cddl`. Errors are Concise Problem Details
-    (RFC 9290). All reads are public.
+    (RFC 9290). Every operation except the EDD metadata requires mutual
+    TLS, as an EBW provider or an RDS (01-discovery.md §6).
 servers:
   - url: https://edd.europa.eu
 tags:
@@ -185,6 +186,7 @@ paths:
       tags: [resolution]
       operationId: getMetadata
       summary: EDD metadata
+      security: []
       responses:
         "200":
           description: EDD keys and limits.
@@ -192,7 +194,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EddMetadata"
+security:
+  - mutualTLS: []
 components:
+  securitySchemes:
+    mutualTLS:
+      type: mutualTLS
+      description: An EBW provider or an RDS, with its qualified certificate (01-discovery.md §6).
   parameters:
     url:
       name: url

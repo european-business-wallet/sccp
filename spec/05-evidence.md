@@ -499,7 +499,8 @@ embedded in C.3.
 | The `MLSMessage` | The sending RDS or either endpoint (§8) |
 | The application data (plaintext with salt) | Either endpoint |
 | Retained MLS state | The endpoint that retained it (§8) |
-| EBW URL logs and EDD certificates | The EDD |
+| EBW URL logs | Either party, which gets them from the EDD through its EBW provider (doc 1 §6) |
+| EDD certificates | The EDD metadata (doc 1 §6.6) |
 
 The verifier returns one of three verdicts, as in the SBM design study:
 

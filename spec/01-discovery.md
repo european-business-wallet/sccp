@@ -435,9 +435,28 @@ Errors use Concise Problem Details (RFC 9290,
 | EDD metadata | `GET /.well-known/edd` | EDD keys and limits (JSON) |
 
 `{url}` is the whole EBW URL, for example
-`GET /ebw:zloeskxezkk6rcwjazemu3kv`. All reads are public. Signed objects
-state their own validity, and MUST NOT be relied on outside it. For other
-responses, clients follow the HTTP caching headers the EDD sends.
+`GET /ebw:zloeskxezkk6rcwjazemu3kv`. Signed objects state their own
+validity, and MUST NOT be relied on outside it. For other responses,
+clients follow the HTTP caching headers the EDD sends.
+
+**Access.** The draft EBW Regulation makes the EDD accessible only to EBW
+owners, their authorised representatives and EBW providers (Article
+10(4)). The EDD serves two kinds of client, each authenticated with
+mutual TLS:
+
+- **EBW providers**, with their qualified certificates. A provider
+  submits its owners' operations, and reads on behalf of its owners and
+  their endpoints. Owners and endpoints reach the EDD only through their
+  EBW provider.
+- **RDSes**, with their qualified certificates as qualified registered
+  delivery services (EU Trusted Lists). An RDS reads what it needs to
+  deliver messages and issue evidence: resolution, head statements, the
+  status list and lookup.
+
+The EDD MUST refuse every other request, except for the EDD metadata
+(§6.6), which is public. What the EDD returns is signed by the EDD or
+sealed by an EBW provider, so a provider that relays it cannot change it
+undetected.
 
 ### 6.1 Resolution
 
@@ -525,8 +544,8 @@ An auditor checks that:
    (§3.6);
 3. the head in a recent head statement is the last non-overridden entry.
 
-Auditors SHOULD compare logs fetched at different times and from
-different vantage points. A log that shrinks, or two logs that disagree
+Auditors, who are EBW providers or RDSes (§6), SHOULD compare logs
+fetched at different times and from different vantage points. A log that shrinks, or two logs that disagree
 on an operation's successor, shows the EDD misbehaving.
 
 ### 6.5 Update
@@ -626,7 +645,8 @@ Complete examples are in [`examples/`](examples/): `create-op.diag`,
   EBW Regulation requires. It cannot make any other change. Its
   seal on each status operation makes it accountable for the change, and
   the operation stays in the public log.
-- **Privacy.** The registry document is public. It names the RDS, the
-  identifiers and role names used in policies. It does not list
+- **Privacy.** The registry document is visible to every EBW provider and
+  RDS (§6), not to the public. It names the RDS, the identifiers and role
+  names used in policies. It does not list
   endpoints or holders. Endpoint revocation is not recorded here but in
   status lists (doc 2 §5.3).
