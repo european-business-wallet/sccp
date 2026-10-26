@@ -50,7 +50,7 @@ against.
 | `status-op` | `operation` | A's EBW provider suspends A, sealing a status operation |
 | `head-statement` | `head-statement` | The EDD's head statement for A |
 | `edd-status-list` | `status-list-token` | The EDD's status list for head statements: entry 0 (A's create operation) replaced |
-| `identifier-attestation` | `identifier-attestation` | A's VAT number attested by the EDD |
+| `lookup-response` | `lookup-response` | The EDD's answer to a lookup of A's VAT number: A's head operation, sealed by A's EBW provider, and its head statement |
 | `registration-request`, `resolution-response`, `log` | EDD API bodies | |
 | `endpoint-credential`, `endpoint-credential-b` | `endpoint-credential` | Credentials for A/`Kq7vT2mXr9Lp` and B/`Bx4nW8sYt2Qe` |
 | `status-list-token` | `status-list-token` | Owner B's status list: entry 3 revoked, entry 5 suspended |

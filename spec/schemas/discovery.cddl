@@ -64,17 +64,7 @@ submission-body = {
   "submitted_at": time,
 }
 
-; ---- EDD statements (§4, §5) ----
-
-identifier-attestation = [cose-protected, cose-unprotected, payload: bstr .cbor identifier-attestation-body, cose-signature]
-
-identifier-attestation-body = {
-  "type": "identifier-attestation",
-  "identifier": identifier,
-  "owner": ebw-url,
-  "verified_at": time,
-  "expires_at": time,
-}
+; ---- EDD statements (§5) ----
 
 head-statement = [cose-protected, cose-unprotected, payload: bstr .cbor head-statement-body, cose-signature]
 
@@ -96,7 +86,11 @@ owner-status = "active" / "suspended" / "retired" / "merged" / "closed"
 
 registration-request = {
   "submission": bstr .cbor submission,        ; of a create operation
-  "proof": bstr,
+}
+
+lookup-response = {
+  "submission": bstr .cbor submission,        ; of the head operation
+  "head": bstr .cbor head-statement,
 }
 
 registration-response = {

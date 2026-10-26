@@ -364,17 +364,6 @@ pub struct StatusListRef {
     pub idx: u64,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct IdentifierAttestationBody {
-    #[serde(rename = "type")]
-    pub st_type: String,
-    pub identifier: Identifier,
-    pub owner: String,
-    pub verified_at: u64,
-    pub expires_at: u64,
-}
-
 /// An EDD signing key with its certificate chain.
 #[derive(Clone)]
 pub struct Sealer {
@@ -431,36 +420,44 @@ impl HeadStatement {
     }
 }
 
-/// A parsed identifier attestation.
-#[derive(Clone, Debug)]
-pub struct IdentifierAttestation {
-    pub raw: Vec<u8>,
-    pub body: IdentifierAttestationBody,
-}
-
-impl IdentifierAttestation {
-    pub fn parse_and_verify(raw: &[u8], trust: &TrustStore, t: u64) -> Result<Self> {
-        let cose = Sign1::parse(raw)?;
-        let body: IdentifierAttestationBody = cbor::from_slice(&cose.payload)?;
-        if body.st_type != "identifier-attestation" {
-            bail!("not an identifier attestation");
-        }
-        let key = trust.check_chain(&cose.x5chain(), TrustKind::Edd, t)?;
-        cose.verify(&key)?;
-        if t < body.verified_at || t >= body.expires_at {
-            bail!("attestation not valid now");
-        }
-        Ok(IdentifierAttestation { raw: raw.to_vec(), body })
-    }
-}
-
 // ---- EDD API bodies (§6) ----
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RegistrationRequest {
     pub submission: ByteBuf,
-    pub proof: ByteBuf,
+}
+
+/// The answer to a lookup (§4, §6.3): the head operation of the EBW URL
+/// to which an identifier is bound, in its submission, with its head
+/// statement.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LookupResponse {
+    pub submission: ByteBuf,
+    pub head: ByteBuf,
+}
+
+impl LookupResponse {
+    /// Check a lookup response for `id` (§4 steps 2 to 4) as of `t`, and
+    /// return the EBW URL, its registry document and the head statement.
+    /// The caller checks the head statement against the EDD status list
+    /// (step 1).
+    pub fn check(&self, id: &Identifier, trust: &TrustStore, t: u64) -> Result<(String, RegistryDocument, HeadStatement)> {
+        let head = HeadStatement::parse(&self.head)?;
+        head.verify(trust, t)?;
+        let sub = Submission::parse(&self.submission)?;
+        if sub.op.hash() != head.body.head {
+            bail!("head statement does not name the operation in the submission");
+        }
+        sub.verify(trust, sub.body.submitted_at)
+            .map_err(|e| anyhow!("EBW provider seal: {e:#}"))?;
+        let doc = sub.op.body.document().clone();
+        if !doc.identifiers.contains(id) {
+            bail!("registry document of {} does not list {}:{}", head.body.owner, id.id_type, id.value);
+        }
+        Ok((head.body.owner.clone(), doc, head))
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

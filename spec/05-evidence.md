@@ -684,7 +684,7 @@ Evidence components (EN 319 522-2 clause 8, Table 13):
 | R01 Evidence issuer policy identifier | Always (1 or more) | `issuer.policies` |
 | R02 Evidence issuer details | Always | `issuer.name`, `issuer.rds` and the seal certificate |
 | R03 Signature by issuing ERDS | Always | The COSE_Sign1 seal and its timestamp (§2) |
-| I01, I05 Identity attributes | Optional | Not used; the EBW URL and its attested identifiers (doc 1 §4) identify the owners |
+| I01, I05 Identity attributes | Optional | Not used; the EBW URL and the identifiers in its registry document (doc 1 §4) identify the owners |
 | I02 Sender's identifier | Always | `message.from.owner` |
 | I06 Recipient's identifier | Always | `message.to.owner` |
 | I09 Recipient referred to by the evidence | C, D and E events | `message.to.owner` (one recipient per message) |

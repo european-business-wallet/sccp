@@ -30,7 +30,6 @@ fn edd(p: &Sealer) -> (Edd, TrustStore) {
         recovery_window: 3600,
         status_list_validity: 300,
         status_list_ttl: 5,
-        attestation_validity: 86400,
     };
     (Edd::new(cfg, Sealer { key, chain: vec![cert] }, trust.clone()), trust)
 }
@@ -55,7 +54,6 @@ fn register(edd: &Edd, trust: &TrustStore, p: &Sealer, ukeys: &[PrivateKey], vat
     let op = Operation::sign(OpBody::Create(state(ukeys, vat)), &ukeys[0]);
     let req = cbor::to_vec(&registry::RegistrationRequest {
         submission: serde_bytes::ByteBuf::from(sub(p, &op)),
-        proof: serde_bytes::ByteBuf::from(b"demo".to_vec()),
     })
     .unwrap();
     let resp: registry::RegistrationResponse = cbor::from_slice(&edd.register(&req).unwrap()).unwrap();
@@ -76,10 +74,12 @@ fn register_update_recover() {
     let op2 = Operation::sign(OpBody::Create(state(&rot2, "DE1")), &rot2[0]);
     let req2 = cbor::to_vec(&registry::RegistrationRequest {
         submission: serde_bytes::ByteBuf::from(sub(&p, &op2)),
-        proof: serde_bytes::ByteBuf::from(vec![]),
     })
     .unwrap();
-    assert_eq!(edd.register(&req2).unwrap_err().status, 422);
+    assert_eq!(edd.register(&req2).unwrap_err().ptype, "identifier-in-use");
+    // A second owner with another identifier.
+    let ukeys2: Vec<PrivateKey> = (0..1).map(|_| PrivateKey::generate_ed25519()).collect();
+    let (owner2, _) = register(&edd, &trust, &p, &ukeys2, "DE2");
 
     // Update signed by the lower-priority key.
     let u1 = Operation::sign(OpBody::Update { prev: create.hash(), state: state(&ukeys, "DE1") }, &ukeys[1]);
@@ -96,9 +96,15 @@ fn register_update_recover() {
     let u_seal = Operation::sign(OpBody::Update { prev: u1.hash(), state: state(&ukeys, "DE1") }, &ukeys[1]);
     let e = edd.update(&owner, &sub(&provider(), &u_seal)).unwrap_err();
     assert_eq!((e.status, e.ptype), (403, "invalid-seal"));
-    // Unattested identifier.
+    // An identifier bound to the other owner.
     let u_id = Operation::sign(OpBody::Update { prev: u1.hash(), state: state(&ukeys, "DE2") }, &ukeys[1]);
-    assert_eq!(edd.update(&owner, &sub(&p, &u_id)).unwrap_err().status, 422);
+    assert_eq!(edd.update(&owner, &sub(&p, &u_id)).unwrap_err().ptype, "identifier-in-use");
+    // Lookup finds the owner, through its provider-sealed head operation (§4).
+    let lr: registry::LookupResponse = cbor::from_slice(&edd.lookup("vat", "DE2").unwrap()).unwrap();
+    let id2 = Identifier { id_type: "vat".into(), value: "DE2".into() };
+    assert_eq!(lr.check(&id2, &trust, scc::util::now()).unwrap().0, owner2);
+    let id1 = Identifier { id_type: "vat".into(), value: "DE1".into() };
+    assert!(lr.check(&id1, &trust, scc::util::now()).is_err());
     // Recovery with the higher-priority key overrides u1.
     let r = Operation::sign(OpBody::Update { prev: create.hash(), state: state(&ukeys, "DE1") }, &ukeys[0]);
     let h = HeadStatement::parse(&edd.update(&owner, &sub(&p, &r)).unwrap()).unwrap();
@@ -153,8 +159,8 @@ fn register_update_recover() {
     // The whole log audits.
     let log: Vec<registry::LogEntry> = cbor::from_slice(&edd.log(&owner, None).unwrap()).unwrap();
     assert_eq!(registry::audit_log(&owner, &log, &trust).unwrap().len(), 6);
-    // Lookup and resolution.
-    assert!(edd.lookup("vat", "DE1").is_ok());
+    // Closing released the identifier (§4); resolution still works.
+    assert_eq!(edd.lookup("vat", "DE1").unwrap_err().status, 404);
     let resp: registry::ResolutionResponse = cbor::from_slice(&edd.resolve(&owner).unwrap()).unwrap();
     assert_eq!(Operation::parse(&resp.operation).unwrap().hash(), d.hash());
 }

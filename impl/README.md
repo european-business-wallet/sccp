@@ -146,8 +146,8 @@ asks for), the received evidence artefacts, and the plaintext body.
 - **Discovery (doc 1):** EBW URLs, operations and registry documents,
   submissions sealed by the EBW provider, registration, updates with
   recovery, status operations sealed by the EBW provider (`owner
-  provider-status`), head statements and the EDD status list, identifier
-  attestations, resolution, log
+  provider-status`), head statements and the EDD status list, lookup by
+  identifier (vouched for by the EBW provider's seal), resolution, log
   auditing (`scc-edd`, `src/registry.rs`, `src/edd.rs`, `src/owner.rs`).
 - **Credentials (doc 2):** endpoint credentials (CWT), credential requests,
   status list tokens (OAuth Token Status List, CWT, ZLIB), the

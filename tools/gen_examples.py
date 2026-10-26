@@ -147,12 +147,6 @@ def edd_status_list(t):
 
 write("edd-status-list", edd_status_list(T0), "status-list-token")
 
-attest = sign1(edd_key, {
-    "type": "identifier-attestation", "identifier": {"type": "vat", "value": "DE123456789"},
-    "owner": A["owner"], "verified_at": T0 - 86400, "expires_at": T0 + 30 * 86400,
-}, {33: edd_cert})
-write("identifier-attestation", attest, "identifier-attestation")
-
 
 
 def submission(op, t):
@@ -165,8 +159,10 @@ def submission(op, t):
 sub_create = submission(A["create"], T0 - 86400)
 sub_update = submission(update_op, T0 - 3600)
 write("submission", sub_update, "submission")
-write("registration-request", dcbor({"submission": sub_create, "proof": b"EDD-defined proof"}),
-      "registration-request")
+write("registration-request", dcbor({"submission": sub_create}), "registration-request")
+# A lookup of A's VAT number (01 §4, §6.3): A's head operation, in the
+# submission sealed by A's EBW provider, with its head statement.
+write("lookup-response", dcbor({"submission": sub_update, "head": head_a}), "lookup-response")
 write("resolution-response", dcbor({"operation": update_op, "head": head_a}), "resolution-response")
 write("log", dcbor([
     {"submission": sub_create, "received_at": T0 - 86390, "overridden": False},

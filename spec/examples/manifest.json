@@ -31,11 +31,6 @@
       "valid": true
     },
     {
-      "file": "identifier-attestation.cbor",
-      "rule": "identifier-attestation",
-      "valid": true
-    },
-    {
       "file": "submission.cbor",
       "rule": "submission",
       "valid": true
@@ -43,6 +38,11 @@
     {
       "file": "registration-request.cbor",
       "rule": "registration-request",
+      "valid": true
+    },
+    {
+      "file": "lookup-response.cbor",
+      "rule": "lookup-response",
       "valid": true
     },
     {

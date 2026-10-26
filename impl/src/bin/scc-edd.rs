@@ -151,7 +151,7 @@ async fn main() -> Result<()> {
         Cmd::Serve { dir, listen, base_url, tls_cert, tls_key, status_list_validity, status_list_ttl, recovery_window, trust } => {
             let sealer = scc::certs::load_sealer(&dir, "seal")?;
             let edd = Arc::new(Edd::new(
-                EddConfig { base_url, recovery_window, status_list_validity, status_list_ttl, attestation_validity: 365 * 86400 },
+                EddConfig { base_url, recovery_window, status_list_validity, status_list_ttl },
                 sealer,
                 scc::certs::TrustStore::load(&trust)?,
             ));

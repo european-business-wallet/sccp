@@ -19,8 +19,6 @@ valid operation sets the URL's **registry document**, which holds:
 
 The EDD also signs:
 
-- an **identifier attestation**, which binds an existing identifier to an
-  EBW URL;
 - a **head statement**, which names the current head of an EBW URL's log
   and points to a status list;
 - **status lists**, which show whether each head statement is still
@@ -28,14 +26,15 @@ The EDD also signs:
 
 Operations are signed by the owner's update keys, except that the
 owner's EBW provider can suspend, reinstate or retire the owner with a
-**status operation**, which it seals. The
-EBW provider submits every operation to the EDD on the owner's behalf,
-and seals each one when it submits it (§3.6).
+**status operation**, which it seals. The EBW provider submits every
+operation to the EDD on the owner's behalf, and seals each one when it
+submits it (§3.6). Its seal also vouches for the owner's existing
+identifiers (§4).
 
 The scheme is based on the Public Ledger of Credentials (PLC) used by the
 AT Protocol. The main differences are CBOR/COSE encoding, the EDD in
-place of the PLC directory, provider seals on submissions, EDD-attested
-identifiers, and EDD-managed lifecycle status.
+place of the PLC directory, provider seals on submissions, identifiers
+vouched for by the EBW provider, and status operations.
 
 ### 1.1 Trust in the EDD
 
@@ -47,7 +46,7 @@ registry document without trusting the EDD. The EDD is trusted only:
 1. not to refuse valid operations;
 2. not to serve stale registry documents, or withhold operations when
    serving a log;
-3. not to falsely attest identifier mappings;
+3. to keep each identifier bound to at most one EBW URL (§4);
 4. to mark head statements as replaced in its status list (§5.3).
 
 Points 1 and 2 can be checked by auditing the log (§6.4), but not
@@ -157,9 +156,8 @@ SHOULD NOT also be update keys.
 rds-url = tstr .regexp "https://.+"
 ```
 
-**`identifiers`** — existing identifiers the owner claims. The EDD MUST
-NOT accept an operation that adds an identifier until it has attested that
-identifier for this EBW URL (§4).
+**`identifiers`** — existing identifiers by which the owner is known,
+vouched for by the EBW provider that submits the operation (§4).
 
 ```cddl
 identifier = {
@@ -231,8 +229,8 @@ The EDD MUST accept an operation only if all of these hold:
 3. The registry document follows the rules for `status` in §3.2.
 4. `prev` names the current head, or the recovery rule (§3.4) applies.
 5. The current status is not `retired`, `merged` or `closed`.
-6. Every identifier in the new registry document is attested for this
-   EBW URL (§4).
+6. No identifier in the new registry document is bound to another EBW
+   URL (§4).
 7. `rds` is an `https` URL.
 
 A create operation is accepted only through registration (§6.2).
@@ -291,40 +289,41 @@ qualified certificate for electronic seals. The EDD MUST check that the
 seal verifies, and that the certificate was valid and qualified when the
 EDD received the submission, using the EU Trusted Lists.
 
-The seal records which provider submitted the operation. It does not
-authorize the operation: only the update key's signature does (§3.1).
-The EDD keeps the submission in the log (§6.4), so an auditor can see
-which provider submitted each operation.
+The seal records which provider submitted the operation, and vouches
+for the identifiers in its registry document (§4). Except for a status
+operation, it does not authorize the operation: only the update key's
+signature does (§3.1). The EDD keeps the submission in the log (§6.4),
+so an auditor can see which provider submitted each operation.
 
-## 4. Identifier attestations
+## 4. Identifiers
 
-The EDD verifies that the owner of an EBW URL is the entity known by an
-existing identifier, using the identification process set by the EBW
-Regulation. That process is out of scope here. The result is an
-**identifier attestation**, a COSE_Sign1 signed by the EDD:
+The owner's EBW provider identifies the owner, using the owner
+identification data issued under Article 8 of the draft EBW Regulation,
+and keeps that information correct (Article 7(6)(g)). By sealing a
+submission whose registry document lists an identifier, the provider
+vouches that the owner is the entity known by that identifier. Senders
+rely on that qualified seal, not on the EDD.
 
-```cddl
-identifier-attestation-body = {
-  "type": "identifier-attestation",
-  "identifier": identifier,
-  "owner": ebw-url,
-  "verified_at": time,
-  "expires_at": time,
-}
-```
+The EDD keeps the binding unique. An identifier is **bound** to an EBW
+URL while that URL's current registry document lists it and its status is
+not final (§3.2). The EDD MUST reject an operation that lists an
+identifier bound to another EBW URL. An identifier is released when the
+owner removes it from its registry document, or when the URL's status
+becomes final.
 
-Rules:
+Lookup (§6.3) returns the current head operation of the EBW URL to which
+an identifier is bound, in the submission that carried it, with its head
+statement. The client checks that:
 
-- An identifier maps to at most one EBW URL at a time. The EDD MUST revoke
-  an attestation before attesting the same identifier to another EBW URL.
-- An owner MAY remove an identifier from its registry document at any
-  time. The
-  attestation stays valid until the EDD revokes it.
-- Lookup (§6.3) returns the current attestation. A revoked attestation is
-  not returned.
-- An attestation is valid from `verified_at` until `expires_at`. The EDD
-  issues a new one before the current one expires, for as long as the
-  mapping holds.
+1. the head statement verifies and its entry in a currently valid status
+   list token is VALID (§5.3);
+2. the head statement names the operation in the submission;
+3. the submission's seal verifies with a qualified certificate for
+   electronic seals, valid at the submission's `submitted_at`, using the
+   EU Trusted Lists (§3.6); and
+4. the operation's registry document lists the identifier.
+
+The EBW URL is the `owner` in the head statement.
 
 ## 5. Status and head statements
 
@@ -430,7 +429,7 @@ Errors use Concise Problem Details (RFC 9290,
 | Head | `GET /{url}/head` | Head statement |
 | Status list | `GET /status-list` | Status list token for head statements |
 | Auditing | `GET /{url}/log` | Log entries |
-| Lookup | `GET /lookup/{type}/{value}` | Identifier attestation |
+| Lookup | `GET /lookup/{type}/{value}` | Head operation in its submission, and head statement |
 | Registration | `POST /register` | EBW URL and head statement |
 | Update | `POST /{url}` | Head statement |
 | EDD metadata | `GET /.well-known/edd` | EDD keys and limits (JSON) |
@@ -465,14 +464,11 @@ how the registry document came about fetches the log (§6.4).
 ```cddl
 registration-request = {
   "submission": bstr .cbor submission,  ; of a create operation
-  "proof": bstr,              ; evidence of identification, EDD-defined
 }
 ```
 
-The EDD verifies `proof` under its identification process, attests the
-identifiers in the create operation, and stores the submission. The proof
-is not stored in the log, which is public. The EDD returns the EBW URL
-and the first head statement.
+The EDD checks the submission and the operation (§3.3), and stores the
+submission. It returns the EBW URL and the first head statement.
 
 ```mermaid
 sequenceDiagram
@@ -481,19 +477,28 @@ sequenceDiagram
     participant EDD
     O->>O: generate update and credential keys
     O->>O: build and sign create operation
-    O->>P: create operation, identification
-    P->>P: seal submission
-    P->>EDD: POST /register {submission, proof}
-    EDD->>EDD: verify proof and seal, attest identifiers
-    EDD->>EDD: check operation (§3.3), derive EBW URL
+    O->>P: create operation, identification data
+    P->>P: identify owner, seal submission
+    P->>EDD: POST /register {submission}
+    EDD->>EDD: verify seal, check operation (§3.3)
+    EDD->>EDD: check identifiers are unbound (§4), derive EBW URL
     EDD-->>P: 201 {owner, head statement}
     P-->>O: EBW URL
 ```
 
 ### 6.3 Lookup
 
-`GET /lookup/{type}/{value}` returns the identifier attestation for an
-existing identifier, or 404. The `value` is percent-encoded.
+`GET /lookup/{type}/{value}` returns, for the EBW URL to which an
+existing identifier is bound (§4), its head operation in the submission
+that carried it and its head statement, or 404. The `value` is
+percent-encoded.
+
+```cddl
+lookup-response = {
+  "submission": bstr .cbor submission,  ; of the head operation
+  "head": bstr .cbor head-statement,
+}
+```
 
 ### 6.4 Auditing
 
@@ -538,7 +543,7 @@ statement.
 | Status operation not sealed by the owner's current EBW provider | 403 | `unauthorized-provider` |
 | Registry document breaks the rules for `status` (§3.2) | 422 | `invalid-status-change` |
 | `prev` is not the head and recovery does not apply | 409 | `stale-prev` |
-| Identifier not attested | 422 | `identifier-not-attested` |
+| Identifier bound to another EBW URL | 409 | `identifier-in-use` |
 | EBW URL retired, merged or closed | 410 | `ended` |
 
 ### 6.6 EDD metadata
@@ -565,7 +570,6 @@ may be used:
 |---|---|
 | Status list token | Its `exp` |
 | Head statement | As long as a usable status list token shows it VALID |
-| Identifier attestation | Its `expires_at`, unless revoked earlier |
 | Registry document | As long as its head statement is usable |
 | Log | As the HTTP caching headers say |
 
@@ -602,7 +606,7 @@ A create operation, in CBOR diagnostic notation (payload shown decoded):
 Complete examples are in [`examples/`](examples/): `create-op.diag`,
 `update-op.diag`, `status-op.diag`, `submission.diag`,
 `head-statement.diag`, `edd-status-list.diag` and
-`identifier-attestation.diag`.
+`lookup-response.diag`.
 
 ## 9. Security considerations
 

@@ -77,6 +77,15 @@ fn problem_text(body: &[u8]) -> String {
     }
 }
 
+/// GET a resource's bytes.
+pub async fn get_bytes(client: &reqwest::Client, url: &str) -> Result<Vec<u8>> {
+    let r = client.get(url).send().await.map_err(|e| anyhow::anyhow!("GET {url}: {e}"))?;
+    if !r.status().is_success() {
+        anyhow::bail!("GET {url}: {}", r.status());
+    }
+    Ok(r.bytes().await?.to_vec())
+}
+
 pub async fn get_cbor(client: &reqwest::Client, url: &str) -> Result<Option<Vec<u8>>> {
     let r = client.get(url).send().await.with_context(|| format!("GET {url}"))?;
     if r.status() == reqwest::StatusCode::NOT_FOUND {

@@ -78,7 +78,7 @@ fn edd_trust() -> TrustStore {
 }
 
 #[test]
-fn head_statement_and_attestation_verify() {
+fn head_statement_and_lookup_verify() {
     let trust = edd_trust();
     let h = HeadStatement::parse(&ex("head-statement.cbor")).unwrap();
     h.verify(&trust, T0 + 10).unwrap();
@@ -92,7 +92,10 @@ fn head_statement_and_attestation_verify() {
     st_op.verify_seal(&trust, T0).unwrap();
     let upd = Operation::parse(&ex("update-op.cbor")).unwrap();
     registry::check_status_change(Some(upd.body.document()), &st_op.body).unwrap();
-    registry::IdentifierAttestation::parse_and_verify(&ex("identifier-attestation.cbor"), &trust, T0).unwrap();
+    // A lookup of A's VAT number (01-discovery.md §4).
+    let lr: registry::LookupResponse = cbor::from_slice(&ex("lookup-response.cbor")).unwrap();
+    let vat = scc::types::Identifier { id_type: "vat".into(), value: "DE123456789".into() };
+    assert_eq!(lr.check(&vat, &trust, T0).unwrap().0, manifest_owner("A"));
     let sr: registry::ResolutionResponse = cbor::from_slice(&ex("resolution-response.cbor")).unwrap();
     registry::ResolvedDocument::from_response(&manifest_owner("A"), &sr, &trust, T0 + 1).unwrap();
     let req: registry::RegistrationRequest = cbor::from_slice(&ex("registration-request.cbor")).unwrap();

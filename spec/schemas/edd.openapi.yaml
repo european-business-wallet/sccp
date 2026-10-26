@@ -141,13 +141,13 @@ paths:
             type: string
       responses:
         "200":
-          description: The current identifier attestation.
+          description: The head operation of the EBW URL to which the identifier is bound, in its submission, with its head statement.
           content:
             application/cbor:
               schema:
                 type: string
                 format: binary
-                x-cddl: identifier-attestation
+                x-cddl: lookup-response
         "404":
           $ref: "#/components/responses/NotFound"
   /register:
@@ -218,7 +218,7 @@ components:
       description: |
         The request failed. Problem types: malformed-operation (400),
         unauthorized-key (403), unauthorized-provider (403), invalid-seal (403),
-        stale-prev (409), ended (410), identifier-not-attested (422),
+        stale-prev (409), ended (410), identifier-in-use (409),
         invalid-status-change (422).
       content:
         application/concise-problem-details+cbor:

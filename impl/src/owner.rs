@@ -86,8 +86,8 @@ impl Owner {
     }
 
     /// Generate keys, sign a create operation and register it with the
-    /// EDD through the EBW provider in `provider` (identity proofing is
-    /// stubbed).
+    /// EDD through the EBW provider in `provider` (whose identification of
+    /// the owner is stubbed).
     pub async fn init(
         dir: &Path,
         edd: &EddClient,
@@ -115,7 +115,7 @@ impl Owner {
         };
         let op = Operation::sign(OpBody::Create(state), &update_keys[0]);
         let sub = EbwProvider::load(provider)?.submit(&op);
-        let r = edd.register(&sub, b"demo identity proof").await?;
+        let r = edd.register(&sub).await?;
         let status_uri = crate::rds::Rds::status_uri(&rds, &r.owner);
         let o = Owner {
             dir: dir.into(),

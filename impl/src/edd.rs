@@ -5,7 +5,7 @@ use crate::cbor;
 use crate::certs::TrustStore;
 use crate::credential::{StatusListToken, STATUS_INVALID, STATUS_VALID};
 use crate::registry::{
-    check_status_change, url_from_create, HeadStatement, HeadStatementBody, IdentifierAttestationBody, LogEntry, OpBody,
+    check_status_change, url_from_create, HeadStatement, HeadStatementBody, LogEntry, LookupResponse, OpBody,
     RegistrationRequest, RegistrationResponse, ResolutionResponse, ResolvedDocument, Sealer, StatusListRef, Submission,
 };
 use crate::types::Identifier;
@@ -60,7 +60,6 @@ pub struct EddConfig {
     /// `ttl` of status list tokens: how long a client may use one before
     /// fetching it again, in seconds.
     pub status_list_ttl: u64,
-    pub attestation_validity: u64,
 }
 
 #[derive(Clone, Debug)]
@@ -100,17 +99,9 @@ impl RegistryRecord {
     }
 }
 
-#[derive(Clone, Debug)]
-struct Attestation {
-    owner: String,
-    raw: Vec<u8>,
-    expires_at: u64,
-}
-
 #[derive(Default)]
 struct EddState {
     owners: HashMap<String, RegistryRecord>,
-    attestations: HashMap<(String, String), Attestation>,
     /// The status list for head statements (§5.3).
     status_list: Vec<u8>,
 }
@@ -164,49 +155,32 @@ impl Edd {
         (head, idx)
     }
 
-    fn attest(&self, st: &mut EddState, owner: &str, id: &Identifier) -> PResult<()> {
-        let key = (id.id_type.clone(), id.value.clone());
-        let t = now();
-        if let Some(a) = st.attestations.get(&key) {
-            if a.owner != owner && a.expires_at > t {
+    /// Check that no identifier in `ids` is bound to an EBW URL other than
+    /// `owner` (§4): listed in its current registry document, with a status
+    /// that is not final.
+    fn check_identifiers(&self, st: &EddState, owner: &str, ids: &[Identifier]) -> PResult<()> {
+        for id in ids {
+            if let Some(other) = Self::bound_to(st, id).filter(|o| o.as_str() != owner) {
                 return Err(Problem::new(
-                    422,
-                    "identifier-not-attested",
-                    format!("{}:{} is attested to another EBW URL", id.id_type, id.value),
+                    409,
+                    "identifier-in-use",
+                    format!("{}:{} is bound to {other}", id.id_type, id.value),
                 ));
             }
         }
-        let body = IdentifierAttestationBody {
-            st_type: "identifier-attestation".into(),
-            identifier: id.clone(),
-            owner: owner.into(),
-            verified_at: t,
-            expires_at: t + self.cfg.attestation_validity,
-        };
-        let raw = self.sealer.seal(&cbor::to_vec(&body).unwrap());
-        st.attestations.insert(key, Attestation { owner: owner.into(), raw, expires_at: body.expires_at });
         Ok(())
     }
 
-    fn check_identifiers(&self, st: &EddState, owner: &str, ids: &[Identifier]) -> PResult<()> {
-        let t = now();
-        for id in ids {
-            match st.attestations.get(&(id.id_type.clone(), id.value.clone())) {
-                Some(a) if a.owner == owner && a.expires_at > t => {}
-                _ => {
-                    return Err(Problem::new(
-                        422,
-                        "identifier-not-attested",
-                        format!("{}:{} is not attested for {owner}", id.id_type, id.value),
-                    ))
-                }
-            }
-        }
-        Ok(())
+    /// The EBW URL to which an identifier is bound (§4).
+    fn bound_to(st: &EddState, id: &Identifier) -> Option<String> {
+        st.owners
+            .iter()
+            .find(|(_, rec)| !rec.ended() && rec.head().sub.op.body.document().identifiers.contains(id))
+            .map(|(o, _)| o.clone())
     }
 
-    /// `POST /register` (§6.2). Identity proofing is a stub: any proof is
-    /// accepted, and the identifiers in the create operation are attested.
+    /// `POST /register` (§6.2). The EBW provider's seal vouches for the
+    /// identifiers (§4); the EDD checks that they are not bound elsewhere.
     pub fn register(&self, body: &[u8]) -> PResult<Vec<u8>> {
         let req: RegistrationRequest =
             cbor::from_slice(body).map_err(|e| Problem::new(400, "malformed-operation", e.to_string()))?;
@@ -222,9 +196,7 @@ impl Edd {
         if st.owners.contains_key(&owner) {
             return Err(Problem::new(409, "stale-prev", format!("{owner} is already registered")));
         }
-        for id in &state.identifiers {
-            self.attest(&mut st, &owner, id)?;
-        }
+        self.check_identifiers(&st, &owner, &state.identifiers)?;
         let (head, head_idx) = self.issue_head(&mut st, &owner, op.hash(), 1);
         let rec = RegistryRecord {
             entries: vec![Entry {
@@ -360,13 +332,13 @@ impl Edd {
         Ok(cbor::to_vec(&log).unwrap())
     }
 
-    /// `GET /lookup/{type}/{value}`.
+    /// `GET /lookup/{type}/{value}` (§6.3).
     pub fn lookup(&self, id_type: &str, value: &str) -> PResult<Vec<u8>> {
         let st = self.state.lock().unwrap();
-        match st.attestations.get(&(id_type.to_string(), value.to_string())) {
-            Some(a) if a.expires_at > now() => Ok(a.raw.clone()),
-            _ => Err(Problem::not_found("identifier")),
-        }
+        let id = Identifier { id_type: id_type.into(), value: value.into() };
+        let owner = Self::bound_to(&st, &id).ok_or_else(|| Problem::not_found("identifier"))?;
+        let head = st.owners[&owner].head();
+        Ok(cbor::to_vec(&LookupResponse { submission: ByteBuf::from(head.sub.raw.clone()), head: ByteBuf::from(head.head.clone()) }).unwrap())
     }
 
     /// `GET /.well-known/edd` (§6.6).
@@ -408,8 +380,8 @@ impl EddClient {
     }
 
     /// Register a create operation, in a submission (§6.2).
-    pub async fn register(&self, submission: &[u8], proof: &[u8]) -> Result<RegistrationResponse> {
-        let body = cbor::to_vec(&RegistrationRequest { submission: ByteBuf::from(submission.to_vec()), proof: ByteBuf::from(proof.to_vec()) })?;
+    pub async fn register(&self, submission: &[u8]) -> Result<RegistrationResponse> {
+        let body = cbor::to_vec(&RegistrationRequest { submission: ByteBuf::from(submission.to_vec()) })?;
         let resp = crate::net::post_cbor(&self.http, &format!("{}/register", self.base), body).await?;
         let r: RegistrationResponse = cbor::from_slice(&resp)?;
         HeadStatement::parse(&r.head)?.verify(&self.trust, now())?;
@@ -449,11 +421,23 @@ impl EddClient {
             .ok_or_else(|| anyhow!("{owner} not found at the EDD"))
     }
 
-    pub async fn lookup(&self, id: &Identifier) -> Result<Option<Vec<u8>>> {
-        crate::net::get_cbor(
+    /// Look up the EBW URL to which an identifier is bound, and check the
+    /// answer (§4): the EBW provider's seal, the identifier in the registry
+    /// document, and the head statement against the EDD status list.
+    pub async fn lookup(&self, id: &Identifier) -> Result<Option<String>> {
+        let Some(body) = crate::net::get_cbor(
             &self.http,
             &format!("{}/lookup/{}/{}", self.base, id.id_type, crate::net::pct(&id.value)),
         )
-        .await
+        .await?
+        else {
+            return Ok(None);
+        };
+        let resp: LookupResponse = cbor::from_slice(&body)?;
+        let t = now();
+        let (owner, _, head) = resp.check(id, &self.trust, t)?;
+        let raw = crate::net::get_bytes(&self.http, &head.body.status_list.uri).await?;
+        head.check_current(&crate::credential::StatusListToken::parse(&raw)?, &self.trust, t)?;
+        Ok(Some(owner))
     }
 }
